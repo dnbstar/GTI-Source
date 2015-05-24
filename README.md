@@ -1,4 +1,4 @@
-# GTI-Source
+# GTI-Source - Summer Came Early
 GTI MTA Server Resources
 
 As easy as: abc 123
