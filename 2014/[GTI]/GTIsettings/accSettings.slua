@@ -1,0 +1,65 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 02 Dec 2013
+-- Resource: GTIsettings/accSettingsGUI.lua
+-- Type: Client Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+function showAccountSettings(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return end
+	
+	local email = exports.GTIaccounts:GAD(account, "email") or ""
+	
+	triggerClientEvent(player, "GTIsettings.showAccountSettings", player, email)
+end
+addCommandHandler("settings", showAccountSettings)
+
+-- Update Settings
+------------------->>
+
+function updateAccountSettings(password, email, newPassword)
+	local account = getPlayerAccount(client)
+	if (isGuestAccount(account)) then return end
+	
+	local account = getAccountName(account)
+	local account = getAccount(account, password)
+	if (not account) then
+		triggerClientEvent(client, "GTIsettings.outputError", client, "Error: Incorrect Password")
+		return
+	end
+	
+	if (password == newPassword) then
+		triggerClientEvent(client, "GTIsettings.outputError", client, "Error: The new password you entered is already your current password!")
+		return
+	end
+	
+	local currentEmail = exports.GTIaccounts:GAD(account, "email")
+	local updatedEmail
+	if (currentEmail ~= email) then
+		exports.GTIaccounts:SAD(account, "email", email)
+		updatedEmail = true
+	end
+	
+	local updatedPassword
+	if (newPassword ~= "") then
+		setAccountPassword(account, newPassword)
+		updatedPassword = true
+	end
+	
+	local message = "Successfully updated your account "
+	if (updatedEmail and not updatedPassword) then 
+		message = message.."email"
+	elseif (not updatedEmail and updatedPassword) then 
+		message = message.."password"
+	elseif (updatedEmail and updatedPassword) then 
+		message = message.."email and password"
+	elseif (not updatedEmail and not updatedPassword) then
+		triggerClientEvent(client, "GTIsettings.outputError", client, "Notice: You've failed to make any changes in your account settings.", "Notice")
+		return
+	end
+	triggerClientEvent(client, "GTIsettings.confirmAccountUpdated", client, message)
+end
+addEvent("GTIsettings.updateAccountSettings", true)
+addEventHandler("GTIsettings.updateAccountSettings", root, updateAccountSettings)

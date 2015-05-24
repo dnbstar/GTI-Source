@@ -1,0 +1,49 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 12 Jan 2014
+-- Resource: GTIlogs/logsDatabase.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "LpyYEF%pah4Z&N")
+
+-- Database Exports
+-------------------->>
+
+function addLogToDatabase(category, timestamp, text, player, account, ip, serial)
+	if (not category or not timestamp or not text or not player or not account or not ip or not serial) then return false end
+	
+	dbExec(db, "CREATE TABLE IF NOT EXISTS `log_"..category.."`(id INT NOT NULL AUTO_INCREMENT, timestamp INT, text TEXT, player TEXT, account TEXT, ip TEXT, serial TEXT, PRIMARY KEY(id))")
+	dbExec(db, "INSERT INTO `log_"..category.."`(timestamp, text, player, account, ip, serial) VALUES(?, ?, ?, ?, ?, ?)", timestamp, text, player, account, ip, serial)
+	return true
+end
+
+function getLogsByType(account, category)
+	if (isGuestAccount(account) or type(category) ~= "string") then return false end
+	
+	local account = getAccountName(account)
+	dbQuery(cacheLogsDatabaseByType, {category}, db, "SELECT timestamp,text,player,account,ip,serial FROM `log_"..category.."` WHERE account=? ORDER BY timestamp DESC", account)
+end
+addEvent("onLogDatabaseRequest", true)
+addEventHandler("onLogDatabaseRequest", root, getLogsByType)
+
+addEvent("onLogDatabaseReturn", true)
+function cacheLogsDatabaseByType(qh, category)
+	local result = dbPoll(qh, 0)
+	local playerLog = {}
+	local player
+	for i,row in ipairs(result) do
+		table.insert(playerLog, {})
+		for column,value in pairs(row) do
+			playerLog[i][column] = value
+			if (not player and column == "account") then
+				local account = getAccount(tostring(value))
+				if (not account) then return end
+				player = getAccountPlayer(account)
+				if (not player) then return false end
+			end
+		end
+	end
+	triggerEvent("onLogDatabaseReturn", player, playerLog, category)
+end

@@ -1,0 +1,30 @@
+<meta>
+    <info author="JTPenn" version="1.0" name="Law Enforcement System Core" autostart="true" />
+    
+	<file src="arrest/handcuffs-64.png" />
+    <file src="arrest/cuffs.txd" 		/>
+    <file src="arrest/cuffs.dff" 		/>
+	<script src="arrest/arrest.luac" 	type="client" />
+    <script src="arrest/arrest.slua" 	/>
+    
+	<script src="fines/fine.luac"	type="client" />
+	
+	<file src="taser/taser.txd"		/>
+    <file src="taser/taser.dff" 	/>
+	<script src="taser/taser.luac" 	type="client" />
+	
+	<script src="arrest.slua" 			/>
+    <script src="arrest_follow.slua" 	/>
+    <script src="fine.slua" 			/>
+	<script src="jail.slua" 			/>
+	<script src="respawn.slua" 			/>
+	<script src="surrender.slua" 		/>
+	<script src="taser.slua" 			/>
+    
+	<export function="canPlayerArrest"			type="server" />
+    <export function="setPlayerArrestable" 		type="server" />
+    <export function="setPlayerArrested"		type="server" />
+    <export function="releasePlayer" 			type="server" />
+    <export function="isPlayerInPoliceCustody" 	type="server" />
+	<min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000" />
+</meta>

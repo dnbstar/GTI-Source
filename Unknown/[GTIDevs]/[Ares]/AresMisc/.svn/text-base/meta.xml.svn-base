@@ -1,0 +1,10 @@
+<meta> 
+	<info name="Ares Miscellaneous" author="Ares" autostart="true" />
+		<script src="sawnoff.lua"/>		
+		<script src="crimes.lua"/>		
+		<script src="irc.lua"/>
+		<script src="msg.lua"/>
+		<script src="planescollision.lua" type="client"/>
+		<export function="job_f" type="server" />
+</meta>
+

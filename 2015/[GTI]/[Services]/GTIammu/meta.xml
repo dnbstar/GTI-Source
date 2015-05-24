@@ -1,0 +1,42 @@
+<meta>
+	<info author="JTPenn"	name="Ammu-Nation System"	autostart="true" />
+	
+	<script src="ammu_gui.luac" 	type="client" />
+	<script src="ammu.luac" 		type="client" />
+	<script src="ammu.slua" 		/>
+	<script src="ammu_table.slua" 	/>
+	
+	<file src="files/window.png" 		/>
+	<file src="files/buy_weapon.png" 	/>
+	<file src="files/buy_ammo.png"		/>
+		<!-- Handguns -->
+	<file src="weapons/22.png"	/>
+	<file src="weapons/23.png"	/>
+	<file src="weapons/24.png"	/>
+		<!-- Shotguns -->
+	<file src="weapons/25.png"	/>
+	<file src="weapons/26.png"	/>
+	<file src="weapons/27.png"	/>
+		<!-- Sub-Machine Guns -->
+	<file src="weapons/28.png"	/>
+	<file src="weapons/29.png"	/>
+	<file src="weapons/32.png"	/>
+		<!-- Assault Rifles -->
+	<file src="weapons/30.png"	/>
+	<file src="weapons/31.png"	/>
+		<!-- Rifles -->
+	<file src="weapons/33.png"	/>
+	<file src="weapons/34.png"	/>
+		<!-- Heavy Weapons -->
+	<file src="weapons/35.png"	/>
+	<file src="weapons/36.png"	/>
+	<file src="weapons/37.png"	/>
+	<file src="weapons/38.png"	/>
+		<!-- Projectiles -->
+	<file src="weapons/16.png"	/>
+	<file src="weapons/17.png"	/>
+	<file src="weapons/18.png"	/>
+	<file src="weapons/39.png"	/>
+		<!-- Armor -->
+	<file src="weapons/0.png" />
+</meta>

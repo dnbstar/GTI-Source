@@ -1,0 +1,293 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 05 Jan 2014
+-- Resource: GTIvehicles/sellVehicle.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local pendingVehicleSales = {}
+vehicleBeingSold = {}
+
+-- Call Sell Vehicle Info
+-------------------------->>
+
+local callVehicleInfoOcc = {}
+function callSellVehicleInfo()
+	if (callVehicleInfoOcc[client]) then return end
+	callVehicleInfoOcc[client] = true
+	
+	local account = getPlayerAccount(client)
+	local vehData = getAllVehicleOwnerData(account)
+	local account = getAccountName(account)
+	if (not vehData) then return end
+	local vehTable = {}
+	for vehKey,vehID in pairs(vehData) do
+		vehID = tonumber(vehID)
+		local owner = getVehicleData(vehID, "owner")
+		if (owner == account) then
+			local int = string.gsub(vehKey, "vehicle", "")
+			local int = tonumber(int)
+			if (int) then
+				vehTable[int] = {}
+				vehTable[int][1] = getVehicleData(vehID, "vehicleID")
+				vehTable[int][2] = getVehicleValue(vehID)
+				vehTable[int][5] = getVehicleData(vehID, "health")
+				if (activeVehicleIDs[vehID]) then
+					vehTable[int][3] = true
+					local vehicle = getVehicleByID(vehID)
+					vehTable[int][5] = getElementHealth(vehicle)
+				end
+				vehTable[int][4] = vehID
+			end
+		end
+	end
+	local pendingSale
+	if (pendingVehicleSales[client]) then
+		pendingSale = true
+	end	
+	
+	triggerClientEvent(client, "GTIvehicle.returnSellVehicleInfo", client, vehTable, pendingSale)
+	callVehicleInfoOcc[client] = nil
+end
+addEvent("GTIvehicles.callSellVehicleInfo", true)
+addEventHandler("GTIvehicles.callSellVehicleInfo", root, callSellVehicleInfo)
+
+-- Update Selected Vehicle
+--------------------------->>
+
+local vehStatRunning = {}
+function selectVehicleForSale(slot)
+	if (vehStatRunning[client]) then return end
+	vehStatRunning[client] = true
+	
+	local vehID = getVehicleIDFromSlot(client, slot)
+	if (not vehID) then vehStatRunning[client] = nil return end
+	
+	local vehInfo = {}
+	local vehicle = getVehicleByID(vehID)
+	if (vehicle) then
+		vehInfo["health"] = getElementHealth(vehicle)
+	else
+		vehInfo["health"] = getVehicleData(vehID, "health")
+	end
+	vehInfo["name"] = getVehicleData(vehID, "vehicleID")
+	vehInfo["name"] = getVehicleNameFromModel(tonumber(vehInfo["name"]))
+	vehInfo["value"] = getVehicleValue(vehID)
+	
+	triggerClientEvent(client, "GTIvehicles.returnVehicleSaleInfo", client, vehInfo)
+	vehStatRunning[client] = nil
+end
+addEvent("GTIvehicles.selectVehicleForSale", true)
+addEventHandler("GTIvehicles.selectVehicleForSale", root, selectVehicleForSale)
+
+-- Show Sale To Player
+----------------------->>
+
+function showSaleToPlayer(player, row, slot, cost)
+	if (not isElement(player)) then 
+		exports.GTIhud:dm("ERROR: The player you have selected cannot be found. Reselect the player to fix this problem.", client, 255, 0, 0)
+		return
+	end
+	if (type(slot) ~= "number") then
+		exports.GTIhud:dm("ERROR: Something went wrong, your vehicle slot number is invalid.", client, 255, 0, 0)
+		outputDebugString("Vehicles: "..getPlayerName(client).."'s selling a vehicle, slot not found")
+		return
+	end
+	if (type(cost) ~= "number") then
+		exports.GTIhud:dm("Please enter a valid vehicle cost", client, 255, 128, 0)
+		return
+	end
+	
+	if (isVehicleBeingSold(vehID)) then
+		exports.GTIhud:dm("This vehicle is already up for sale!", client, 255, 125, 0)
+		return
+	end
+	
+	local vehID = getVehicleIDFromSlot(client, slot)
+	if (not vehID) then return end
+	
+	local vehicle = getVehicleByID(vehID)
+	local health
+	if (isElement(vehicle)) then
+		health = getElementHealth(vehicle)
+	else
+		health = getVehicleData(vehID, "health")
+	end
+	if (health < 950) then
+		exports.GTIhud:dm("This vehicle is too damaged to be sold. Vehicles must have a health greater than 95%", client, 255, 125, 0)
+		return
+	end
+	
+	if (isElement(vehicle)) then destroyElement(vehicle) end
+	if (not pendingVehicleSales[player]) then pendingVehicleSales[player] = {} end
+	
+	pendingVehicleSales[player][client] = {vehID, cost}
+	
+	vehicleBeingSold[vehID] = true
+	local model = getVehicleData(vehID, "vehicleID")
+	local vehName = getVehicleNameFromModel(model)
+	if (cost > 0) then
+		exports.GTIhud:dm("Your "..vehName.." has been put up for sale! You are selling it to"..getPlayerName(player).." for $"..
+			exports.GTIutil:tocomma(cost)..".", client, 200, 0, 255)
+		exports.GTIhud:dm("NOTICE: You have received a private vehicle sale from "..getPlayerName(client)..". Go to the vehicle app on your phone to view it.", player, 200, 0, 255)
+	else
+		exports.GTIhud:dm("You are giving your "..vehName.." away to"..getPlayerName(player).." as a gift. The player has been notified.", client, 200, 0, 255)
+		exports.GTIhud:dm("NOTICE: You have received a free vehicle from "..getPlayerName(client).." as a gift. Go to the vehicle app on your phone to view it.", player, 200, 0, 255)
+	end
+end
+addEvent("GTIvehicles.showSaleToPlayer", true)
+addEventHandler("GTIvehicles.showSaleToPlayer", root, showSaleToPlayer)
+
+-- View Pending Sales
+---------------------->>
+
+function getPendingSales()
+	if (not pendingVehicleSales[client]) then
+		exports.GTIhud:dm("You don't have any pending vehicle sales.", client, 255, 125, 0)
+		return
+	end
+	
+	local penSales = {}
+	local valToRemove = {}
+	for player,v in pairs(pendingVehicleSales[client]) do
+		if (not isElement(player)) then
+			-- Check if the Player Still Exists
+			table.insert(valToRemove, player)
+		else
+			local vehID = v[1]
+			penSales[player] = {}
+			penSales[player]["name"] = getVehicleData(vehID, "vehicleID")
+			penSales[player]["name"] = getVehicleNameFromModel(tonumber(penSales[i]["name"]))
+			
+			penSales[player]["value"] = v[2]
+			penSales[player]["health"] = getVehicleData(vehID, "health")
+			penSales[player]["seller"] = player
+		end
+	end
+		-- Remove Invalid Values
+	for i,v in ipairs(valToRemove) do
+		penSales[v] = nil
+		pendingVehicleSales[v] = nil
+	end
+		-- Make sure some values still exist
+	local exists
+	for k,v in pairs(penSales) do
+		exists = true
+		break
+	end
+		-- Stop if the table returns empty
+	if (not exists) then
+		exports.GTIhud:dm("You no longer have any pending vehicle sales, the player took the sale down.", client, 255, 125, 0)
+		return
+	end
+	triggerClientEvent(client, "GTIvehicles.returnPendingSales", client, penSales)
+end
+addEvent("GTIvehicles.getPendingSales", true)
+addEventHandler("GTIvehicles.getPendingSales", root, getPendingSales)
+
+-- Update Pending Vehicle
+-------------------------->>
+
+local pendSalesRunning = {}
+function selectPendingVehicleSale(seller)
+	if (pendSalesRunning[client]) then return end
+	pendSalesRunning[client] = true
+	
+	local vehInfo = {}
+	local vehID = pendingVehicleSales[client][seller][1]
+	local vehicle = getVehicleByID(vehID)
+	if (vehicle) then
+		vehInfo["health"] = getElementHealth(vehicle)
+	else
+		vehInfo["health"] = getVehicleData(vehID, "health")
+	end
+	vehInfo["name"] = getVehicleData(vehID, "vehicleID")
+	vehInfo["name"] = getVehicleNameFromModel(tonumber(vehInfo["name"]))
+	vehInfo["value"] = getVehicleValue(vehID)
+	vehInfo["seller"] = seller
+	
+	triggerClientEvent(client, "GTIvehicles.returnPendingVehicleSale", client, vehInfo)
+	pendSalesRunning[client] = nil
+end
+addEvent("GTIvehicles.selectPendingVehicleSale", true)
+addEventHandler("GTIvehicles.selectPendingVehicleSale", root, selectPendingVehicleSale)
+
+-- Buy Vehicle From Player
+--------------------------->>
+
+local buyingVehicle = {}
+function buyVehicleFromPlayer(seller)
+	if (buyingVehicle[client]) then return end
+	buyingVehicle[client] = true
+	
+	if (not isElement(seller)) then
+		pendingVehicleSales[client][seller] = nil
+		exports.GTIhud:dm("The player who is selling you this vehicle no longer exists", client, 255, 125, 0)
+		buyingVehicle[client] = nil
+		return
+	end
+	local sellerAcc = getPlayerAccount(seller)
+	if (isGuestAccount(sellerAcc)) then
+		exports.GTIhud:dm("The player who is selling you this vehicle is not logged in. Vehicle cannot be sold.", client, 255, 128, 0)
+		buyingVehicle[client] = nil
+		return
+	end
+	local buyerAcc = getPlayerAccount(client)
+	if (isGuestAccount(buyerAcc)) then
+		exports.GTIhud:dm("You must be logged in in order to buy a vehicle.", client, 255, 128, 0)
+		buyingVehicle[client] = nil
+		return
+	end
+	local vehID = pendingVehicleSales[client][seller][1]
+	local cost = pendingVehicleSales[client][seller][2]
+	local buyerCash = getPlayerMoney(client)
+	if (cost > buyerCash) then
+		exports.GTIhud:dm("You cannot afford this vehicle, you need $"..exports.GTIutil:tocomma(cost - buyerCash).." more.", client, 255, 125, 0)
+		buyingVehicle[client] = nil
+		return
+	end
+		-- Check if the player owns a vehicle of this ID
+	local vehModel = getVehicleData(vehID, "vehicleID")
+	local vehData = getAllVehicleOwnerData(buyerAcc)
+	if (vehData) then
+		local vehTable = {}
+		for vehKey,dataID in pairs(vehData) do
+			dataID = tonumber(dataID)
+			local model = getVehicleData(dataID, "vehicleID")
+			if (model == vehModel) then
+				exports.GTIhud:dm("* You already own a "..getVehicleNameFromModel(vehModel).."!", client, 255, 0, 0)
+				buyingVehicle[client] = nil
+				return
+			end
+		end
+	end
+		-- Transfer Cash
+	exports.GTIbank:TPM(client, cost, "VEHICLES: Bought "..getVehicleNameFromModel(vehModel).." from "..getPlayerName(seller))
+	exports.GTIbank:GPM(seller, cost, "VEHICLES: Sold "..getVehicleNameFromModel(vehModel).." to "..getPlayerName(client))
+		-- Drop Vehicle from Owner Table
+	local vehicleKey
+	local vehData = getAllVehicleOwnerData(sellerAcc)
+	for vehKey,vehicleID in pairs(vehData) do
+		if (tonumber(vehicleID) == vehID) then
+			vehicleKey = vehKey
+			break
+		end
+	end
+	deleteVehicleOwnerData(sellerAcc, vehicleKey)
+		-- Move Vehicle to New Owner
+	local slot = getNextAvailibleVehicleIDSlot(client)
+	setVehicleOwnerData(account, "vehicle"..slot, vehID)
+		-- Repair Vehicle
+	setVehicleData(vehID, "health", 1000)
+		-- Notify Players of Vehicle Sale
+	exports.GTIhud:dm("Your "..getVehicleNameFromModel(vehModel).." has been sold to "..getPlayerName(client).."! Price: $"..exports.GTIutil:tocomma(cost), seller, 200, 0, 255)
+	exports.GTIhud:dm("You have successfully purchased a "..getVehicleNameFromModel(vehModel).."! (Seller: "..getPlayerName(client)..", Price: $"..exports.GTIutil:tocomma(cost)..")", client, 200, 0, 255)
+		-- Log Transactions
+	exports.GTIlogs:outputLog(getPlayerName(seller).." sold a "..getVehicleNameFromModel(vehModel).." to "..getPlayerName(client).." for $"..value, "vehicles", sellerAcc)
+	exports.GTIlogs:outputLog(getPlayerName(client).." purchased a "..getVehicleNameFromModel(vehModel).." from "..getPlayerName(seller).." for $"..value, "vehicles", client)
+		-- Restart Vehicle App
+	triggerClientEvent({seller, client}, "GTIvehicles.returnVehicleFromPlayer", client)
+end
+addEvent("GTIvehicles.buyVehicleFromPlayer", true)
+addEventHandler("GTIvehicles.buyVehicleFromPlayer", root, buyVehicleFromPlayer)

@@ -1,0 +1,64 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 19 May 2014
+-- Resource: GTIpoliceArrest/arrest_mech.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Set Arrestable
+------------------>>
+
+function nightstickArrest(arrests)
+	for i,cop in ipairs(arrests) do	
+		addArrestParticipant(client, cop)
+	end
+	
+	setPlayerArrestable(client, true)
+	setTimer(function(player)
+		if (not isElement(player) or isPlayerArrested(player)) then return end
+		if (exports.GTIprison:isPlayerInJail(player)) then return end
+		setPlayerArrestable(player, false)
+	end, 10000, 1, client)
+end
+addEvent("GTIpoliceArrest.nightstickArrest", true)
+addEventHandler("GTIpoliceArrest.nightstickArrest", root, nightstickArrest)
+
+-- Set Arrested
+---------------->>
+
+function attemptArrest(player, dim)
+	if (not exports.GTIutil:isPlayerInTeam(player, "Law Enforcement") or not dim) then return end
+	local arrest = getArrestColPlayer(source)
+	if (arrest == player) then return end
+	
+	exports.GTIhud:drawNote("Arrest"..getPlayerName(arrest), "Press #1E7DFFZ #FFFFFFto take #AF1919"..getPlayerName(arrest).." #FFFFFFinto custody.", player, 255, 255, 255, 10000)
+	bindKey(player, "z", "down", arrestPlayer, arrest, source)
+	addEventHandler("onColShapeLeave", source, haltAttemptArrest)
+end
+
+function haltAttemptArrest(player, dim, col)
+	if (not source) then source = col end
+	if (not exports.GTIutil:isPlayerInTeam(player, "Law Enforcement") or not dim) then return end
+	local arrest = getArrestColPlayer(source)
+	if (arrest == player) then return end
+	
+	exports.GTIhud:drawNote("Arrest"..getPlayerName(arrest), nil, player)
+	unbindKey(player, "z", "down", arrestPlayer)
+	removeEventHandler("onColShapeLeave", source, haltAttemptArrest)
+end
+
+function arrestPlayer(player, _, _, arrest, col)
+	unbindKey(player, "z", "up", arrestPlayerButton)
+	if (player == arrest or not isElement(player) or not isElement(arrest) or not isElement(col) or isPedInVehicle(player) or isPlayerArrested(arrest)) then 
+		return
+	end
+	
+	setPlayerArrestable(arrest, false)
+	setPlayerArrested(arrest, player)
+	showPoliceStation(player, true)
+	
+	exports.GTIhud:drawNote("Arrest"..getPlayerName(arrest), nil, player)
+	exports.GTIhud:dm("You have been taken into custody by "..getPlayerName(player)..".", arrest, 255, 25, 25)
+	exports.GTIhud:dm("You have taken "..getPlayerName(arrest).." into custody. Take them to the nearest police station.", player, 30, 125, 255)
+end

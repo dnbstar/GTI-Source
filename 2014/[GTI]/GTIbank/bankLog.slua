@@ -1,0 +1,9 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 12 Feb 2014
+-- Resource: GTIbank/bankLog.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+function callBankLog

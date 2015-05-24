@@ -1,0 +1,5 @@
+<meta>
+    <info author="LilDolla" version="" type="script" name="Stats Panel (/stats)" autostart="true" />
+	<script src="panel.lua" type="client" />
+	<script src="retreival.lua" type="server" />
+</meta>

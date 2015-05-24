@@ -1,0 +1,15 @@
+<meta>
+    <info author="Diego" type="script" name="Diego Miscellaneous" autostart="true" />
+    <script src="client.luac" type="client" />
+    <script src="server.lua" type="server" />	
+	
+    <script src="speedlimiter.slua" type="server" />	
+	
+    <!--<script src="miscTables_s.lua" type="server" />-->
+    <script src="mapResources.lua" type="server" />
+	
+	<!--<script src="vendMachines_s.lua" type="server" />
+    <script src="vendMachines_c.luac" type="client" />   --> 
+
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

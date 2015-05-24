@@ -1,0 +1,26 @@
+﻿<meta>
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000" />
+    <script src="MS_server.lua" />
+    <script src="MS_vehicleFuncsServer.lua" />
+    <script src="MS_loadItemsServer.lua" />
+    
+    <script src="MS_gui.luac" type="client" />
+    <script src="MS_shoppingCart.luac" type="client" />
+    <script src="MS_vehicleFuncs.luac" type="client" />
+    
+    <file src="moditems.xml" />
+    <file src="cart.png" />
+    
+    <export function="getItemPrice" />
+    <export function="getItemName" />
+    <export function="getItemIDFromName" />
+    <export function="getVehicleModShop" />
+    <export function="isVehicleInModShop" />
+    <export function="getVehicleTuner" />
+    
+    <!-- Color Picker -->
+    <script src="colorpicker.luac" type="client" />
+    <file src="palette.png" />
+    <file src="alpha.png" />
+    <info name="Vehicle Modification Shop"></info>
+</meta>

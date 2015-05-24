@@ -1,0 +1,247 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 03 Dec 2013
+-- Resource: GTIjobs/JobPanel.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+DEFUALT_BLIP_ID = 56
+BLIP_VISIBLE_DISTANCE = 450
+
+ODR, ODG, ODB = 255, 125, 0
+UNEMPLOYED_TEAM = "Unemployed"
+
+addEvent("onPlayerGetJob", true)
+addEvent("onPlayerQuitJob", true)
+
+-- Create Job Locations
+------------------------>>
+
+local markerJob = {}
+function createJobLocations()
+	local JobLoc = exports.GTIjobsTable:getJobsLocationTable()
+	for i,job in ipairs(JobLoc) do
+		local marker = createMarker(job.mLoc[1], job.mLoc[2], job.mLoc[3], "cylinder", 1.5, job.mCol[1], job.mCol[2], job.mCol[3], 150)
+		markerJob[marker] = job.job
+		if (job.mLoc[4]) then
+			setElementInterior(marker, job.mLoc[4])
+		end
+		if (job.mLoc[5]) then
+			setElementDimension(marker, job.mLoc[5])
+		end
+		
+		local blip
+		if (job.blipLoc) then
+			blip = createBlip(job.blipLoc[1], job.blipLoc[2], 0, (job.blipID or DEFUALT_BLIP_ID), 2, 255, 255, 255, 255, 0, BLIP_VISIBLE_DISTANCE)
+			if (job.blipLoc[3]) then
+				setElementInterior(marker, job.blipLoc[3])
+			end
+			if (job.blipLoc[4]) then
+				setElementDimension(marker, job.blipLoc[4])
+			end
+		else
+			blip = createBlipAttachedTo(marker, (job.blipID or DEFUALT_BLIP_ID), 2, 255, 255, 255, 255, 0, BLIP_VISIBLE_DISTANCE)
+		end
+	end
+end
+addEventHandler("onResourceStart", resourceRoot, createJobLocations)
+
+-- Send Job Data
+----------------->>
+
+function sendGUIJobData(player, dim)
+	if (getElementType(player) ~= "player" or not dim) then return end
+	if (isPedInVehicle(player) or not isPedOnGround(player)) then return end
+	
+	local job = markerJob[source]
+	local jobData = {}
+	local JobInfo = exports.GTIjobsTable:getJobsTable()
+	jobData["jobTable"] = JobInfo[job]
+	jobData["rankTable"] = exports.GTIpromotions:getJobRanks(job)
+	if (not jobData["jobTable"] or not jobData["rankTable"]) then 
+		outputDebugString("GTIjobs: Error showing job marker for "..job..". Job or Rank table does not exist", 2)
+	return end
+	jobData["level"] = exports.GTIpromotions:getPlayerJobLevel(player, job)
+	jobData["rank"] = exports.GTIpromotions:getPlayerJobRank(player, job)
+	jobData["prog"] = exports.GTIpromotions:getPlayerJobProgress(player, job)
+	jobData["unit"] = exports.GTIpromotions:getJobUnitName(job)
+	
+	triggerClientEvent(player, "GTIjobs.sendGUIJobData", player, job, jobData)
+end
+addEventHandler("onMarkerHit", resourceRoot, sendGUIJobData)
+
+-- Change Skin
+--------------->>
+
+function changeSkin(skinID)
+	setElementModel(client, skinID)
+	local job = getElementData(client, "job")
+	local r,g,b = getTeamColor(getPlayerTeam(client))
+	exports.GTIhud:dm(job..": Job Skin successfully changed!", client, r, g, b)
+	triggerClientEvent(client, "GTIjobs.closeJobsPanel", client, "left", "up", true)
+end
+addEvent("GTIjobs.changeSkin", true)
+addEventHandler("GTIjobs.changeSkin", root, changeSkin)
+
+-- Save Job Data
+----------------->>
+
+function restoreJobData(_, account)
+	if (isGuestAccount(account)) then return end
+	local job = exports.GTIaccounts:GAD(account, "job") or ""
+	setElementData(source, "job", job)
+	
+	local isWorking = exports.GTIaccounts:GAD(account, "isWorking") or 0
+	setElementData(source, "isWorking", isWorking)
+end
+addEventHandler("onPlayerLogin", root, restoreJobData)
+
+-- Set Player Job
+------------------>>
+
+function setPlayerJob(job, skinID)
+	local account = getPlayerAccount(client)
+	if (isGuestAccount(account)) then return end
+	local JobInfo = exports.GTIjobsTable:getJobsTable()
+	local jobData = JobInfo[job]
+	if (not jobData) then
+		exports.GTIhud:dm("Unable to set your job. This job does not exist.", client, 255, 25, 25)
+		return 
+	end
+	
+	local oldJob = getElementData(client, "job") or false
+	if (oldJob == "") then oldJob = false end
+	
+	local team = jobData.team or "Civilians"
+	exports.GTIteams:assignTeam(client, team)
+	local r,g,b = getTeamColor(getTeamFromName(team))
+	
+	if (skinID) then
+		local oldSkin = getElementModel(client)
+		exports.GTIaccounts:SAD(account, "skin", oldSkin)
+		setElementModel(client, skinID)
+		exports.GTIaccounts:SAD(account, "jobskin", skinID)
+	end
+	exports.GTIhud:dm("You are now employed as a "..job.."!", client, r, g, b)
+	triggerClientEvent(client, "GTIjobs.closeJobsPanel", client, "left", "up", true)
+	
+	exports.GTIaccounts:SAD(account, "job", job)
+	setElementData(client, "job", job)
+	exports.GTIaccounts:SAD(account, "isWorking", 1)
+	setElementData(client, "isWorking", 1)
+	
+	triggerEvent("onPlayerGetJob", client, job, true)
+	triggerClientEvent(client, "onClientPlayerGetJob", client, job, true)
+	triggerEvent("onPlayerQuitJob", client, oldJob, true)
+	triggerClientEvent(client, "onClientPlayerQuitJob", client, oldJob, true)
+end
+addEvent("GTIjobs.setPlayerJob", true)
+addEventHandler("GTIjobs.setPlayerJob", root, setPlayerJob)
+
+-- End Shift and Resign
+------------------------>>
+
+function togglePlayerShift()
+	local account = getPlayerAccount(client)
+	if (not account) then return end
+	
+	local job = getElementData(client, "job")
+	local team = getPlayerTeam(client)
+	if (not team) then return end
+	if (getPlayerJob(client, true)) then
+		local skin = exports.GTIaccounts:GAD(account, "skin")
+		if (not skin) then
+			repeat until setElementModel(client, math.random(312))
+			exports.GTIaccounts:SAD(account, "skin", getElementModel(client))
+		else
+			setElementModel(client, skin)
+		end
+		exports.GTIblips:setPlayerNameColor(client, ODR, ODG, ODB)
+		exports.GTIhud:dm("You have ended your shift as a "..job, client, ODR, ODG, ODB)
+		
+		triggerClientEvent(client, "GTIpromotions.modShiftText", client, "Start Shift")
+		
+		exports.GTIaccounts:SAD(account, "isWorking", 0)
+		setElementData(client, "isWorking", 0)
+		
+		triggerEvent("onPlayerQuitJob", client, job, false)
+		triggerClientEvent(client, "onClientPlayerQuitJob", client, job, false)
+	else
+		local skin = exports.GTIaccounts:GAD(account, "jobskin")
+		if (skin) then
+			setElementModel(client, skin)
+		end
+		local r,g,b = getTeamColor(team)
+		exports.GTIblips:setPlayerNameColor(client, r, g, b)
+		exports.GTIhud:dm("You have returned to your job as a "..job, client, r, g, b)
+		
+		triggerClientEvent(client, "GTIpromotions.modShiftText", client, "End Shift")
+		
+		exports.GTIaccounts:SAD(account, "isWorking", 1)
+		setElementData(client, "isWorking", 1)
+		
+		triggerEvent("onPlayerGetJob", client, job, false)
+		triggerClientEvent(client, "onClientPlayerGetJob", client, job, false)
+	end
+end
+addEvent("GTIjobs.togglePlayerShift", true)
+addEventHandler("GTIjobs.togglePlayerShift", root, togglePlayerShift)
+
+function resign()
+	local account = getPlayerAccount(client)
+	if (not account) then return end
+	
+	local job = getElementData(client, "job")
+	local skin = exports.GTIaccounts:GAD(account, "skin")
+	if (not skin) then
+		repeat until setElementModel(client, math.random(312))
+		exports.GTIaccounts:SAD(account, "skin", getElementModel(client))
+	else
+		setElementModel(client, skin)
+	end
+	exports.GTIteams:assignTeam(client, UNEMPLOYED_TEAM)
+	local r,g,b = getTeamColor(getTeamFromName(UNEMPLOYED_TEAM))
+	exports.GTIhud:dm("You have resigned from your job as a "..job, client, r, g, b)
+	
+	triggerClientEvent(client, "GTIpromotions.modShiftText", client, "End Shift")
+	
+	exports.GTIaccounts:SAD(account, "job", "")
+	setElementData(client, "job", "")
+	exports.GTIaccounts:SAD(account, "isWorking", 0)
+	setElementData(client, "isWorking", 0)
+	
+	triggerEvent("onPlayerQuitJob", client, job, true)
+	triggerClientEvent(client, "onClientPlayerQuitJob", client, job, true)
+end
+addEvent("GTIjobs.resign", true)
+addEventHandler("GTIjobs.resign", root, resign)
+
+-- Job Exports
+--------------->>
+
+function getPlayerJob(player, isWorking, isValid)
+	if (not isElement(player)) then return false end
+	local job = getElementData(player, "job")
+	if (job == "" or not job) then return false end
+	
+	local JobInfo = exports.GTIjobsTable:getJobsTable()
+	if (isValid and not JobInfo[job]) then return false end
+	
+	if (isWorking) then
+		local working = getElementData(player, "isWorking")
+		if (working == 1) then
+			return job
+		else
+			return false
+		end
+	end
+	
+	return job
+end
+
+function getJobDataTable(job)
+	local JobInfo = exports.GTIjobsTable:getJobsTable()
+	if (not JobInfo[job]) then return false end
+	return JobInfo[job]
+end

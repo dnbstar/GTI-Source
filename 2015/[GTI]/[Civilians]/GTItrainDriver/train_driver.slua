@@ -1,0 +1,108 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn)
+-- Date: 04 Jul 2014
+-- Resource: GTItrainDriver/train_driver.slua
+-- Version: 1.0
+----------------------------------------->>
+
+local NUM_CARRAGE = 5	-- Number of Train Carriages
+
+local trailers = {}
+
+local vehIDs = {
+	[538] = 1.000,	-- Streak
+		-- 119,865 meters per hour (74.481 miles)
+	[537] = 1.000,	-- Freight
+		-- 111,124 meters per hour (69.049 miles)
+}
+
+local TIME_BTWN_CHAT = 1000	-- How often a person can use the radio
+local radioSpam = {}	-- Table of Last Radio Chat
+
+-- Complete Pilot Mission
+-------------------------->>
+
+function completeMission()
+	local vehicle = getPedOccupiedVehicle(client)
+	local vehOffset = vehIDs[getElementModel(vehicle)]
+	local payOffset = exports.GTIemployment:getPlayerJobPayment(client, "Train Driver")
+	local hrPay = exports.GTIemployment:getPlayerHourlyPay(client)
+	local hrExp = exports.GTIemployment:getHourlyExperience()
+	
+	local pay = math.ceil( (1/50) * hrPay * vehOffset )
+	local Exp = math.ceil( (pay/hrPay)*hrExp 	* vehOffset )
+	local pay = math.random( pay*0.9, pay*1.1 )
+	
+	exports.GTIemployment:modifyPlayerJobProgress(client, "Train Driver", 1)
+	exports.GTIemployment:modifyPlayerEmploymentExp(client, Exp, "Train Driver")
+	exports.GTIemployment:givePlayerJobMoney(client, "Train Driver", pay)
+	
+	exports.GTIhud:dm("You have arrived at the station! +$"..exports.GTIutil:tocomma(pay).." -|- +"..exports.GTIutil:tocomma(Exp).." XP", client, 255, 200, 0)
+end
+addEvent("GTItraindriver.completeMission", true)
+addEventHandler("GTItraindriver.completeMission", root, completeMission)
+
+-- Train Driver Radio
+---------------------->>
+
+function trainDriverRadio(player, cmd, ...)
+	if (exports.GTIemployment:getPlayerJob(player, true) ~= "Train Driver") then return end
+	if (radioSpam[player]) then 
+		outputChatBox("You can only use the radio once every second.", player, 255, 25, 25)
+	return end
+	
+	local message = table.concat({...}, " ")
+	if (string.gsub(message, "%s", "") == "") then return end
+	
+	radioSpam[player] = true
+	setTimer(function(player) radioSpam[player] = nil end, TIME_BTWN_CHAT, 1, player)
+	
+	for i,plr in ipairs(getElementsByType("player")) do
+		if (exports.GTIemployment:getPlayerJob(plr, true) == "Train Driver") then
+			outputChatBox("* (RADIO): "..getPlayerName(player)..": #FFFFFF"..message..", over.", plr, 255, 175, 0, true)
+		end
+	end
+end
+addCommandHandler("r", trainDriverRadio)
+
+-- Set Direction and add Trailers
+---------------------------------->>
+
+function onTrainEnter(player, seat)
+	if (exports.GTIemployment:getPlayerJob(player, true) ~= "Train Driver") then return end
+	if (seat ~= 0 or trailers[source] --[[or isTrainChainEngine(source)--]]) then return end
+	
+	local trailerID
+	if (getElementModel(source) == 538) then
+		trailerID = 570
+	elseif (getElementModel(source) == 537) then
+		trailerID = 590
+	end
+	
+	if (not trailerID) then return end
+	
+	setTrainDirection(source, true)
+	trailers[source] = {}
+	local x,y,z = getElementPosition(source)
+	for i=1,NUM_CARRAGE do
+		local trailer = createVehicle(trailerID, x, y, z)
+		setVehicleHandling(trailer, "mass", 100)
+		if (i == 1) then
+			attachTrailerToVehicle(source, trailer)
+		else
+			attachTrailerToVehicle(trailers[source][i-1], trailer)
+		end
+		trailers[source][i] = trailer
+	end
+end
+addEventHandler("onVehicleEnter", root, onTrainEnter)
+
+addEventHandler("onElementDestroy", root, function()
+	if (not trailers[source]) then return end
+	for i,v in ipairs(trailers[source]) do
+		destroyElement(v)
+	end
+	trailers[source] = nil
+end)
+	

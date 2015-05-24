@@ -1,0 +1,4 @@
+<meta>
+	<info author="Diego" name="Pay Transfers" autostart="true"/>
+	<script src="server.lua" type="server"/>
+</meta>

@@ -1,0 +1,126 @@
+wantedLevel = {}
+
+function setWantedLevel(player, amount)
+	if (amount <= 0) then
+		wantedLevel[player] = 0
+		return
+	end
+	setElementData(player, "wantedPoints", amount)
+	wantedLevel[player] = amount
+end
+
+function addWantedLevel(player, amount)
+	local cur = wantedLevel[player] or 0
+	local wl = getPlayerWantedLevel(player) or 0
+	wantedLevel[player] = cur + amount
+	setPlayerWantedLevel(player, wl + 1)
+	setElementData(player, "wantedPoints", cur + amount)
+	setElementData(player, "wantedStars", wl + 1)
+end
+
+function getWantedLevel(player)
+	return wantedLevel[player] or 0
+end
+
+function isPlayerWanted(player)
+	return wantedLevel[player] or false
+end
+
+function onPlrLogout()
+	local account = getPlayerAccount(source)
+	if (isGuestAccount(account)) then return end
+	local wl = tonumber(getElementData(source, "wantedStars")) or 0
+	local points = tonumber(getElementData(source, "wantedPoints"))
+	if (points) then
+		setAccountData(account, "points", points)
+	end
+	setAccountData(account, "wantedStars", wl)
+	if (isPlayerArrested(source)) then
+		local cop = arrester[source]
+		if (not isElement(cop)) then return end
+		prisoner[cop] = nil
+		givePlayerMoney(cop, points * 3)
+		local currentArrests = tonumber(getAccountData(getPlayerAccount(cop), "arrestCounts")) or 0
+		setAccountData(getPlayerAccount(cop), "currentArrests", currentArrests + 1)
+		outputChatBox(getPlayerName(source).. " has quit the game and was auto jailed. You earned $"..points*3, cop, 0, 255, 0)
+		triggerClientEvent(cop, "removeMarkers", cop)
+		setAccountData(account, "oldTime", points)
+	end
+	if (prisoner[source]) then
+		local theCrim = prisoner[source]
+		if (isElement(theCrim)) then
+			releasePlayer(theCrim)
+		end
+	end
+end
+addEventHandler("onPlayerLogout", root, onPlrLogout, true, "high")
+addEventHandler("onPlayerQuit", root, onPlrLogout, true, "high")
+
+function onPlrLogin(prev, current)
+	if (not isGuestAccount(current)) then
+		local wl = tonumber(getAccountData(current, "wantedStars")) or 0
+		if (wl > 6) then
+			wl = 6
+		end
+		local points = tonumber(getAccountData(current, "points")) or 0
+		local o = tonumber(getAccountData(current, "oldTime"))
+		if (o) then
+			setAccountData(current, "oldTime", false)
+			setTimer(sendToJail, 1000, 1, source, o)
+			return
+		end
+		wantedLevel[source] = points
+		setElementData(source, "wantedStars", wl)
+		setPlayerWantedLevel(source, wl)
+	end
+end
+addEventHandler("onPlayerLogin", root, onPlrLogin)
+
+function sendToJail(plr, time)
+	if (isElement(plr)) then
+		exports.GTIprison:sendPlayerToPrison(plr, time * 1000)
+	end
+end
+
+function tazePlayer(plr)
+	if (isPlayerWanted(plr) and not isPlayerArrested(plr)) then
+		setPedAnimation(plr, "CRACK", "crckidle4", 4000, false, false, false)
+		setTimer(unTaze, 4000, 1, plr)
+	end
+end
+addEvent("tazePlayer", true)
+addEventHandler("tazePlayer", root, tazePlayer)
+
+
+function onPlayerGetJob(job)
+	if (job == "Police Officer") then
+		giveWeapon(source, 3, 9999, true)
+		--triggerClientEvent(source, "showIntro", source)
+	end
+end
+addEvent("onPlayerGetJob", true)
+addEventHandler("onPlayerGetJob", root, onPlayerGetJob)
+
+function onPlayerResign(job)
+	if (job ~= "Police Officer") then return end
+	takeWeapon(source, 3)
+	if (bribe[source]) then
+		bribe[source] = nil
+		if (prisoner[source]) then
+			local plr = prisoner[source]
+			if (isElement(plr)) then
+				releasePlayer(plr)
+			end
+		end
+	end
+end
+addEvent("onPlayerResign", true)
+addEventHandler("onPlayerResign", root, onPlayerResign)
+addEvent("onPlayerEndDuty", true)
+addEventHandler("onPlayerEndDuty", root, onPlayerResign)
+
+function unTaze(plr)
+	if (isElement(plr)) then
+		setPedAnimation(plr, false)
+	end
+end

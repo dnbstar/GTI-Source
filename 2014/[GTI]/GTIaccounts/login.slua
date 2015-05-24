@@ -1,0 +1,166 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 30 Nov 2013
+-- Resource: GTIaccounts/login.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+REGISTRATION_WAITTIME = 30 -- Time Limit Between Account Registrations (Minutes)
+REGISTRATION_CUTOFF = 5 -- Maximum number of registrations per minute
+CONNECTIONS_CUTOFF = 20 -- Maximum number of connections per minute
+
+-- Show Login Panel
+-------------------->>
+
+function showLoginPanel()
+	if (client) then source = client end
+	local account = getPlayerAccount(source)
+	if (not isGuestAccount(account)) then return end
+	
+	triggerClientEvent(source, "GTIaccounts.showLoginPanel", source)
+end
+addEvent("GTIaccounts.showLoginPanelServer", true)
+addEventHandler("GTIaccounts.showLoginPanelServer", root, showLoginPanel)
+
+-- Block Logouts
+addEventHandler("onPlayerLogout", root, function()
+	cancelEvent()
+end)
+
+-- Login Player
+---------------->>
+
+function loginPlayer(username, password, rememberMe, isEncrypted)
+	local validUsername = getAccount(username)
+	if (not validUsername) then
+		triggerClientEvent(client, "GTIaccounts.outputLoginMessage", client, "Error: Username does not exist", 255, 25, 25)
+		return
+	end
+	
+	if (isEncrypted) then
+		password = decryptPassword(password)
+	end
+	
+	local account = getAccount(username, password)
+	if (not account) then
+		triggerClientEvent(client, "GTIaccounts.outputLoginMessage", client, "Error: Invalid Password Provided.", 255, 25, 25)
+		return
+	end
+	
+	local loginSuccess = logIn(client, account, password)
+	if (not loginSuccess) then
+		triggerClientEvent(client, "GTIaccounts.outputLoginMessage", client, "Error: This account is already in use.", 255, 125, 25)
+		return
+	end
+	triggerClientEvent(client, "GTIaccounts.outputLoginMessage", client, "Login Successful", 25, 255, 25)
+	
+	spawn(client)
+	
+	local securePass
+	if (rememberMe) then
+		securePass = encryptPassword(password)
+	end
+	triggerClientEvent(client, "GTIaccounts.confirmLogin", client, username, securePass)
+end
+addEvent("GTIaccounts.loginPlayer", true)
+addEventHandler("GTIaccounts.loginPlayer", root, loginPlayer)
+
+-- Start Screen
+---------------->>
+
+local startScreen = {
+{ pos={1453.332, -1301.497, 40.478}, lookAt={1473.905, -1301.415, 39.429} },
+}
+
+function setStartScreen()
+	local i = math.random(#startScreen)
+	setCameraMatrix(source, startScreen[i].pos[1], startScreen[i].pos[2], startScreen[i].pos[3], 
+		startScreen[i].lookAt[1], startScreen[i].lookAt[2], startScreen[i].lookAt[3])
+	fadeCamera(source, true, 0)
+	showPlayerHudComponent(source, "all", false)
+	showChat(source, false)
+end
+addEventHandler("onPlayerJoin", root, setStartScreen)
+
+-- Register Player
+------------------->>
+
+function checkUsernameValidity(username)
+	local account = getAccount(username)
+	if (not account) then
+		triggerClientEvent(client, "GTIaccounts.returnUsernameValidity", client, "This Username is Available!", 25, 255, 25)
+	else
+		triggerClientEvent(client, "GTIaccounts.returnUsernameValidity", client, "This Username is Not Available!", 255, 25, 25)
+	end
+end
+addEvent("GTIaccounts.checkUsernameValidity", true)
+addEventHandler("GTIaccounts.checkUsernameValidity", root, checkUsernameValidity)
+
+local registrations = {}
+local regTotal = 0
+function registerPlayer(username, email, password)
+	local serial = getPlayerSerial(client)
+	if (registrations[serial]) then
+		local timeLeft = getTimerDetails(registrations[serial])
+		local M = math.floor(timeLeft/60000)
+		local S = math.floor(((timeLeft/60000-math.floor(timeLeft/60000))*60000)/1000)
+		exports.GTIhud:dm("Error: You have recently registered an account.\nYou must wait another "..M.." minutes, "..S.." seconds before creating a new one.", client, 255, 25, 25)
+		return
+	end
+	
+	local account = getAccount(username)
+	if (account) then
+		exports.GTIhud:dm("Error: This account is not available.", client, 255, 25, 25)
+		return
+	end
+	
+	-- Security Settings
+	regTotal = regTotal + 1
+	if (regTotal == REGISTRATION_CUTOFF) then
+		exports.GTIhud:dm("There has been a high number of registrations in the past minute.\nFor security reasons, your account cannot be registered. Try again in a minute.", client, 255, 25, 25)
+		return
+	end
+	
+	local account = addAccount(username, password)
+	if (not account) then
+		exports.GTIhud:dm("Error: Your account could not be created.", client, 255, 25, 25)
+		return
+	end
+	if (email ~= "") then
+		SAD(account, "email", email)
+	end
+	local timestamp = getRealTime().timestamp
+	SAD(account, "accountCreation", timestamp)
+	
+	registrations[serial] = setTimer( function() registrations[serial] = nil end, 60000*REGISTRATION_WAITTIME, 1 )
+	
+	triggerClientEvent(client, "GITaccounts.comfirmRegistration", client)
+end
+addEvent("GTIaccounts.registerPlayer", true)
+addEventHandler("GTIaccounts.registerPlayer", root, registerPlayer)
+
+-- Security Features
+--------------------->>
+
+-- Reset Registration Cutoff Per Minute
+setTimer(function() regTotal = 0 end, 60000, 0)
+
+local connections = 0
+function stopPlayerFromJoining()
+	connections = connections + 1
+	if (connections > CONNECTIONS_CUTOFF) then
+		cancelEvent(true, "Anti-Flood Prevention Enabled. Try again later")
+	end
+end
+addEventHandler("onPlayerConnect", root, stopPlayerFromJoining)
+setTimer(function() connections = 0 end, 60000, 0)
+
+-- Cancel
+---------->>
+
+function leaveServer()
+	kickPlayer(client, "User Quit")
+end
+addEvent("GTIaccounts.leaveServer", true)
+addEventHandler("GTIaccounts.leaveServer", root, leaveServer)

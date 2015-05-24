@@ -1,0 +1,75 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Jan 2014
+-- Resource: GTIbank/atms.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+HOURLY_WITHDRAWAL_LIMIT = 25000
+
+
+-- Login to ATM Machine
+------------------------>>
+
+local hourlyLimits = {}
+function showATM(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return end
+	
+	local isSecure = getBankData(account, "secure")
+	if (isSecure ~= 1) then
+		exports.GTIhud:dm("Your bank account must be secured with a pin number in order to use an ATM. Visit the bank to set this up.", player, 255, 125, 0)
+		return
+	end
+	
+	local limit = hourlyLimits[account]
+	if (not limit) then limit = 0 end
+	if (limit >= HOURLY_WITHDRAWAL_LIMIT) then
+		exports.GTIhud:dm("You have reached your hourly ATM Withdrawal Limit. Go to the bank to withdraw more cash.", player, 255, 125, 0)
+		return
+	end
+	
+	local balance = getBankData(account, "balance") or 0
+	limit = HOURLY_WITHDRAWAL_LIMIT-limit
+	triggerClientEvent(player, "GTIbank.showATM", player, balance, limit)
+end
+
+function withdrawCashATM(pin, cash)
+	local account = getPlayerAccount(client)
+	local bankPin = getBankData(account, "pin")
+	if (bankPin and bankPin ~= pin) then
+		exports.GTIhud:dm("Invalid Pin Number Provided", client, 255, 25, 25)
+		return
+	end
+	local balance = getBankData(account, "balance") or 0
+	if (balance < cash) then
+		exports.GTIhud:dm("You do not have enough money to withdraw this amount ($"..exports.GTIutil:tocomma(cash-balance).." needed)", client, 255, 125, 0)
+		return
+	end
+	local limit = hourlyLimits[account]
+	if (not limit) then limit = 0 hourlyLimits[account] = 0 end
+	if (limit+cash > HOURLY_WITHDRAWAL_LIMIT) then
+		exports.GTIhud:dm("This amount is above your hourly withdrawal limit. Go to the bank to withdraw more cash.", client, 255, 125, 0)
+		return
+	end
+	setBankData(account, "balance", balance-cash)
+	exports.GTIlogs:outputLog(getPlayerName(client).." withdrew $"..cash.." from ATM (Balance: $"..balance-cash..")", "bank", client)
+	GPM(client, cash, "BANK: ATM Withdrawal")
+	hourlyLimits[account] = hourlyLimits[account] + cash
+	exports.GTIhud:dm("Account Withdrawal Successful. Amount: $"..exports.GTIutil:tocomma(cash)..".", client, 75, 200, 75)
+	triggerClientEvent(client, "GTIbank.updateATMCash", client, balance - cash, HOURLY_WITHDRAWAL_LIMIT - hourlyLimits[account])
+end
+addEvent("GTIbank.withdrawCashATM", true)
+addEventHandler("GTIbank.withdrawCashATM", root, withdrawCashATM)
+
+function resetLimits()
+	for account,limit in pairs(hourlyLimits) do
+		if (not getAccountPlayer(account)) then
+			hourlyLimits[account] = nil
+		else
+			hourlyLimits[account] = 0
+		end
+	end
+end
+setTimer(resetLimits, 60000*60, 0)

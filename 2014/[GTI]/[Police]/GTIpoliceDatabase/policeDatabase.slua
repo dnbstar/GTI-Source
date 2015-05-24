@@ -1,0 +1,136 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 05 Feb 2013
+-- Resource: GTIpoliceDatabase/policeDatabase.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "LpyYEF%pah4Z&N") 
+dbExec(db, "CREATE TABLE IF NOT EXISTS `police`(`id` INT NOT NULL AUTO_INCREMENT, `name` TEXT, PRIMARY KEY(id))")
+
+local policeDatabase = {}
+local polDataState = {}
+
+-- Cache Police Database
+------------------------->>
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	dbQuery(cachePolDatabase, {}, db, "SELECT * FROM `police`")
+end)
+
+function cachePolDatabase(qh)
+	local result = dbPoll(qh, 0)
+	policeDatabase["Console"] = {}
+	for i,row in ipairs(result) do
+		-- Players Only
+		local account = getAccount(row.name)
+		if (getAccountPlayer(account)) then
+			policeDatabase[row.name] = {}
+			for column,value in pairs(row) do
+				if (column ~= "name") then
+					if (not policeDatabase["Console"][column]) then
+						policeDatabase["Console"][column] = true
+					end
+					if (value == "true") then value = true end
+					if (value == "false") then value = false end
+					policeDatabase[row.name][column] = value
+				end
+			end
+			polDataState[row.name] = true
+		end
+	end
+end
+
+-- Cache Database on Login
+--------------------------->>
+
+addEventHandler("onPlayerLogin", root, function(_, account)
+	if (isGuestAccount(account)) then return end
+	local account = getAccountName(account)
+	dbQuery(cachePolPlrDatabase, {}, db, "SELECT * FROM `police` WHERE name=?", account)
+end)
+
+function cachePolPlrDatabase(qh)
+	local result = dbPoll(qh, 0)
+	for i,row in ipairs(result) do
+		policeDatabase[row.name] = {}
+		for column,value in pairs(row) do
+			if (column ~= "name") then
+				if (not policeDatabase["Console"][column]) then
+					policeDatabase["Console"][column] = true
+				end
+				if (value == "true") then value = true end
+				if (value == "false") then value = false end
+				policeDatabase[row.name][column] = value
+			end
+		end
+		polDataState[row.name] = true
+	end
+end
+
+-- Is Ready?
+------------->>
+
+function isPoliceDatabaseReady(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	local account = getAccountName(player)
+	if (polDataState[account]) then return true end
+	return false
+end
+
+-- Account Exports
+------------------->>
+
+function setPoliceData(account, key, value)
+	if (not account or not key or not value) then return false end
+	if (isGuestAccount(account) or type(key) ~= "string") then return false end
+	if (not polDataState[account]) then return false end
+	if (type(key) == "string" or type(key) == "number") then
+		local account = getAccountName(account)
+		
+		if (type(policeDatabase[account]) ~= "table") then
+			policeDatabase[account] = {}
+			dbExec(db, "INSERT INTO `police`(name) VALUES(?)", account)
+		end
+		
+		if (policeDatabase["Console"][key] == nil) then
+			dbExec(db, "ALTER TABLE `police` ADD `??` text", key)
+			policeDatabase["Console"][key] = true
+		end
+		
+		policeDatabase[account][key] = value
+		if (value ~= nil) then
+			dbExec(db, "UPDATE `police` SET `??`=? WHERE name=?", key, tostring(value), account)
+		else
+			dbExec(db, "UPDATE `police` SET `??`=NULL WHERE name=?", key, account)
+		end
+		return true
+	else return false end
+end
+
+function getPoliceData(account, key)
+	if (not account or not key) then return nil end
+	if (isGuestAccount(account) or type(key) ~= "string") then return nil end
+	if (not polDataState[account]) then return false end
+	
+	local account = getAccountName(account)
+	if (policeDatabase[account] == nil) then return nil end
+	if (policeDatabase[account][key] == nil) then return nil end
+	
+	return tonumber(policeDatabase[account][key]) or policeDatabase[account][key]
+end
+
+-- Dump Database
+----------------->>
+
+function dumpPolDatabase()
+	local account = getPlayerAccount(source)
+	if (isGuestAccount(account)) then return end
+	local account = getAccountName(account)
+	
+	policeDatabase[account] = nil
+	polDataState[account] = nil
+end
+addEventHandler("onPlayerQuit", root, dumpPolDatabase)

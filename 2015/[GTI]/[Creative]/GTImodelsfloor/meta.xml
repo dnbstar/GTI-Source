@@ -1,0 +1,10 @@
+<meta>
+    <info author="LilDolla" version="1.0" name="Custom House Creation Floor" />
+    
+    <script src="floor.luac" type="client" />
+
+    <file src="floor.col" />
+    <file src="floor.dff" />
+    <file src="floor.txd" />
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

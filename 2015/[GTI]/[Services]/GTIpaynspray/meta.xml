@@ -1,0 +1,4 @@
+<meta>
+    <info author="JTPenn" version="1.0" name="Pay &apos;n Sprays" autostart="true" />
+    <script src="repair.slua" />
+</meta>

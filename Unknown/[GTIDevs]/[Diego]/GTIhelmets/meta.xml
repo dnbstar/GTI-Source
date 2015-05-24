@@ -1,0 +1,20 @@
+<meta>
+	<info author="Diego"	name="Motorcycle Helmets"	autostart="false"></info>
+	<script src="client.lua" type="client" cache="false" />
+	<script src="server.slua" type="server" />
+	
+	<file src="files/warning.png" />
+	<file src="files/zipXpress.png" />
+	
+	<file src="font.ttf" />	
+	
+	<file src="files/MotorcycleHelmet4.dff" />
+	<file src="files/MotorcycleHelmet5.dff" />
+	<file src="files/MotorcycleHelmet1.dff" />	
+	
+	<file src="files/MotorcycleHelmet4.col" />
+	<file src="files/MotorcycleHelmet5.col" />
+	<file src="files/MotorcycleHelmet1.col" />
+	
+	<file src="files/MatClothes.txd" />
+</meta>

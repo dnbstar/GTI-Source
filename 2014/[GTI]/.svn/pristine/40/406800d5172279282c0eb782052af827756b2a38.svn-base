@@ -1,0 +1,132 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 28 Dec 2013
+-- Resource: GTIvehicles/vehiclePanel.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Send Vehicle Stat Info
+-------------------------->>
+
+local vehStatRunning = {}
+function callVehicleRentStatInfo(vehID)
+	if (vehStatRunning[client]) then return end
+	vehStatRunning[client] = true
+	
+	local vehInfo = {}
+	local account = getPlayerAccount(client)
+	if (isGuestAccount(account)) then vehStatRunning[client] = nil return end
+	
+	vehInfo["name"] = exports.GTIrentVehicle:getVehicleData(account, "vehicleID")
+	vehInfo["name"] = getVehicleNameFromModel(tonumber(vehInfo["name"]))
+	
+	local pos = exports.GTIrentVehicle:getVehicleData(account, "position")
+	pos = split(pos, ",")
+	pos[1], pos[2], pos[3] = tonumber(pos[1]), tonumber(pos[2]), tonumber(pos[3])
+	local district, city = getZoneName(pos[1], pos[2], pos[3]), getZoneName(pos[1], pos[2], pos[3], true)
+	if (district == "Unknown") then district = "San Andreas" end
+	if (city == "Unknown") then city = "San Andreas" end
+	vehInfo["zone"] = district..", "..city
+	
+	vehInfo["active"] = exports.GTIrentVehicle:isPlayerRentedVehicleActive(client)
+	
+	local vehicle = exports.GTIrentVehicle:getPlayerRentedVehicle(client)
+	if (exports.GTIrentVehicle:isRentalBlipped(vehicle)) then
+		vehInfo["blipped"] = true
+	end
+	
+	triggerClientEvent(client, "GTIvehicles.returnVehicleStatInfo", client, vehInfo)
+	vehStatRunning[client] = nil
+end
+addEvent("GTIvehicles.callVehicleRentStatInfo", true)
+addEventHandler("GTIvehicles.callVehicleRentStatInfo", root, callVehicleRentStatInfo)
+
+-- Spawn Vehicle
+----------------->>
+
+local spawnVehRunning = {}
+function spawnPlayerRentVehicle()
+	if (spawnVehRunning[client]) then return end
+	spawnVehRunning[client] = true
+	
+		-- Don't waste time respawning a vehicle
+	if (exports.GTIrentVehicle:isPlayerRentedVehicleActive(player)) then 
+		spawnVehRunning[client] = nil
+	return end
+	
+		-- Ensure that the player doesn't spawn more than the max allowed vehicles
+	if (not vehicles[client]) then vehicles[client] = {} end
+	if (#vehicles[client] >= MAX_ALLOWED_VEHICLES-1) then
+		if (isElement(vehicles[client][1])) then
+			destroyElement(vehicles[client][1])
+			table.remove(vehicles[client], 1)
+		end
+	end
+	
+	exports.GTIrentVehicle:spawnRental(client)
+	
+	triggerClientEvent(client, "GTIvehicles.returnVehicleThatIsSpawned", client, 0, 1)
+	spawnVehRunning[client] = nil
+end
+addEvent("GTIvehicles.spawnPlayerRentVehicle", true)
+addEventHandler("GTIvehicles.spawnPlayerRentVehicle", root, spawnPlayerRentVehicle)
+
+-- Hide Vehicle
+---------------->>
+
+function hideRentVehicle()
+	exports.GTIrentVehicle:hideVehicle(client)
+	triggerClientEvent(client, "GTIvehicles.returnVehicleThatIsHidden", client, 0, 1)
+end
+addEvent("GTIvehicles.hideRentVehicle", true)
+addEventHandler("GTIvehicles.hideRentVehicle", root, hideRentVehicle)
+
+function hideRentVehicleCommand(player)
+	exports.GTIrentVehicle:hideVehicle(player)
+end
+addCommandHandler("hide", hideRentVehicleCommand)
+
+-- Blip Vehicle
+---------------->>
+
+function blipRentVehicle()
+	local isBlipped = exports.GTIrentVehicle:blipVehicle(client)
+	if (isBlipped == nil) then return end
+	if (not isBlipped) then
+		exports.GTIhud:dm("* Vehicle marker removed.", client, 200, 0, 255)
+	else
+		exports.GTIhud:dm("* A blip has been attached to your vehicle.", client, 200, 0, 255)
+	end
+	triggerClientEvent(client, "GTIvehicles.returnVehicleThatIsBlipped", client, isBlipped)
+end
+addEvent("GTIvehicles.blipRentVehicle", true)
+addEventHandler("GTIvehicles.blipRentVehicle", root, blipRentVehicle)
+
+-- Recover Vehicle
+------------------->>
+
+function recoverRentVehicle()
+	exports.GTIrentVehicle:recoverVehicle(client)
+end
+addEvent("GTIvehicles.recoverRentVehicle", true)
+addEventHandler("GTIvehicles.recoverRentVehicle", root, recoverRentVehicle)
+
+-- Vehicle Stats Panel
+----------------------->>
+
+function callAdvancedRentVehicleStats()
+	local vehInfo = exports.GTIrentVehicle:callAdvancedVehicleStats(client)
+	triggerClientEvent(client, "GTIvehicles.showAdvancedVehicleStats", client, vehInfo)
+end
+addEvent("GTIvehicles.callAdvancedRentVehicleStats", true)
+addEventHandler("GTIvehicles.callAdvancedRentVehicleStats", root, callAdvancedRentVehicleStats)
+
+-- Drop Rental Vehicle
+----------------------->>
+
+function dropRentalVehicle()
+	exports.GTIrentVehicle:dropRentalVehicle(client)
+end
+addEvent("GTIvehicles.dropRentalVehicle", true)
+addEventHandler("GTIvehicles.dropRentalVehicle", root, dropRentalVehicle)

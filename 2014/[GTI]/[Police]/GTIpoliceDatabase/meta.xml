@@ -1,0 +1,13 @@
+<meta>
+	<script src="policeDatabase.slua" />
+	<script src="wantedDatabase.slua" />
+	<script src="policeCoreData.slua" />
+	<script src="policeData.slua" />
+		
+	<export function="isPoliceDatabaseReady" type="server" />
+	<export function="setPoliceData" type="server" />
+	<export function="getPoliceData" type="server" />
+	
+	<export function="setWantedData" type="server" />
+	<export function="getWantedData" type="server" />
+</meta>

@@ -1,0 +1,17 @@
+<meta>
+	<script src="bankDatabase.slua" />
+	
+	<script src="bankGUI.luac" type="client" />
+	<script src="locations.slua" />
+	<script src="bankAccount.luac" type="client" />
+	<script src="bankAccount.slua" />
+	<script src="atms.luac" type="client" />
+	<script src="atms.slua" />
+	
+	<export function="getBankData" type="server" />
+	<export function="setBankData" type="server" />
+	<export function="GPM" type="server" />
+	<export function="TPM" type="server" />
+	<export function="getPlayerBankBalance" type="server" />
+	<export function="modifyPlayerBankBalance" type="server" />
+</meta>

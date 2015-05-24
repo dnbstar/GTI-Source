@@ -1,0 +1,270 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 29 Jan 2014
+-- Resource: GTIpoliceArrest/arrest.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+addEvent("onPlayerArrested", true)
+addEvent("onPlayerReleased", true)
+
+-- Attempt Arrest
+------------------>>
+
+function attemptArrest(criminal, officer, weapon)
+	if (not criminal or not officer or not weapon) then return end
+	if (not isPlayerLaw(officer) or weapon ~= 3) then return end
+	
+	if (not exports.GTIpoliceWanted:isPlayerWanted(criminal)) then
+		exports.GTIhud:drawTextOnPlayer(criminal, "Unwanted", officer, 255, 25, 25, 5000)
+		return
+	end
+	if (isPlayerArrested(criminal)) then return end
+	
+	if (didPlayerSurrender(criminal)) then
+		arrestPlayer(criminal, officer)
+		criminals[criminal] = nil
+	end
+	
+	local hits = criminals[criminal]
+	if (not hits) then criminals[criminal] = {} hits = criminals[criminal] end
+	if (not hits[officer] or getTickCount() > hits[officer][2]) then
+		hits[officer] = {0, getTickCount()+ARREST_TIMEOUT}
+	end
+	hits[officer][1] = hits[officer][1] + 1
+	exports.GTIhud:drawTextOnPlayer(criminal, "[Hits: "..hits[officer][1].."/"..HITS_TO_ARREST.."]", officer, 30, 155, 255, 5000)
+	if (hits[officer][1] == HITS_TO_ARREST) then
+		arrestPlayer(criminal, officer)
+		criminals[criminal] = nil
+	end
+end
+addEvent("GTIpoliceArrest.attemptArrest", true)
+addEventHandler("GTIpoliceArrest.attemptArrest", root, attemptArrest)
+
+function arrestPlayer(criminal, officer)
+	arrester[criminal] = officer
+	setElementData(criminal, "arrested", officer)
+	if (not arrests[officer]) then arrests[officer] = {} end
+	local arrestTable = arrests[officer]
+	if (not arrestTable) then arrestTable = {} end
+	arrestTable[criminal] = true
+	if (not numberOfArrests[officer]) then numberOfArrests[officer] = 0 end
+	numberOfArrests[officer] = numberOfArrests[officer] + 1
+	
+	exports.GTIhud:drawNote("Arrested By", "You have been arrested by #1E9BFF"..getPlayerName(officer), criminal, 255, 255, 255)
+	exports.GTIhud:drawNote("Arrested", "You have taken #AF1919"..getPlayerName(criminal).." #FFFFFFinto custody", officer, 255, 255, 255)
+	exports.GTIhud:drawTextOnPlayer(criminal, "[Arrested]\nBy "..getPlayerName(officer), officer, 30, 155, 255)
+	exports.GTIhud:dm("You have taken "..getPlayerName(criminal).." into custody. Take the detainee to the indicated police station.", officer, 30, 155, 255)
+	setCriminalUnderPoliceControl(criminal, officer)
+	toggleAllControls(criminal, false, true, false)
+	
+	triggerEvent("onPlayerArrested", criminal, officer)
+	triggerClientEvent("onClientPlayerArrested", criminal, officer)
+	
+	local x,y,z = getNearestPoliceStation(officer)
+	local all = policeStations
+	triggerClientEvent("GTIpoliceArrest.takePlayerToJail", resourceRoot, criminal, x, y, z, all)
+end
+addEvent("GTIpolice.arrestPlayer", true)
+addEventHandler("GTIpolice.arrestPlayer", root, arrestPlayer)
+
+-- Set Criminal Under Control
+------------------------------>>
+
+function setCriminalUnderPoliceControl(criminal, officer)
+	if (not isElement(criminal) or not isElement(officer)) then return end
+	if (isPedInVehicle(criminal) or not isPlayerArrested(criminal) or not arrests[officer][criminal]) then return end
+	
+	local copx, copy = getElementPosition(officer)
+	local criminalx, criminaly = getElementPosition(criminal)
+	local copangle = (360 - math.deg(math.atan2((copx - criminalx), (copy - criminaly)))) % 360
+	setPedRotation(criminal, copangle)
+	setCameraTarget(criminal, criminal)
+	local dist = getDistanceBetweenPoints2D(copx, copy, criminalx, criminaly)
+	if (dist > 16) then
+		local x, y, z = getElementPosition(officer)
+		setElementPosition(criminal, x, y, z)
+		setTimer(setCriminalUnderPoliceControl, 500, 1, criminal, officer)
+	elseif (dist > 12) then
+		setControlState(criminal, "sprint", true)
+		setControlState(criminal, "walk", false)
+		setControlState(criminal, "forwards", true)
+		setTimer(setCriminalUnderPoliceControl, 500, 1, criminal, officer)
+	elseif (dist > 6) then
+		setControlState(criminal, "sprint", false)
+		setControlState(criminal, "walk", false)
+		setControlState(criminal, "forwards", true)
+		setTimer(setCriminalUnderPoliceControl, 500, 1, criminal, officer)
+	elseif (dist > 1.5) then
+		setControlState(criminal, "sprint", false)
+		setControlState(criminal, "walk", true)
+		setControlState(criminal, "forwards", true)
+		setTimer(setCriminalUnderPoliceControl, 500, 1, criminal, officer)
+	elseif (dist <= 1.5) then
+		setControlState(criminal, "sprint", false)
+		setControlState(criminal, "walk", false)
+		setControlState(criminal, "forwards", false)
+		setTimer(setCriminalUnderPoliceControl, 500, 1, criminal, officer)
+	end
+end
+
+function transferCriminalsToVehicle(player, seat, jacked, door)
+	if (not isPlayerLaw(player) or not getPlayerArrests(player)) then return end
+	local maxAllowed = getVehicleMaxPassengers(source)
+	local occupantsTbl = getVehicleOccupants(source)
+	for plr,_ in pairs(getPlayerArrests(player)) do
+		local seat = 1
+		local done = warpPedIntoVehicle(plr, source, seat)
+		while (not done) do
+			seat = seat + 1
+			if (seat >= maxAllowed) then break end
+			warpPedIntoVehicle(plr, source, seat)
+		end
+	end
+end
+addEventHandler("onVehicleStartEnter", root, transferCriminalsToVehicle)
+
+-- Release Player
+------------------>>
+
+function releasePlayerOnCommand(player, command, criminal)
+	if (not arrests[player] or numberOfArrests[player] == 0) then return end
+		-- Release All Criminals
+	if (criminal == "*") then
+		for criminal,v in pairs(arrests[player]) do
+			releasePlayer(criminal)
+		end
+	return end
+		-- Release a Single Criminal
+	if (not criminal and numberOfArrests[player] == 1) then
+		releasePlayer(criminal)
+	end
+		-- Release a Criminal By Name
+	if (not criminal) then
+		outputChatBox("Syntax: /release <playerName> or /release *", player, 255, 125, 0)
+	else
+		local criminal = getPlayerFromNamePart(criminal, player)
+		if (not criminal) then
+			exports.GTIhud:dm("Police: You have no persons in custody with this name. Enter a new name." , player, 30, 155, 255)
+		else
+			releasePlayer(criminal)
+		end
+	end
+end
+addCommandHandler("release", releasePlayerOnCommand)
+
+function releasePlayer(criminal)
+	local officer = arrester[criminal]
+	arrester[criminal] = nil
+	setElementData(criminal, "arrested", nil)
+	local arrestTable = arrests[officer]
+	if (not arrestTable) then arrestTable = {} end
+	arrestTable[criminal] = nil
+	numberOfArrests[officer] = numberOfArrests[officer] - 1
+	if (numberOfArrests[officer] == 0) then
+		arrests[officer] = nil
+		numberOfArrests[officer] = nil
+	end
+	
+	exports.GTIhud:drawNote("Arrested By", "", criminal, 255, 255, 255)
+	exports.GTIhud:drawNote("Arrested", "", officer, 255, 255, 255)
+	exports.GTIhud:drawTextOnPlayer(criminal, "", officer, 30, 155, 255)
+	exports.GTIhud:dm("You have released "..getPlayerName(criminal).." from custody.", officer, 30, 155, 255)
+	exports.GTIhud:dm("You have been released from custody.", criminal, 30, 155, 255)
+	toggleAllControls(criminal, true, true)
+	
+	triggerEvent("onPlayerReleased", criminal, officer)
+	triggerClientEvent("onClientPlayerReleased", criminal, officer)
+end
+
+-- Arrest Player On...
+----------------------->>
+
+function arrestPlayerInWater(criminal)
+	if (not criminal or not isElement(criminal) or getElementType(criminal) ~= "player") then return end
+	if (not isPlayerLaw(source) or not isElementInWater(source) or not isPedInWater(criminal)) then return end
+	if (not exports.GTIpoliceWanted:isPlayerWanted(criminal) or isPlayerArrested(criminal)) then return end
+	local weap = getPedWeapon(source)
+	if (weap ~= 3) then return end
+	
+	local x1,y1,z1 = getElementPosition(criminal)
+	local x2,y2,z2 = getElementPosition(source)
+	local dist = getDistanceBetweenPoints3D(x1,y1,z1, x2,y2,z2)
+	if (dist > DISTANCE_WATER_ARREST) then return end
+	
+	arrestPlayer(criminal, source)
+end
+addEventHandler("onPlayerTarget", root, arrestPlayerInWater)
+
+-- Release Player On...
+------------------------>>
+
+function releasePlayerOnPoliceQuitOrKill()
+	local arrests = getPlayerArrests(source)
+	if (not arrests) then return end
+	for player,_ in ipairs(arrests) do
+		local dist = getDistanceFromPoliceStation(player)
+		if (dist > DISTANCE_FROM_PD_FOR_JAIL) then
+			releasePlayer(player)
+		else
+			local wantedLevel = exports.GTIpoliceWanted:getWantedLevel(player, true)
+			local jailTime = wantedLevel * SECONDS_PER_WP
+			if (didPlayerSurrender(player)) then
+				jailTime = jailTime * 0.90
+			end
+			exports.GTIprison:jailPlayer(source, player, jailTime)
+		end
+	end
+	arrests[source] = nil
+	numberOfArrests[source] = nil
+end
+addEventHandler("onPlayerQuit", root, releasePlayerOnPoliceQuitOrKill)
+addEventHandler("onPlayerWasted", root, releasePlayerOnPoliceQuitOrKill)
+
+-- Surrender
+------------->>
+
+function surrender(player)
+	if (not exports.GTIpoliceWanted:isPlayerWanted(player)) then return end
+	if (isPlayerArrested(player)) then return end
+	if (not surrendered[player]) then
+		setPedAnimation(player, "ped", "handsup", -1, false, true, false, true)
+		exports.GTIhud:dm("You have surrendered to the police. For complying, your jail time will be decreased by 10%", player, 30, 155, 255)
+		surrendered[player] = true
+	else
+		setPedAnimation(player)
+		exports.GTIhud:dm("You have chosen not to surrender. Jail time returned to normal.", player, 30, 155, 255)
+		surrendered[player] = nil
+	end
+end
+addCommandHandler("sur", surrender)
+
+-- Throw Players In Jail
+------------------------->>
+
+function throwAllPlayersInJail()
+	local arrests = getPlayerArrests(client)
+	for player,_ in pairs(arrests) do
+		local wantedLevel = exports.GTIpoliceWanted:getWantedLevel(client, true)
+		local jailTime = wantedLevel * SECONDS_PER_WP
+		if (didPlayerSurrender(player)) then
+			jailTime = jailTime * 0.90
+		end
+		
+		exports.GTIprison:jailPlayer(player, client, jailTime)
+	
+		criminals[player] = nil
+		arrester[player] = nil
+		surrendered[player] = nil
+		removeElementData(player, "arrested")
+		
+		exports.GTIhud:drawNote("Arrested By", "", player, 255, 255, 255)
+		toggleAllControls(player, true, true)
+	end
+	arrests[client] = nil
+	numberOfArrests[client] = nil
+	exports.GTIhud:drawNote("Arrested", "", client, 255, 255, 255)
+end
+addEvent("GTIpoliceArrest.throwAllPlayersInJail", true)
+addEventHandler("GTIpoliceArrest.throwAllPlayersInJail", root, throwAllPlayersInJail)

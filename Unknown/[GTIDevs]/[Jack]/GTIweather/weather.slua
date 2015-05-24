@@ -1,0 +1,61 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 29 March 2015
+-- Resource: GTiweather/weather.slua
+-- Type: Server Side
+-- Author: Jack Johnson (Jack)
+----------------------------------------->>
+
+local weatherTable = {
+	{"very sunny with a chance of sun burn","mild",0,2},
+	{"very sunny with a chance of sun burn","mild",0,3},
+	{"very sunny with a chance of sun burn","moderate",0,4},
+	{"very sunny with a chance of sun burn","mild",0,1},
+	{"very sunny with a chance of sun burn","moderate",0,5},
+	{"very cloudy and cold","mild",7,2},
+	{"very foggy","mild",9,3},
+	{"very rainy with a chance of cold","dangerous",16,9},
+	{"a sand storm blowing across","moderate",19,6}
+}
+
+local currentWeather = 0
+
+addEvent("onClientLoaded",true)
+addEvent("Weather:onWeatherToggled",true)
+
+function onClientLoaded() --When the resource restarted
+	if isGuestAccount(getPlayerAccount(client)) then return false end
+	local weatherSettings = exports.GTIaccounts:invGet(getPlayerAccount(client),"weather-enabled") or true
+	
+	--Convert weather back to boolean
+	if weatherSettings == "true" then
+		weatherSettings = true
+	elseif weatherSettings == "false" then
+		weatherSettings = false
+	end --Probably true at this point.
+	
+	triggerClientEvent(client,"Weather:onServerDataSent",client,currentWeather,weatherSettings)
+end
+addEventHandler("onClientLoaded",root,onClientLoaded)
+
+function onPlayerLogin()
+	local weatherSettings = exports.GTIaccounts:invGet(getPlayerAccount(source),"weather-enabled") or false
+	triggerClientEvent(source,"Weather:onServerDataSent",source,currentWeather,weatherSettings)
+end
+addEventHandler("onPlayerLogin",root,onPlayerLogin)
+
+function updateWeather()
+	currentWeather = math.random(#weatherTable)
+	for k,v in ipairs(getElementsByType("player")) do
+		triggerClientEvent(v,"Weather:onServerDataSent",v,currentWeather)
+	end
+end
+setTimer(updateWeather,60000*10,0)
+addCommandHandler("JackChangeWeather123",updateWeather)
+
+function saveWeatherSettings(setting)
+	if isGuestAccount(getPlayerAccount(client)) then return false end
+	
+	exports.GTIaccounts:invSet(getPlayerAccount(client),"weather-enabled",tostring(setting))
+end
+addEventHandler("Weather:onWeatherToggled",root,saveWeatherSettings)

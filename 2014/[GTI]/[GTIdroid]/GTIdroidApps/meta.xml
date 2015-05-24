@@ -1,0 +1,19 @@
+<meta>
+    
+    <script src="calculator_gui.luac" type="client" />
+    <script src="calculator.luac" type="client" />
+    
+    
+    <script src="banking.slua" />
+    
+    
+    <script src="camera_gui.luac" type="client" />
+    <script src="camera_s.lua" type="server" />
+    
+    
+    <file src="images/snap.png" />
+    
+    <file src="images/pixel.png" />
+    
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

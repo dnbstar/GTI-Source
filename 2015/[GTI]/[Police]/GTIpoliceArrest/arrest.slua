@@ -1,0 +1,359 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 16 May 2014
+-- Resource: GTIpoliceArrest/arrest.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+addEvent("onPlayerArrested", true)	-- Triggered On Arrest by Cop
+addEvent("onPlayerReleased", true)	-- Triggered On Released
+
+local ARREST_THREASHOLD = 10	-- Wanted Level Required to Arrest Player
+local ARREST_TIMER = 0.128		-- Seconds per meter for arrest timer
+local ARR_TIMER_OFF = 45		-- Additional Seconds Granted
+BONUS_DIST = 5					-- Distance required to get 10% bonus
+
+local arrested_players = {}	-- Table of Arrestable and Arrested Players
+local arrests = {}			-- Table of Arresters by Player
+local arrestors = {}		-- Table of Cops who helped Arrest you (nightstick, final arrest)
+local arrest_time = {}		-- Time to get to the nearest PD
+local arstble_cols = {}		-- Table of Arrestable Markers by Player
+local col_players = {}		-- Table of Players that Arrest Marker is attached to
+local cuffs = {}			-- Table of Handcuffs Objects
+local nearby_cops = {}		-- Cops that were nearby when the criminal was arrested
+
+local cop_jobs = {
+	["Police Officer"] = true,
+	["Corrections"] = true,
+	["Highway Patrol"] = true,
+	["Federal Agent"] = true,
+}
+
+-- Can Arrest?
+--------------->>
+
+function canPlayerArrest(player)
+	if (not isElement(player)) then return false end
+	local job = exports.GTIemployment:getPlayerJob(player, true)
+	if (not job or not cop_jobs[job]) then return false end
+	return true
+end
+
+-- Set Arrestable
+------------------>>
+
+function setPlayerArrestable(player, state, ignore_anim)
+	if (not isElement(player)) then return false end
+	
+	if (state) then
+		arrested_players[player] = 0
+		setElementData(player, "arrested", 0)
+		if (not ignore_anim) then
+			setPedAnimation(player, "ped", "cower", 10000, false, false, false, true)
+		end
+			-- Add Arrest Marker
+		removeArrestMarkers(player)
+		local col = createColTube(0, 0, 0, 1, 2)
+		setElementInterior(col, getElementInterior(player))
+		setElementDimension(col, getElementDimension(player))
+		attachElements(col, player, 0, 0, -1)
+		
+		arstble_cols[player] = col
+		col_players[col] = player
+		addEventHandler("onColShapeHit", col, attemptArrest)
+	else
+		arrested_players[player] = nil
+		removeElementData(player, "arrested")
+		if (not ignore_anim) then
+			setPedAnimation(player)
+		end
+		removeArrestMarkers(player)
+	end	
+	return true
+end
+
+function isPlayerArrestable(player)
+	if (not arrested_players[player]) then return false end
+	if (arrested_players[player] == 0) then return true end
+	return false
+end
+
+function getArrestColPlayer(marker)
+	return col_players[marker] or false
+end
+
+-- Set Arrested
+---------------->>
+
+function setPlayerArrested(player, cop)
+	if (not isElement(player)) then return false end
+	if (not isElement(cop)) then return false end
+	if (player == cop) then return end
+	
+	arrested_players[player] = 1
+	setElementData(player, "arrested", 1)
+	setPedAnimation(player)
+	
+	arrests[player] = cop
+	toggleAllControls(player, false, true, false)
+	showCursor(player, true)
+	attachHandcuffs(player)
+	followArrestor(player, cop)
+	
+	if (isPedInVehicle(player)) then
+		removePedFromVehicle(player)
+	end
+	
+	local x1,y1,z1 = getElementPosition(player)
+	local x2,y2,z2 = getNearestPoliceStation(player)
+	arrest_time[player] = (getDistanceBetweenPoints3D(x1,y1,z1, x2,y2,z2) * ARREST_TIMER) + ARR_TIMER_OFF
+	
+	setNearbyBonusCops(player)
+	removeArrestMarkers(player)
+
+	triggerEvent("onPlayerArrested", player, cop)
+	return true
+end
+
+function attachHandcuffs(player)
+	if (not isElement(player)) then return end
+	if (cuffs[player]) then destroyElement(cuffs[player]) end
+	cuffs[player] = createObject(331, 0, 0, 0, 0, 0, 4)
+	setObjectScale(cuffs[player], 1.9)
+	exports.bone_attach:attachElementToBone(cuffs[player], player, 12, -0.1, 0.02, 0.1, -50, 90, 85)
+	setPedAnimation(player, "ped", "pass_Smoke_in_car", 50, false, false, false, true)
+	setTimer(setPedAnimationProgress, 50, 1, player, "pass_Smoke_in_car", 2)
+end
+
+-- Nearby Cops for Bonus -->>
+
+function setNearbyBonusCops(player)
+	nearby_cops[player] = {}
+	local x1,y1,z1 = getElementPosition(player)
+	for k,police in ipairs(getElementsByType("player")) do
+		local x2,y2,z2 = getElementPosition(police)
+		if (getDistanceBetweenPoints3D(x1,y1,z1, x2,y2,z2) <= BONUS_DIST) then
+			if (canPlayerArrest(player)) then
+				table.insert(nearby_cops[player], police)
+			end
+		end
+	end
+end
+
+function getNearbyBonusCops(player)
+	return nearby_cops[player] or {}
+end
+	
+-- Arrest Participants -->>	
+	
+function addArrestParticipant(player, cop)
+	if (not arrestors[player]) then arrestors[player] = {} end
+	table.insert(arrestors[player], cop)
+		-- 1 of 4: Cop who Tased
+		-- 2&3 of 4: Nightstick Arrests
+		-- 4 of 4: Jailed Player
+end
+
+function getArrestParticipants(player)
+	return arrestors[player] or {}
+end
+
+-- Arrest Timer -->>
+
+setTimer(function()
+	for player,timer in pairs(arrest_time) do
+		if (isElement(player)) then
+			if (arrest_time[player] > 0) then
+				arrest_time[player] = arrest_time[player] - 1
+				local sec = arrest_time[player]
+				local min = math.floor(sec/60)
+				local sec = string.format("%02d", sec - (min*60))
+				exports.GTIhud:drawStat("arrest."..getPlayerSerial(player), "Time to Jail "..getPlayerName(player), min..":"..sec, player, 30, 125, 255)
+				exports.GTIhud:drawStat("arrest."..getPlayerSerial(player), "Time to Jail "..getPlayerName(player), min..":"..sec, getPlayerArrestor(player), 30, 125, 255)
+			else
+				exports.GTIhud:drawStat("arrest."..getPlayerSerial(player), nil, nil, player)
+				exports.GTIhud:drawStat("arrest."..getPlayerSerial(player), nil, nil, getPlayerArrestor(player))
+				
+				exports.GTIhud:dm("POLICE: You have been freed from police custody.", player, 30, 150, 255)
+				exports.GTIhud:dm("POLICE: "..getPlayerName(player).." has escaped from police custody!", getPlayerArrestor(player), 30, 150, 255)
+				releasePlayer(player)
+			end
+		else
+			arrest_time[player] = nil
+		end
+	end
+end, 1000, 0)
+
+-- Other Utilities -->>
+
+function getPlayerArrests(player)
+	local arrestsPlr = {}
+	for plr,cop in pairs(arrests) do
+		if (player == cop) then
+			table.insert(arrestsPlr, plr)
+		end
+	end
+	return arrestsPlr
+end
+
+function getPlayerArrestor(player)
+	return arrests[player] or false
+end
+
+function isPlayerArrested(player)
+	if (not arrested_players[player]) then return false end
+	if (arrested_players[player] == 1) then return true end
+	return false
+end
+
+-- Animation Check -->>
+
+setTimer(function()
+	for player in pairs(arrests) do
+		if (isElement(player)) then
+			setPedAnimation(player, "ped", "pass_Smoke_in_car", 50, false, false, false, true)
+			setTimer(setPedAnimationProgress, 50, 1, player, "pass_Smoke_in_car", 2)
+		else
+			arrests[player] = nil
+		end
+	end
+end, 10000, 0)
+
+-- Release Player
+------------------>>
+
+function releasePlayer(player, ignore_event)
+	if (not isElement(player)) then return false end
+	
+	exports.GTIhud:drawStat("arrest."..getPlayerSerial(player), nil, nil, player)
+	exports.GTIhud:drawStat("arrest."..getPlayerSerial(player), nil, nil, getPlayerArrestor(player))
+	
+	arrested_players[player] = nil
+	arrests[player] = nil
+	arrestors[player] = nil
+	surrendered[player] = nil
+	nearby_cops[player] = nil
+	arrest_time[player] = nil
+	removeElementData(player, "arrested")
+	toggleAllControls(player, true, true, false)
+	setPedAnimation(player)
+	showCursor(player, false)
+	if (isElement(cuffs[player])) then
+		destroyElement(cuffs[player])
+		cuffs[player] = nil
+	end
+	
+	if (ignore_event) then return true end
+	triggerEvent("onPlayerReleased", player)
+	return true
+end
+
+	-- Release on Cop Death
+function releasePlayerOn()
+	local cop_arrests = getPlayerArrests(source)
+	if (#cop_arrests == 0) then return end
+	for i,player in ipairs(cop_arrests) do
+		releasePlayer(player)
+		exports.GTIhud:dm("POLICE: You have been freed from police custody.", player, 30, 150, 255)
+	end
+end
+addEventHandler("onPlayerWasted", root, releasePlayerOn)
+addEventHandler("onPlayerQuit", root, releasePlayerOn)
+addEvent("onPlayerQuitJob", true)
+addEventHandler("onPlayerQuitJob", root, releasePlayerOn)
+
+	-- Release on Engine Break
+addEvent("onVehicleEngineBreakDown", true)
+addEventHandler("onVehicleEngineBreakDown", root, function()
+	for seat,player in pairs(getVehicleOccupants(source)) do
+		if (isPlayerArrested(player)) then
+			releasePlayer(player)
+			exports.GTIhud:dm("POLICE: You have been freed from police custody.", player, 30, 150, 255)
+		end
+	end
+end)
+
+	-- Release on Resource Stop
+addEventHandler("onResourceStop", resourceRoot, function()
+	for player,i in pairs(arrested_players) do
+		if (i == 1) then
+			releasePlayer(player)
+			exports.GTIhud:dm("POLICE: You have been freed from police custody.", player, 30, 150, 255)
+		end
+	end
+end)
+
+-- Is In Custody
+----------------->>
+
+function isPlayerInPoliceCustody(player, arrestable, arrested, tased, surrendered, inJail)
+	if (not isElement(player)) then return false end
+	if ((arrestable == nil or arrestable) 	and isPlayerArrestable(player)) then return true end
+	if ((arrested == nil or arrested) 		and isPlayerArrested(player)) then return true end
+	if ((tased == nil or tased) 			and isPlayerTased(player)) then return true end
+	if ((surrendered == nil or surrendered) and isPlayerSurrendered(player)) then return true end
+	if ((inJail == nil or inJail)			and exports.GTIprison:isPlayerInJail(player)) then return true end
+	return false
+end
+
+-- Clear Data on Quit
+---------------------->>
+
+function clearDataOnQuit()
+	jailOfflinePlayer(source)
+	if (arrested_players[source])	then arrested_players[source] = nil end
+	if (arrests[source]) then 
+		exports.GTIhud:drawStat("arrest."..getPlayerSerial(source), nil, nil, getPlayerArrestor(source))
+		triggerClientEvent(arrests[source], "GTIpoliceWanted.removePDMarkers", resourceRoot)
+		arrests[source] = nil 			
+	end
+	if (arrestors[source])			then arrestors[source] = nil		end
+	if (tased[source]) 				then tased[source] = nil 			end
+	if (tasedTime[source]) 			then tasedTime[source] = nil 		end
+	if (surrendered[source]) 		then surrendered[source] = nil 		end
+	if (nearby_cops[source])		then nearby_cops[source] = nil		end
+	if (arrest_time[source])		then arrest_time[source] = nil		end
+	
+	if (cuffs[source]) then 
+		destroyElement(cuffs[source])
+		cuffs[source] = nil
+	end
+	removeArrestMarkers(source)
+end
+addEventHandler("onPlayerQuit", root, clearDataOnQuit)
+
+function clearDataOnWasted()
+	if (arrests[source]) then 
+		exports.GTIhud:drawStat("arrest."..getPlayerSerial(source), nil, nil, source)
+		exports.GTIhud:drawStat("arrest."..getPlayerSerial(source), nil, nil, getPlayerArrestor(source))
+		arrests[source] = nil 			
+	end
+	if (tased[source]) 				then tased[source] = nil 			end
+	if (tasedTime[source]) 			then tasedTime[source] = nil 		end
+	if (surrendered[source]) 		then surrendered[source] = nil 		end
+	if (nearby_cops[source])		then nearby_cops[source] = nil		end
+	if (arrest_time[source])		then arrest_time[source] = nil		end
+	
+	if (cuffs[source]) then 
+		destroyElement(cuffs[source])
+		cuffs[source] = nil
+	end
+	removeArrestMarkers(source)
+	if (exports.GTIutil:isPlayerInTeam(source, "Law Enforcement")) then
+		triggerClientEvent(source, "GTIpoliceWanted.removePDMarkers", resourceRoot)
+	end
+end
+addEventHandler("onPlayerWasted", root, clearDataOnWasted)
+
+-- Remove Arrest Markers
+------------------------->>
+
+function removeArrestMarkers(player)
+	if (arstble_cols[player]) then
+		removeEventHandler("onColShapeHit", arstble_cols[player], attemptArrest)
+		col_players[arstble_cols[player]] = nil
+		destroyElement(arstble_cols[player])
+		arstble_cols[player] = nil
+	end
+end

@@ -1,0 +1,44 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 18 Jan 2014
+-- Resource: GTIhud/drawNotification.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+function dm(text, player, r, g, b)
+	if (type(text) ~= "string" or type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number") then return false end
+	if (r > 255 or g > 255 or b > 255) then return false end
+	
+	triggerClientEvent(player, "GTIhud.dm", player, text, r, g, b)
+end
+
+function drawNote(id, text, player, r, g, b, timer)
+	if (type(id) ~= "string" or type(text) ~= "string" or 
+		type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number") then return false end
+	if (not isElement(player) or getElementType(player) ~= "player") then return false end
+	if (timer and type(timer) ~= "number") then return false end
+	if (r > 255 or g > 255 or b > 255) then return false end
+	
+	triggerClientEvent(player, "GTIhud.drawNote", player, id, text, r, g, b, timer)
+end
+
+function drawStat(id, columnA, columnB, player, r, g, b, timer)
+	if (type(id) ~= "string" or type(columnA) ~= "string" or type(columnB) ~= "string" or 
+		type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number") then return false end
+	if (not isElement(player) or getElementType(player) ~= "player") then return false end
+	if (timer and type(timer) ~= "number") then return false end
+	if (r > 255 or g > 255 or b > 255) then return false end
+	
+	triggerClientEvent(player, "GTIhud.drawStat", player, id, columnA, columnB, r, g, b, timer)
+end
+
+function drawTextOnPlayer(attachedTo, text, player, r, g, b, timer)
+	if (not isElement(attachedTo) or type(text) ~= "string" or 
+		type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number") then return false end
+	if (not isElement(player) or getElementType(player) ~= "player") then return false end
+	if (timer and type(timer) ~= "number") then return false end
+	if (r > 255 or g > 255 or b > 255) then return false end
+	
+	triggerClientEvent(player, "GTIhud.drawTextOnPlayer", player, attachedTo, text, r, g, b, timer)
+end

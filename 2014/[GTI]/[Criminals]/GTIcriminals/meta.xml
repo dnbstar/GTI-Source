@@ -1,0 +1,7 @@
+<meta>
+	<script src="crimExpGUI.luac" type="client" />
+	<script src="criminalRanks.slua" />
+	<script src="reputation.slua" />
+	<script src="panel.luac" type="client" />
+	<script src="panel.slua" />
+</meta>

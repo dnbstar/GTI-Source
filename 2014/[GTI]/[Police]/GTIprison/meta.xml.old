@@ -1,0 +1,8 @@
+<meta>
+	<script src="prison.luac" type="client" />
+	<script src="prison.slua" />
+	
+	<export function="jailPlayer" type="server" />
+	<export function="releasePlayer" type="server" />
+	<export function="isPlayerInJail" type="server" />
+</meta>

@@ -1,0 +1,167 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 27 Dec 2013
+-- Resource: GTIvehicles/buyandsell.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Purchase Vehicle
+-------------------->>
+
+local purchasePending = {}
+function purchaseVehicle(ID, vehColTable, zoff)
+	if (purchasePending[client]) then return end
+	purchasePending[client] = true
+		-- Check if the Player can Afford it
+	local playerMoney = getPlayerMoney(client)
+	local vehCost = getVehicleCost(ID)
+	if (not vehCost) then
+		outputDebugString("WARNING: "..getPlayerName(client).." attempted to purchase a vehicle that does not exist! (ID: "..ID..")", 2)
+		purchasePending[client] = nil
+		return
+	end
+	if (playerMoney < vehCost) then
+		exports.GTIhud:dm("* You cannot afford this vehicle. You need $"..exports.GTIutil:tocomma(vehCost-playerMoney).." more in order to buy it.", client, 255, 125, 0)
+		purchasePending[client] = nil
+		return
+	end
+	
+	local account = getPlayerAccount(client)
+	if (isGuestAccount(account)) then return end
+	
+		-- Check if the player owns a vehicle of this ID
+	local vehData = getAllVehicleOwnerData(account)
+	if (vehData) then
+		local vehTable = {}
+		for vehKey,vehID in pairs(vehData) do
+			vehID = tonumber(vehID)
+			local model = getVehicleData(vehID, "vehicleID")
+			if (model == ID) then
+				exports.GTIhud:dm("* You already own a "..getVehicleNameFromModel(ID).."!", client, 255, 0, 0)
+				purchasePending[client] = nil
+				return
+			end
+		end
+	end
+	
+	local dataID = getMaximumVehicleID()+1
+		-- Register Vehicle to Account
+	local accName = getAccountName(account)
+	setVehicleData(dataID, "owner", accName)
+	setVehicleData(dataID, "vehicleID", ID)
+	setVehicleData(dataID, "active", 1)
+		-- Save Color
+	local colorString = ""
+	for i,col in ipairs(vehColTable) do
+		colorString = colorString..","..col
+	end
+	colorString = string.gsub(colorString, ",", "", 1)
+	setVehicleData(dataID, "color", colorString)
+		-- Save Various other Info
+	local int = activeCarDealer[client][1]
+	local dealerTable = dealerLocations[int]
+	local x,y,z = dealerTable.buySpawnPoint[1], dealerTable.buySpawnPoint[2], dealerTable.buySpawnPoint[3]+zoff+0.75
+	local rot = dealerTable.buySpawnPoint[4]
+	setVehicleData(dataID, "position", x..","..y..","..z..","..rot..",0,0")
+	setVehicleData(dataID, "health", 1000)
+	setVehicleData(dataID, "fuel", 50)
+	setVehicleData(dataID, "mileage", 0)
+		-- Add Vehicle to Owner Database
+	local slot = getNextAvailibleVehicleIDSlot(client)
+	setVehicleOwnerData(account, "vehicle"..slot, dataID)
+		-- Make sure the player has only the max allowed vehicles
+	if (not vehicles[client]) then vehicles[client] = {} end
+	if (#vehicles[client] >= MAX_ALLOWED_VEHICLES) then
+		if (isElement(vehicles[client][1])) then
+			destroyElement(vehicles[client][1])
+			table.remove(vehicles[client], 1)
+		end
+	end
+		-- Create the Vehicle
+	local vehicle = createVehicle(ID, x, y, z, 0, 0, rot)
+	local v = vehColTable
+	setVehicleColor(vehicle, v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12])
+	warpPedIntoVehicle(client, vehicle)
+		-- Register the Vehicle to the Owner
+	setElementData(vehicle, "vehicleID", dataID, false)
+	setElementData(vehicle, "owner", accName, false)
+	setElementData(vehicle, "mileage", 0)
+	setVehicleData(vehID, "active", 1)
+	table.insert(vehicles[client], vehicle)
+	activeVehicleIDs[dataID] = true
+		-- Save the Variant
+	local variant1,variant2  = getVehicleVariant(vehicle)
+	setVehicleData(dataID, "variant", variant1..","..variant2)
+		-- Save Purchase Price and Date
+	setVehicleData(dataID, "originalPrice", vehCost)
+	local timestamp = getRealTime().timestamp
+	setVehicleData(dataID, "purchaseDate", timestamp)
+
+	exports.GTIbank:TPM(client, vehCost)
+	
+	exports.GTIhud:dm("You have successfully purchased a "..getVehicleNameFromModel(ID).." for $"..exports.GTIutil:tocomma(vehCost), client, 200, 0, 255)
+	exports.GTIlogs:outputLog(getPlayerName(client).." purchased a "..getVehicleNameFromModel(ID).." for $"..vehCost..". (ID: "..dataTD..", Slot: "..slot..")", "vehicles", client)
+	triggerClientEvent(client, "GTIvehicles.hideCarDealershipPanel", client, "right", "up")
+	activeCarDealer[client] = nil
+	purchasePending[client] = nil
+end
+addEvent("GTIvehicles.purchaseVehicle", true)
+addEventHandler("GTIvehicles.purchaseVehicle", root, purchaseVehicle)
+
+-- Sell Vehicle
+---------------->>
+
+local sellPending = {}
+function sellVehicle(vehID)
+	if (sellPending[client]) then return end
+	sellPending[client] = true
+	
+	if (isVehicleBeingSold(vehID)) then
+		exports.GTIhud:dm("You currently have this vehicle up for a private sale. Take the sale down before selling it to this dealership.", client, 255, 125, 0)
+		return
+	end
+	
+	local account = getPlayerAccount(client)
+	if (isGuestAccount(account)) then return end
+	
+	local active = getVehicleData(vehID, "active") or 1
+	if (active ~= 1) then
+		outputDebugString("VEHICLES: Player "..getPlayerName(client).." attempted to sell a vehicle that has already been sold. ID: "..vehID)
+		return
+	end
+	
+	local value = getVehicleValue(vehID)
+	local health = getVehicleData(vehID, "health")
+	local model = getVehicleData(vehID, "vehicleID")
+	if (activeVehicleIDs[vehID]) then
+		local vehicle = getVehicleByID(vehID)
+		health = getElementHealth(vehicle)
+	end
+	local value = math.floor( value * ( ( (health-300) /1400)+0.5 ) )
+	exports.GTIbank:GPM(client, value)
+	
+	local vehicleKey
+	local vehData = getAllVehicleOwnerData(account)
+	for vehKey,vehicleID in pairs(vehData) do
+		if (tonumber(vehicleID) == vehID) then
+			vehicleKey = vehKey
+			break
+		end
+	end
+		
+	deleteVehicleOwnerData(account, vehicleKey)
+	setVehicleData(vehID, "active", 0)
+	if (activeVehicleIDs[vehID]) then
+		local vehicle = getVehicleByID(vehID)
+		destroyElement(vehicle)
+		activeVehicleIDs[vehID] = nil
+	end
+	exports.GTIhud:dm("You have sold your "..getVehicleNameFromModel(model).." for $"..exports.GTIutil:tocomma(value), client, 200, 0, 255)
+	exports.GTIlogs:outputLog(getPlayerName(client).." sold a "..getVehicleNameFromModel(model).." for $"..value.." (ID: "..vehID..", Slot: "..vehicleKey..")", "vehicles", client)
+	triggerClientEvent(client, "GTIvehicles.hideCarDealershipSalePanel", client, "left", "up")
+	activeCarSeller[client] = nil
+	sellPending[client] = nil
+end
+addEvent("GTIvehicles.sellVehicle", true)
+addEventHandler("GTIvehicles.sellVehicle", root, sellVehicle)

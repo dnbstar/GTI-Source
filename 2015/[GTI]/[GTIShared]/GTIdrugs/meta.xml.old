@@ -1,0 +1,19 @@
+<meta>
+	<script src="drugs_c.luac" type="client"/>
+	<script src="drugs_s.lua" type="server"/>
+	<script src="drug-table_c.luac" type="client"/>
+
+	<file src="images/window.png"/>
+
+	<file src="images/Acid.png"/>
+	<file src="images/Adderal.png"/>
+	<file src="images/Cocaine.png"/>
+	<file src="images/Ecstasy.png"/>
+	<file src="images/LSD.png"/>
+	<file src="images/Meth.png"/>
+	<file src="images/PCP.png"/>
+	<file src="images/Weed.png"/>
+
+	<script src="effects/motion_c.lua" type="client" />
+	<file src="effects/motion.fx" />
+</meta>

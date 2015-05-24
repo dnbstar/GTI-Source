@@ -1,0 +1,17 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 29 Mar 2013
+-- Resource: GTIaccounts/loadAccountData.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local databases = {
+	["accountdata"] = true,
+	["banking"] = true,
+	["jobdata"] = true,
+	["rented_vehicles"] = true,
+	["vehicleowners"] = true,
+	["wanted"] = true,
+}
+

@@ -1,0 +1,4 @@
+<meta>
+    <info author="NicKeLz" version="" type="script" name="Open Door Script (/od 0-5|*)" autostart="true" />
+    <script src="script.lua" />
+</meta>

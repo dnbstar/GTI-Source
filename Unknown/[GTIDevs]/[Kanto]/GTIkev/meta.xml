@@ -1,0 +1,4 @@
+<meta>
+	<info name="Police: Kevlar Vests" type="script" author="Kanto" version="1.4" autostart="false" />
+	<script src="GTIkev.lua" type="server" />
+</meta>

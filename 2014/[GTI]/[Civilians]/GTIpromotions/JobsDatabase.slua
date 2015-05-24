@@ -1,0 +1,78 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 19 Dec 2013
+-- Resource: GTIpromotions/JobsDatabase.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "LpyYEF%pah4Z&N")
+local BACKUP_INTERVAL = 60 -- Backup Interval (Minutes)
+
+local jobdata = {}
+
+if (BACKUP_INTERVAL) then
+
+function hourlyBackup()
+	destroyElement(db)
+	db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "LpyYEF%pah4Z&N")
+end
+setTimer(hourlyBackup, 60000*BACKUP_INTERVAL, 1)
+
+end
+
+function cacheDatabase()
+	dbQuery(cacheDatabase2, {}, db, "SELECT * FROM `jobdata`")
+end
+addEventHandler("onResourceStart", resourceRoot, cacheDatabase)
+
+function cacheDatabase2(qh)
+	local accData = dbPoll(qh, 0)
+	jobdata["Console"] = {}
+	for i,row in ipairs(accData) do
+		jobdata[row.name] = {}
+		for column,value in pairs(row) do
+			if (column ~= "name") then
+				if (value == nil) then value = "nil" end
+				jobdata["Console"][column] = true
+				jobdata[row.name][column] = value
+			end
+		end
+	end
+end
+
+-- Account Exports
+------------------->>
+
+function SJD(account, key, value)
+	if (not account or not key or not value) then return false end
+	if (isGuestAccount(account) or type(key) ~= "string") then return false end
+	if (type(key) == "string" or type(key) == "number") then
+		local account = getAccountName( account )
+		
+		if (type(jobdata[account]) ~= "table") then
+			jobdata[account] = {}
+			dbExec(db, "INSERT INTO `jobdata`(name) VALUES(?)", account)
+		end
+		
+		if (jobdata["Console"][key] == nil) then
+			dbExec(db, "ALTER TABLE `jobdata` ADD `??` text", key)
+			jobdata["Console"][key] = true
+		end
+		
+		jobdata[account][key] = value
+		dbExec(db, "UPDATE `jobdata` SET `??`=? WHERE name=?", key, value, account)
+		return true
+	else return false end
+end
+
+function GJD(account, key)
+	if (not account or not key) then return nil end
+	if (isGuestAccount(account) or type(key) ~= "string") then return nil end
+	
+	local account = getAccountName(account)
+	if (jobdata[account] == nil) then return nil end
+	if (jobdata[account][key] == nil) then return nil end
+	
+	return tonumber(jobdata[account][key]) or jobdata[account][key]
+end

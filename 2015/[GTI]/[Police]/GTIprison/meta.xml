@@ -1,0 +1,14 @@
+<meta>
+    <info author="JTPenn" version="1.0" name="Prison System" autostart="true" />
+    
+	<file src="files/celldoorclose.mp3" />
+	
+	<script src="prison.luac"	type="client" />
+	<script src="prison.slua" 	/>
+	
+    <export function="jailPlayer" 			type="server" />
+    <export function="releasePlayer" 		type="server" />
+    <export function="releasePlayer2" 		type="server" />
+    <export function="isPlayerInJail" 		type="server" />
+    <export function="getRemainingJailTime"	type="server" />
+</meta>

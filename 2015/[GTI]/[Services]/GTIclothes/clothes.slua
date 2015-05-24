@@ -1,0 +1,136 @@
+----------------------------------------->>
+-- GTI: Grand Theft International Network
+-- Date: 23 July 2013
+-- Resource: GTIclothing/clothes.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+addEvent("onPlayerBuySkin", true)
+
+-- Find Store
+-------------->>
+
+addEventHandler("onColShapeHit", resourceRoot, function(player, dim)
+	if (getElementType(player) ~= "player" or not dim) then return end
+	if (not isPedOnGround(player)) then return end
+	local index = getElementData(source, "index")
+	selectSkinFromStore(player, skinPos[index].loc, index)
+end)
+
+-- Skin Selection
+------------------>>
+
+function selectSkinFromStore(player, store, i)
+	if (not isElement(player) or getElementType(player) ~= "player") then return false end
+	
+	local skinInv = getPlayerOwnedSkins(player)
+	local camera
+	local skin_list
+	local skin_pos
+	if (not store) then
+		skin_list = clothingSkins
+		skin_pos = skinPos[1]
+		camera = cameraAngles[1].cMartix
+	else
+		if not CS[store] then return false end
+		skin_list = CS[store]
+		camera = cameraAngles[i].cMartix
+		skin_pos = skinPos[i]
+	end
+	triggerClientEvent(player, "GTIclothing.selectSkinFromStore", player, store, skin_list, skin_pos, camera, getPlayerMoney(player), skinInv, skin_order)
+	return true
+end
+
+-- Select Skin
+--------------->>
+
+function selectSkin(skinID, store)
+	local cost = getSkinCostFromID(skinID)
+	local money = getPlayerMoney(client)
+	if (money < cost) then
+		exports.GTIhud:dm("You do not have enough money to purchase this skin.", client, 255, 125, 0)
+	return end
+	if (not exports.GTIemployment:getPlayerJob(client, true)) then
+		setElementModel(client, skinID)
+		exports.GTIhud:dm("You have purchased the "..getSkinNameFromID(skinID).." skin for $"..exports.GTIutil:tocomma(cost), client, 0, 200, 0)
+	else
+		exports.GTIhud:dm("You have purchased the "..getSkinNameFromID(skinID).." skin for $"..exports.GTIutil:tocomma(cost)..". Go off-duty to view it.", client, 0, 200, 0)
+	end
+	exports.GTIbank:TPM(client, cost, "Clothes: Bought skin (ID: "..skinID..", Cost: $"..cost..")")
+	exports.GTIaccounts:SAD(getPlayerAccount(client), "skin", skinID)
+	addSkinToInventory(client, skinID)
+	triggerEvent("onPlayerBuySkin", client, store, cost, skinID)
+	if (store) then
+		triggerClientEvent(client, "GTIclothing.stopSkinSelection", client)
+	else
+		triggerClientEvent(client, "GTIclothes.killSkinSelection", client, true)
+	end
+end
+addEvent("GTIclothing.selectSkin", true)
+addEventHandler("GTIclothing.selectSkin", root, selectSkin)
+
+-- Export Functions
+-------------------->>
+
+function getSkinCostFromID(skinID)
+	if (type(skinID) ~= "number") then return false end
+	for k,v1 in pairs(clothingSkins) do
+		for i,v in ipairs(clothingSkins[k]) do
+			if (v[1] == skinID) then
+				return v[3]
+			end
+		end
+	end
+	return false
+end
+
+function getSkinNameFromID(skinID)
+	if (type(skinID) ~= "number") then return false end
+	for k,v1 in pairs(clothingSkins) do
+		for i,v in ipairs(clothingSkins[k]) do
+			if (v[1] == skinID) then
+				return v[2]
+			end
+		end
+	end
+	return false
+end
+
+function getPlayerOwnedSkins(player)
+	if (not player or not isElement(player) or getElementType(player) ~= "player") then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	local owned_skins = exports.GTIaccounts:invGet(account, "clothing.skins") or ""
+	local skin_table = {}
+	local owned_skins = split(owned_skins, ",")
+	for i,skin in ipairs(owned_skins) do
+		skin_table[i] = tonumber(skin)
+	end
+	return skin_table
+end
+
+function doesPlayerOwnSkin(player, skinID)
+	local skins = getPlayerOwnedSkins(player)
+	for i,v in ipairs(skins) do
+		if (tonumber(v) == tonumber(skinID)) then
+			return true
+		end
+	end
+	return false
+end
+
+function addSkinToInventory(player, skinID)
+	if (not player or not isElement(player) or getElementType(player) ~= "player") then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+
+	local owned_skins = getPlayerOwnedSkins(player)
+	for i,v in ipairs(owned_skins) do
+		if (v == skinID) then return true end
+	end
+	table.insert(owned_skins, skinID)
+	owned_skins = table.concat(owned_skins, ",")
+	exports.GTIaccounts:invSet(account, "clothing.skins", owned_skins)
+	return true
+end	

@@ -1,0 +1,4 @@
+<meta>
+	<script src="locations.slua" />
+	<export function="getVehicleTable" type="server" />
+</meta>

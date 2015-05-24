@@ -1,0 +1,4 @@
+<meta>
+	<info name = "Police: Emergecny Lights System" type="script" author="Kanto" version="1.4" autostart="true" />
+	<script src="s_ELS.lua" type="server" />
+</meta>

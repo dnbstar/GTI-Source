@@ -1,0 +1,4 @@
+<meta>
+	<script src="mech.luac" type="client" />
+	<script src="mech.slua" />
+</meta>

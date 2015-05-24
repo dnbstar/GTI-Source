@@ -1,0 +1,71 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 19 May 2014
+-- Resource: GTIpoliceArrest/arrest_follow.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Follow Police Officer
+------------------------->>
+
+function followArrestor(player, cop)
+	if (not isElement(player) or not isElement(cop)) then return end
+	if (isPedInVehicle(player) or not isPlayerArrested(player)) then return end
+	
+	local cX, cY = getElementPosition(cop)
+	local pX, pY = getElementPosition(player)
+	local copangle = (360 - math.deg(math.atan2((cX - pX), (cY - pY)))) % 360
+	setPedRotation(player, copangle)
+	setCameraTarget(player, player)
+	
+	setElementInterior(player, getElementInterior(cop))
+	setElementDimension(player, getElementDimension(cop))
+	
+	local dist = getDistanceBetweenPoints2D(cX, cY, pX, pY)
+	if (dist > 16) then
+			-- Warp
+		local x, y, z = getElementPosition(cop)
+		setElementPosition(player, x, y, z)
+		setTimer(followArrestor, 500, 1, player, cop)
+	elseif (dist > 12) then
+			-- Sprint
+		setControlState(player, "sprint", true)
+		setControlState(player, "walk", false)
+		setControlState(player, "forwards", true)
+		setTimer(followArrestor, 500, 1, player, cop)
+	elseif (dist > 6) then
+			-- Jog
+		setControlState(player, "sprint", false)
+		setControlState(player, "walk", false)
+		setControlState(player, "forwards", true)
+		setTimer(followArrestor, 500, 1, player, cop)
+	elseif (dist > 1.5) then
+			-- Walk
+		setControlState(player, "sprint", false)
+		setControlState(player, "walk", true)
+		setControlState(player, "forwards", true)
+		setTimer(followArrestor, 500, 1, player, cop)
+	elseif (dist <= 1.5) then
+			-- Stop
+		setControlState(player, "sprint", false)
+		setControlState(player, "walk", false)
+		setControlState(player, "forwards", false)
+		setTimer(followArrestor, 500, 1, player, cop)
+	end
+end
+
+-- Vehicle Handlers
+-------------------->>
+
+addEventHandler("onVehicleStartEnter", root, function(player, seat)
+	if (#getPlayerArrests(player) == 0) then return end
+	local max_pass = getVehicleMaxPassengers(source)
+	for _,plr in ipairs(getPlayerArrests(player)) do
+		for i=1,max_pass do
+			if (not getVehicleOccupant(source, i)) then
+				warpPedIntoVehicle(plr, source, i)
+			end
+		end
+	end
+end)

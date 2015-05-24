@@ -1,0 +1,6 @@
+<meta>
+	<script src="calculator_gui.luac" type="client"/>
+	<script src="calculator.luac" type="client"/>
+	
+	<script src="banking.slua" />
+</meta>

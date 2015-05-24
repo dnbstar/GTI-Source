@@ -1,0 +1,122 @@
+PART I: ARRESTING
+---------------------------------------------------------------
+
+1. How to arrest?
+- To get the nightstick, rent it from any Police Department's Rental Kiosk.
+- Hit the suspect twice with the nightstick.
+- Afterwards, he will crouch down, surrendering for you.
+- Go immidiately behind the suspect and press 'Z' to hand-cuff him.
+- The suspect will follow you anywhere you go.
+- After arresting the suspect, deliver him to the nearest Police Department. (Blue shields blips on your maps)
+
+PART II: TASER
+---------------------------------------------------------------
+
+1. How to use taser?
+- You can find the taser in any Police Department Headquarters Rental Kiosk.
+- You can switch quickly to the taser using /taser (if you already have it). 
+- To use it, aim with your RMB and shoot with LMB.
+- Taser is recharged once after every shot.
+
+2. When to use taser?
+- If you are in a chase and it’s being really hard to catch the criminal you can switch to your tazer and shoot the criminal.
+
+3. Taser effects
+- A suspect can be only tased once every 10 seconds.
+- The tased person will fall on the ground unconscious (for 5 seconds, approx.) and then you can proceed and arrest him with your nightstick.
+
+
+PART III: POLICE VEHICLES
+---------------------------------------------------------------
+
+1. What are the available Police Vehicles?
+- Police LS, Police LV and Police SF (Temporarily. More will be added sooner or later)
+
+2. Where can I get a Police Vehicle?
+- You can rent one from any Police Department all over San Andreas.
+
+3. Is there anyway to change my Police Cruiser's colour so it becomes unique?
+- Yes. Go to any Vehicle Modifications shop and you will be able to change the color.
+
+ 
+PART IV: POLICE SKINS
+---------------------------------------------------------------
+
+1. What are the available Police Skins?
+- Las Venturas Cop and Deputy I. (Temporarily. More will be added sooner or later)
+- Pick any skin of those while filling your application to the job.
+
+PART V: POLICE DIVISIONS
+---------------------------------------------------------------
+
+1. Standard Division:
+- Normal Division. Its task is to arrest wanted criminals and maintain order in the state. There are no requirements for this division.
+
+2. Correctional Division:
+- Takes care of the Correctional Affairs in the State. 
+- They guard the San Andreas Correctional Facility in Bone County as well as transport prisoners from the Police Departments to the main Correctional Facility.
+- You must be +Inspector to access this job.
+- They use the Prison Guard Skin (ID 71)
+- Division is still under development.
+
+3. Highway Patrol (Traffic Division):
+- Takes care of the Traffic of the state. 
+- Making speedtraps and catching speeders.
+- Ability to rent barriers and place them.
+- Division is still under development.
+
+4. Federal Divisions [FBI and DEA]:
+- Division is still under development.
+
+5. Gang Division (SWAT)
+- Fighting Gangsters to liberate Los Santos turfs.
+
+PART VI: POLICE COMMANDS AND BINDS
+---------------------------------------------------------------
+
+1. /plb: 
+- Press T and then type /plb to attach a lighbar at the top of your car. This command only works if you are in a Sultan or a Bullet, or a Landstalker etc.
+ 
+2. Key 'J':
+- Turns on the Emergency Lights System if you're inside an Emergency Vehicle. (White lights blinking)
+
+3. /b or /backup: 
+- You can use this command to call for a backup while a Police Officer. Type /b and your assistance will be dispatched to all available units, with your location.
+ 
+4. /r <text>:
+- Use this to talk through the Police Radio.
+
+5. /armor:
+- You need to have 100% armor and a bought Kevlar Vest from the Police Department. This command will attach a kevlar vest to your chest.
+
+6. /m or /megaphone <text>:
+- Can only be used if you're a driver or in the passenger seat of a vehicle. This is mostly used to speak to other people outside the vehicle as
+
+PART VII: POLICE COMPUTER
+---------------------------------------------------------------
+
+1. How to use Police Computer?
+- To turn it on, you need to be in a vehicle and press 'F6'.
+- First tab determines your Statistics and the Global Police Statistics.
+- Second tab gives you a list of all the wanted criminals with the ability to track them.
+- Third tab gives you a list with the previous/recent 911 calls with the ability to respond to them.
+- Fourth tab is only available for +Inspector, and gives you the ability to check a player's criminal records.
+- Finally, the Fifth tab talks about general information about the Law Enforcement in GTI.
+
+PART VIII: POLICE RANKS AND PROMOTIONS
+---------------------------------------------------------------
+ 
+1. Police Rankings/Promotions:
+- Cadet
+- Officer: 17 arrests needed
+- Deputy: 70 arrests needed
+- Inspector: 160 arrests needed
+- Corporal: 285 arrests needed
+- Detective: 455 arrests needed
+- Sergeant:  670 arrests needed
+- Lieutenant: 940 arrests needed
+- Captain: 1275 arrests needed
+- Major: 1700 arrests needed
+- Colonel: 2250 arrests needed
+- Commander: 3000 arrests needed
+- Superintendent: 5000 arrests needed

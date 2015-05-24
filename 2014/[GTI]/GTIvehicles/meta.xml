@@ -1,0 +1,35 @@
+<meta>
+    <script src="database.slua" />
+    <script src="util.slua" />
+		<!--Misc Vehicle Functions-->
+	<script src="vehicle-misc/vehicleGUIs.luac" 	type="client" />
+    <script src="vehicle-misc/vehSettings.luac" 	type="client" />
+	<script src="vehicle-misc/vehSettings.slua" 	/>
+    	<!--Car Dealership-->
+	<script src="dealerships/dealerships.luac" 		type="client" />
+    <script src="dealerships/dealerLocations.slua" 	/>
+    <script src="dealerships/dealerships.slua" 		/>
+	<script src="dealerships/buyandsell.slua" 		/>
+		<!--Sell Vehicle to Player-->
+	<script src="player-sell/sellVehicle.luac" 		type="client" />
+    <script src="player-sell/sellVehicle.slua" 		/>
+		<!--GTIdroid Vehicle App-->
+    <script src="vehicle-app/vehiclePanel.luac" 	type="client" />
+    <script src="vehicle-app/vehiclePanel.slua" 	/>
+		<!--GTIdroid Vehicle App (Rental)-->
+    <script src="rent-vehicle/rentPanel.luac" 		type="client" />
+    <script src="rent-vehicle/rentPanel.slua" 		/>
+	 
+		<!--Exports-->
+    <export function="getVehicleData" 		type="server" />
+    <export function="setVehicleData" 		type="server" />
+    <export function="getVehicleOwnerData" 	type="server" />
+    <export function="setVehicleOwnerData" 	type="server" />
+    
+    <export function="getVehicleCost" 					type="server" />
+    <export function="getMaximumVehicleID" 				type="server" />
+    <export function="getNextAvailibleVehicleIDSlot" 	type="server" />
+	<export function="getNearestRecoveryPoint" 			type="server" />
+	
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

@@ -1,0 +1,34 @@
+<meta>
+    <script src="JobsDatabase.slua" />
+    
+    <script src="promotions.slua" />
+    
+    <script src="promoGUI.luac" type="client" />
+    <script src="panel.luac" type="client" />
+    <script src="panel.slua" />
+    
+    <export function="getJobRanks" type="server" />
+    <export function="getJobRankFromLevel" type="server" />
+    <export function="getJobMaxLevel" type="server" />
+    <export function="getJobLevelFromProgress" type="server" />
+    <export function="getJobLevelRequirement" type="server" />
+    <export function="getJobUnitName" type="server" />
+    
+    <export function="getPaymentMethod" type="server" />
+    <export function="getPlayerJobLevel" type="server" />
+    <export function="getPlayerJobRank" type="server" />
+    <export function="getPlayerJobProgress" type="server" />
+    <export function="getPlayerJobMoney" type="server" />
+    <export function="modifyPlayerJobProgress" type="server" />
+    <export function="givePlayerJobMoney" type="server" />
+    
+    <export function="getCivilianLevelFromExp" type="server" />
+    <export function="getCivilianLevelRequirement" type="server" />
+    <export function="getHourlyExperience" type="server" />
+    <export function="getPlayerJobPayment" type="server" />
+    <export function="getPlayerHourlyPay" type="server" />
+    <export function="getPlayerCivilianLevel" type="server" />
+    <export function="getPlayerCivilianExp" type="server" />
+    <export function="modifyPlayerCivilianExp" type="server" />
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

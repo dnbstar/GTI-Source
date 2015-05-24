@@ -1,0 +1,5 @@
+<meta>
+	<script src="locations.luac" type="client" />
+	<script src="pilot.luac" type="client" />
+	<script src="pilot.slua" />
+</meta>

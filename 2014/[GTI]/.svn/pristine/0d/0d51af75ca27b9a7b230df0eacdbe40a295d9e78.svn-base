@@ -1,0 +1,151 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 23 Dec 2013
+-- Resource: GTIpoliceWanted/wantedLevels.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local WLDR_POINTS = 2 		-- Wanted Level Decrease Rate (Points)
+local WLDR_MINUTES = 2 		-- Wanted Level Decrease Rate (Minutes)
+local MAX_WP_DECREASE = 75 	-- Decrease WL only if WL <= X
+local NEAR_OFFICER_M = 75	-- Distance to be Near an Officer (Mins)
+
+local wantedLevels = {}
+
+policeTeams = {["National Guard"] = true, ["Law Enforcement"] = true}
+
+-- Fill in Table On Resource Start
+for k,player in ipairs(getElementsByType("player")) do
+	local wanted = getElementData(player, "wanted")
+	if (wanted) then
+		wantedLevels[player] = math.floor(wanted*10)
+	end
+end
+
+-- Crime Exports
+----------------->>
+
+addEvent("onPlayerCommitCrime", true)
+function chargePlayer(player, crimeID)
+	if (client) then player = client end
+	
+	if (not isElement(player) or not crimeList[crimeID]) then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	local wP = crimeList[crimeID][2]
+	
+	local totalCrimes = exports.GTIpoliceDatabase:getWantedData(account, "crimeID"..crimeID) or 0
+	exports.GTIpoliceDatabase:setWantedData(account, "crimeID"..crimeID, totalCrimes+1)
+	local totalWanted = exports.GTIpoliceDatabase:getWantedData(account, "totalWP") or 0
+	exports.GTIpoliceDatabase:setWantedData(account, "totalWP", totalWanted+wP)
+	
+	if (not wantedLevels[player]) then wantedLevels[player] = 0 end
+	wantedLevels[player] = wantedLevels[player] + wP
+	
+	setElementData(player, "wanted", tonumber(string.format("%.1f",(wantedLevels[player]/10))))
+	setWantedLevel(player, wantedLevels[player])
+	
+	outputChatBox("* You have been charged with "..crimeList[crimeID][1].." ("..wP.." WP)", player, 255, 25, 25)
+	triggerEvent("onPlayerCommitCrime", player, crimeID)
+end
+addEvent("GTIpoliceWanted.chargePlayer", true)
+addEventHandler("GTIpoliceWanted.chargePlayer", root, chargePlayer)
+
+-- Wanted Level Exports
+------------------------>>
+
+function isPlayerWanted(player)
+	if (not wantedLevels[player] or wantedLevels[player] == 0) then return false end
+	return true
+end
+
+function getWantedLevel(player, points)
+	if (points) then
+		return wantedLevels[player] or 0
+	else
+		return math.ceil(wantedLevels[player]/10) or 0
+	end
+end
+
+function clearWantedLevel(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	wantedLevels[player] = 0
+	setElementData(player, "wanted", 0)
+	exports.GTIaccounts:SAD(account, "wanted", 0)
+	setWantedLevel(player, 0)
+end
+	
+-- Load/Save Data
+------------------>>
+
+function loadWantedLevel(_, account)
+	if (isGuestAccount(account)) then return end
+	local wL = exports.GTIaccounts:GAD(account, "wanted") or 0
+	wantedLevels[source] = wL
+	setElementData(source, "wanted", tonumber(string.format("%.1f", wL/10)))
+	setWantedLevel(source, wL)
+end
+addEventHandler("onPlayerLogin", root, loadWantedLevel)
+
+function saveWantedLevel()
+	local account = getPlayerAccount(source)
+	if (isGuestAccount(account)) then return end
+	local wL = wantedLevels[source]
+	exports.GTIaccounts:SAD(account, "wanted", wL)
+end
+addEventHandler("onPlayerQuit", root, saveWantedLevel)
+
+-- Utilities
+------------->>
+
+function decreaseWantedLvl()
+	for player,wanted in pairs(wantedLevels) do
+		if (isElement(player)) then
+			if (not isPlayerNearOfficer(player) and wantedLevels[player] <= MAX_WP_DECREASE) then
+				
+			
+				wantedLevels[player] = wantedLevels[player] - WLDR_POINTS
+				if (wantedLevels[player] < 0) then wantedLevels[player] = 0 end
+				setElementData(player, "wanted", tonumber( string.format("%.1f", wantedLevels[player]/10) ))
+			end
+		else
+			wantedLevels[player] = nil
+		end
+	end
+end
+setTimer(decreaseWantedLvl, WLDR_MINUTES*60000, 0)
+
+local WLTable = {1, 10, 25, 45, 75, 150}
+function setWantedLevel(player, wp)
+	if (wp == 0) then 
+		setPlayerWantedLevel(player, 0)
+	return true end
+	
+	for i=1,6 do
+		if (wp > WLTable[i]) then
+			setPlayerWantedLevel(player, i)
+		end
+	end
+	
+	return true
+end
+
+function isPlayerNearOfficer(player)
+	local x1,y1 = getElementPosition(player)
+	for k,police in ipairs(getElementsByType("player")) do
+		local x2,y2 = getElementPosition(police)
+		if (getDistanceBetweenPoints2D(x1,y1, x2,y2) <= NEAR_OFFICER_M) then
+			local team = getPlayerTeam(police)
+			if (team) then
+				team = getTeamName(team)
+				if (policeTeams[team]) then return true end
+			end
+		end
+	end
+	return false
+end
+	

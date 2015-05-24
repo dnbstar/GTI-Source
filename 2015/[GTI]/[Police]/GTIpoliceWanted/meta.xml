@@ -1,0 +1,19 @@
+<meta>
+    <info author="JTPenn" version="1.0" name="Wanted Level System" autostart="true" />
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000" />
+    
+    <script src="crimes/crimes.luac" 	type="client" />
+    <script src="crimes/crimes.slua" 	/>
+    
+    <script src="database.slua" 		/>
+    <script src="crime_list.slua" 		/>
+    <script src="wanted_levels.slua" 	/>
+    
+    <export function="isPlayerWanted" 			type="server" />
+    <export function="getCrimeName" 			type="server" />
+    <export function="getPlayerWantedLevel" 	type="server" />
+	<export function="getWantedData"			type="server" />
+    <export function="clearPlayerWantedLevel" 	type="server" />
+    <export function="chargePlayer" 			type="server" />
+	<export function="isPlayerNearOfficer"		type="server" />
+</meta>

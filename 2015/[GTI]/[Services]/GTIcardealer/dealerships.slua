@@ -1,0 +1,134 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 27 Dec 2013
+-- Resource: GTIcardealer/dealerships.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+activeCarDealer = {}	-- Table of Dealer Table Index and Pickup by Player
+activeCarSeller = {}	-- Table of Seller Table Index and Pickup by Player
+
+-- Show Car Selection on Hit
+----------------------------->>
+
+function bindKeyOnPickupHit(player)
+	if (isPedInVehicle(player)) then return end
+	exports.GTIhud:drawNote("DealerMsg", "Press 'Z' to Purchase a Vehicle", player, 100, 0, 125, 4000)
+	if (not isKeyBound(player, "z", "up", showCarDealershipPanel)) then
+		bindKey(player, "z", "up", showCarDealershipPanel)
+	end
+	activeCarDealer[player] = {}
+	activeCarDealer[player][1] = dealerPoints[source]
+	activeCarDealer[player][2] = source
+end
+
+function showCarDealershipPanel(player)
+	if (not activeCarDealer[player] or not isElement(activeCarDealer[player][2]) or type(activeCarDealer[player][1]) ~= "number") then 
+		unbindKey(player, "z", "up", showCarDealershipPanel)
+		return
+	end
+	local i = activeCarDealer[player][1]
+	local pickup = activeCarDealer[player][2]
+	local x1,y1 = getElementPosition(player)
+	local x2,y2 = getElementPosition(pickup)
+	local dist = getDistanceBetweenPoints2D(x1,y1, x2,y2)
+	if (dist >= 2) then 
+		unbindKey(player, "z", "up", showCarDealershipPanel)
+		return
+	end
+	
+	local tbl = dealerLocations[i]
+	local carTable = {}
+	local vehPrices = exports.GTIvehicles:getVehiclePriceTable()
+	for i,category in ipairs(tbl.categories) do
+		carTable[category] = vehPrices[category]
+	end
+	
+	for k,v in pairs(carTable) do
+		for i,v in ipairs(carTable[k]) do
+			local money = getPlayerMoney(player)
+			if (money < v.cost) then
+				carTable[k][i].afford = false
+			else
+				carTable[k][i].afford = true
+			end
+		end
+	end	
+	triggerClientEvent(player, "GTIcardealer.shopForPersonalVehicle", player, tbl, carTable)
+end
+
+-- Sell Vehicle Panel
+---------------------->>
+
+function bindSellKeyOnPickupHit(player)
+	if (isPedInVehicle(player)) then return end
+	exports.GTIhud:drawNote("DealerMsg", "Press 'Z' to sell a vehicle", player, 100, 0, 125, 4000)
+	if (not isKeyBound(player, "z", "up", showCarSellPanel)) then
+		bindKey(player, "z", "up", showCarSellPanel)
+	end
+	activeCarSeller[player] = {}
+	activeCarSeller[player][1] = dealerSellPoints[source]
+	activeCarSeller[player][2] = source
+end
+
+function showCarSellPanel(player)
+	if (not activeCarSeller[player] or not isElement(activeCarSeller[player][2]) or type(activeCarSeller[player][1]) ~= "number") then 
+		unbindKey(player, "z", "up", showCarSellPanel)
+		return
+	end
+	local i = activeCarSeller[player][1]		-- Location in dealerSellers table
+	local pickup = activeCarSeller[player][2]	-- Pickup Element that was hit
+	
+	local x1,y1 = getElementPosition(player)
+	local x2,y2 = getElementPosition(pickup)
+	local dist = getDistanceBetweenPoints2D(x1,y1, x2,y2)
+	if (dist >= 2) then 
+		unbindKey(player, "z", "up", showCarSellPanel)
+		return
+	end
+	
+	local tbl = dealerSellers[i]				-- Dealer Sell Pt Info
+	local carTable = {}							-- Your Vehicles
+	local account = getPlayerAccount(player)
+	local vehData = exports.GTIvehicles:getAllVehicleOwnerData(account) or {} -- All of your vehicles
+	local index = 1
+	for _,vehID in pairs(vehData) do
+		for i,category in ipairs(tbl.categories) do
+			local vehID = tonumber(vehID)
+			local vehicleID = exports.GTIvehicles:getVehicleData(vehID, "vehicleID")
+			if (exports.GTIvehicles:isVehicleInCategory(vehicleID, category)) then
+				carTable[index] = {}
+				carTable[index][1] = vehID
+				index = index + 1
+				break
+			end
+		end
+	end
+	
+	for k,v in pairs(carTable) do
+		vehID = v[1]
+			-- Vehicle Model
+		carTable[k][2] = exports.GTIvehicles:getVehicleData(vehID, "vehicleID")
+			-- Vehicle Color
+		local colors = exports.GTIvehicles:getVehicleData(vehID, "color")
+		colors = split(colors, ",")
+		carTable[k][3] = {}
+		for i,v2 in ipairs(colors) do
+			carTable[k][3][i] = tonumber(v2)
+		end
+			-- Vehicle Value
+		carTable[k][5] = exports.GTIvehicles:getVehicleSaleValue(vehID)
+		
+		local health
+		if (exports.GTIvehicles:isVehicleSpawned(vehID)) then
+			local vehicle = exports.GTIvehicles:getVehicleByID(vehID)
+			health = getElementHealth(vehicle)
+			if (health < 300) then health = 300 end
+		else
+			health = exports.GTIvehicles:getVehicleData(vehID, "health")
+		end
+		carTable[k][6] = health
+	end	
+	triggerClientEvent(player, "GTIcardealer.sellVehicleToDealer", player, tbl, carTable)
+end

@@ -1,0 +1,4 @@
+<meta>
+	<info author="Jack" name="Test" version="1.0" description="A test script for Ped Tasks"/>
+	<script src="client.lua" type="client" cache="false"/>
+</meta>

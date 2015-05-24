@@ -1,0 +1,8 @@
+<meta>  
+	<info author="JTPenn" 	version="2.0"	name="Bus Driver"	autostart="true" />
+	
+	<script src="locations.luac"		type="client" />
+	<script src="bus_driver.luac"		type="client" />
+	<script src="bus_driver.slua"		/>
+	<file src="bus_stop.png" />
+</meta>

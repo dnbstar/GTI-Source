@@ -1,0 +1,104 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 19 May 2014
+-- Resource: GTIpoliceArrest/respawn.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local respawn_points = {
+	{1561.502, -1674.857, 16.191, 90, 0, 0, "LSPD",		{"Los Santos", "Red County"}},
+	{246.247, 113.691, 1003.219, 180, 10, 142, "SFPD",	{"San Fierro", "Flint County", "Whetstone", "Tierra Robada"}},
+	{235.403, 154.613, 1003.030, 180, 3, 143, "LVPD",	{"Bone County", "Las Venturas"}},
+}
+
+local respawn_plrs = {}
+
+-- Get Respawn Point
+--------------------->>
+
+function getNearestPoliceRespawn(player)
+	if (not isElement(player)) then return false end
+	local x,y,z = getElementPosition(player)
+		-- Get Interior Position
+	local tbl = exports.GTIinteriors:getPlayerLastPosition(player)
+	if (getElementInterior(player) ~= 0 or getElementDimension(player) ~= 0 and type(tbl) == "table") then
+		x,y,z = unpack(tbl)
+	end
+	
+		-- Sort Through Zones First
+	local city = getZoneName(x, y, z, true)
+	for i,loc in ipairs(respawn_points) do
+		for i,city_ in ipairs(loc[8]) do
+			if (city_ == city) then
+				local x, y, z, rot, int, dim, loc = unpack(loc)
+				return x, y, z, rot, int, dim, loc
+			end
+		end
+	end
+		-- Else, default to LSPD
+	local x, y, z, rot, int, dim, loc = unpack(respawn_points[1])
+	return x, y, z, rot, int, dim, loc
+end
+
+-- Respawn Position
+-------------------->>
+
+	-- Select Respawn on Wasted -->>
+addEventHandler("onPlayerWasted", root, function()
+	if (exports.GTIemployment:getPlayerJob(source, true) ~= "Police Officer") then return end
+	
+	local x, y, z, rot, int, dim, loc = getNearestPoliceRespawn(source)
+	exports.GTIhud:drawNote("police.respawn2", "Press 2 to respawn at hospital", source, 30, 145, 255)
+	exports.GTIhud:drawNote("police.respawn", "Press 1 to respawn at "..loc, source, 30, 145, 255)
+	bindKey(source, "1", "down", setPlayerRespawnPosition)
+	bindKey(source, "num_1", "down", setPlayerRespawnPosition)
+	bindKey(source, "2", "down", setPlayerRespawnPosition)
+	bindKey(source, "num_2", "down", setPlayerRespawnPosition)
+end)
+
+function setPlayerRespawnPosition(player, key, state)
+	exports.GTIhud:drawNote("police.respawn2", "", player)
+	if (key == "1") then
+		local x, y, z, rot, int, dim, loc = getNearestPoliceRespawn(player)
+		respawn_plrs[player] = {x, y, z, rot, int, dim, loc}
+		exports.GTIhud:drawNote("police.respawn", "Respawning at "..loc.."...", player, 30, 145, 255)
+	elseif (key == "2") then
+		respawn_plrs[player] = nil
+		exports.GTIhud:drawNote("police.respawn", "Respawning at nearest hospital...", player, 30, 145, 255)
+	end
+end
+
+addEventHandler("onPlayerSpawn", root, function()
+	unbindKey(source, "1", "down", setPlayerRespawnPosition)
+	unbindKey(source, "num_1", "down", setPlayerRespawnPosition)
+	unbindKey(source, "2", "down", setPlayerRespawnPosition)
+	unbindKey(source, "num_2", "down", setPlayerRespawnPosition)
+	exports.GTIhud:drawNote("police.respawn", "", source)
+	exports.GTIhud:drawNote("police.respawn2", "", source)
+	if (exports.GTIemployment:getPlayerJob(source, true) ~= "Police Officer") then return end
+	if (type(respawn_plrs[source]) == "table") then
+		local x, y, z, rot, int, dim, loc = unpack(respawn_plrs[source])
+		setElementPosition(source, x, y, z)
+		setElementRotation(source, 0, 0, rot)
+		setElementInterior(source, int)
+		setElementDimension(source, dim)
+	end
+	respawn_plrs[source] = nil
+end)
+
+	-- Clear Memory
+addEventHandler("onPlayerQuit", root, function()
+	respawn_plrs[source] = nil
+end)
+
+-- Switch to Nightstick
+------------------------>>
+
+addEventHandler("onPlayerSpawn", root, function()
+	if (exports.GTIemployment:getPlayerJob(source, true) ~= "Police Officer") then return end
+	local weapon = getPedWeapon(source, 1)
+	if (weapon == 3) then
+		setPedWeaponSlot(source, 1)
+	end
+end)

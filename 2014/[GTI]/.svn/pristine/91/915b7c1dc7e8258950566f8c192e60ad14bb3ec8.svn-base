@@ -1,0 +1,4 @@
+<meta>
+	<script src="debugPanel.luac" type="client" />
+	<script src="debugPanel.slua" />
+</meta>

@@ -1,0 +1,60 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 16 May 2014
+-- Resource: GTIpoliceArrest/surrender.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+addEvent("onPlayerSurrender", true)	-- Triggered on Surrender
+
+SUR_REDUCED_SENT = 90			-- Amount of prison time that is reduced by surrendering
+
+surrendered = {}		-- Surrendered Players
+local sur_spam = {}			-- Stop /sur from being spammed
+
+-- Surrender Function
+---------------------->>
+
+function surrenderToPolice(player)
+		-- Command Spam Prevention
+	if (sur_spam[player]) then return end
+	sur_spam[player] = true
+	setTimer(function(player) sur_spam[player] = nil end, 1500, 1, player)
+	
+	if (isPedInVehicle(player)) then return end
+	if (isPlayerInPoliceCustody(player, false, true, true, false, true)) then return end
+	if (exports.GTIpoliceWanted:getPlayerWantedLevel(player, true) < 30) then
+		outputChatBox("* You must have at least 30 WP to surrender to the police.", player, 255, 125, 0)
+		return
+	end
+	if (not isPlayerSurrendered(player)) then
+		if (isPlayerArrestable(player)) then return end
+		setPlayerArrestable(player, true, true)
+		setPedAnimation(player, "ped", "handsup", -1, false, true, false, true)
+		surrendered[player] = true
+			-- Stop Players for weapon switching
+		for i,ctrl in ipairs({"next_weapon", "previous_weapon"}) do
+			toggleControl(player, ctrl, false)
+		end
+		setPedWeaponSlot(player, 0)
+		
+		exports.GTIhud:dm("POLICE: You have surrendered to the police. Your jail time has been reduced by "..SUR_REDUCED_SENT.." seconds.", player, 30, 150, 255)
+		triggerEvent("onPlayerSurrender", player)
+		return true
+	else
+		setPlayerArrestable(player, false)
+		for i,ctrl in ipairs({"next_weapon", "previous_weapon"}) do
+			toggleControl(player, ctrl, true)
+		end
+		exports.GTIhud:dm("POLICE: You have stopped surrendering to the police. Jail time restored to normal.", player, 30, 150, 255)
+		surrendered[player] = nil
+		return false
+	end
+end
+addCommandHandler("sur", surrenderToPolice)
+addCommandHandler("surrender", surrenderToPolice)
+
+function isPlayerSurrendered(player)
+	return surrendered[player] or false
+end

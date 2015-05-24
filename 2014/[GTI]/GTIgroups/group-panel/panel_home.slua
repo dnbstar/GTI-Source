@@ -1,0 +1,48 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 31 Mar 2014
+-- Resource: GTIgroups/group-panel/gPanel_home.slua
+-- Type: Client Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Show Group Panel
+-------------------->>
+
+function showGroupPanelHome(player)
+	if (client) then player = client end
+	if (not isPlayerInGroup(player)) then return end
+	
+	local group = {}
+	local groupID = getPlayerGroup(player)
+	group["name"] = getGroupName(groupID)
+	group["typeWhole"] = getGroupType(groupID)
+	group["type"] = getGroupType(groupID, true)
+	group["date"] = getGroupCreationDate(groupID)
+	group["info"] = getGroupInfo(groupID)
+	
+	local perm = {}
+	perm["mod_info"] = hasMemberPermissionTo(player, "mod_group_info")
+	
+	triggerClientEvent(player, "GTIgroups.showGroupPanelHome", resourceRoot, group, perm)
+end
+addEvent("GTIgroups.showGroupPanelHome", true)
+addEventHandler("GTIgroups.showGroupPanelHome", root, showGroupPanelHome)
+
+-- Modify Group Info
+--------------------->>
+
+function modifyGroupInfo(group_info)
+	local groupID = getPlayerGroup(client)
+	modifyGroupInformation(groupID, group_info)
+	
+	local members = getGroupMembers(groupID)
+	for i,member in ipairs(members) do
+		local player = getAccountPlayer(getAccount(member))
+		if (player) then
+			outputChatBox(getPlayerName(client).." updated the group information.", player, 255, 100, 100)
+		end
+	end
+end
+addEvent("GTIgroups.modifyGroupInfo", true)
+addEventHandler("GTIgroups.modifyGroupInfo", root, modifyGroupInfo)

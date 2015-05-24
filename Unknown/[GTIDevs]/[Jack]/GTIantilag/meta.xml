@@ -1,0 +1,6 @@
+<meta>
+	<info author="Jack" name="Anti-Lag System" description="Anti lag system" version="1.0" autostart="false" />
+	
+	<script src="antilag.lua" type="client" cache="false"/>
+	<script src="antilag_s.lua" type="server"/>
+</meta>

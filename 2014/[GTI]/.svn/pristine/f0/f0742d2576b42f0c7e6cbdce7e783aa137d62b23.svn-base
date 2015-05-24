@@ -1,0 +1,249 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 09 Jan 2014
+-- Resource: GTIbank/bankAccount.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+MINIMUM_DEPOSIT = 5000
+MINIMUM_WITHDRAW = 25000
+
+START_CASH = 2500
+START_BANK_BALANCE = 25000000
+CHANGE_BAL_TIMEOUT = 250
+
+-- Login to Bank Account
+------------------------->>
+
+function showBankAccountLogin(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return end
+	
+	local isSecure = getBankData(account, "secure")
+	if (isSecure == 1) then isSecure = true else isSecure = false end
+	triggerClientEvent(player, "GTIbank.showBankAccountLogin", player, isSecure)
+end
+
+function loginToBankAccount(password, pin)
+	local account = getPlayerAccount(client)
+	local accName = getAccountName(account)
+		-- Security Check 1
+	if (not getAccount(accName, password)) then
+		triggerClientEvent(client, "GTIbank.returnLoginInfo", client, false, "Invalid Password Provided")
+		return
+	end
+		-- Security Check 2 (Optional)
+	local bankPin = getBankData(account, "pin")
+	if (bankPin and bankPin ~= pin) then
+		triggerClientEvent(client, "GTIbank.returnLoginInfo", client, false, "Invalid Pin Number Provided")
+		return
+	end
+	local accBalance = getBankData(account, "balance") or 0
+	triggerClientEvent(client, "GTIbank.returnLoginInfo", client, true, accBalance)
+end
+addEvent("GTIbank.loginToBankAccount", true)
+addEventHandler("GTIbank.loginToBankAccount", root, loginToBankAccount)
+
+-- Deposit Cash
+---------------->>
+
+function depositCash(cash)
+	local account = getPlayerAccount(client)
+	local cashOnHand = getPlayerMoney(client)
+	if (cashOnHand < cash) then
+		exports.GTIhud:dm("You do not have enough money to deposit this amount ($"..exports.GTIutil:tocomma(cash-cashOnHand).." needed)", client, 255, 125, 0)
+		return
+	end
+	
+	local balance = getBankData(account, "balance") or 0
+	cash = math.floor( cash )
+	local newBalance = math.floor( balance+cash )
+	
+	setBankData(account, "balance", newBalance)
+	exports.GTIlogs:outputLog(getPlayerName(client).." deposited $"..cash.." (Balance: $"..newBalance..")", "bank", client)
+	TPM(client, cash, "BANK: Deposit")
+	exports.GTIhud:dm("Cash Deposit Successful. Amount: $"..exports.GTIutil:tocomma(cash), client, 75, 200, 75)
+	setTimer(function(player, account)
+		local cashOnHand = getPlayerMoney(player)
+		local balance = getBankData(account, "balance")
+		triggerClientEvent(player, "GTIbank.updateCash", player, balance, cashOnHand)
+	end, CHANGE_BAL_TIMEOUT, 1, client, account)
+end
+addEvent("GTIbank.depositCash", true)
+addEventHandler("GTIbank.depositCash", root, depositCash)
+
+-- Withdraw Cash
+----------------->>
+
+function withdrawCash(cash)
+	local account = getPlayerAccount(client)
+	local balance = getBankData(account, "balance") or 0
+	if (balance < cash) then
+		exports.GTIhud:dm("You do not have enough money to withdraw this amount ($"..exports.GTIutil:tocomma(cash-balance).." needed)", client, 255, 125, 0)
+		return
+	end
+	
+	cash = math.floor( cash )
+	local newBalance = math.floor( balance-cash )
+	
+	setBankData(account, "balance", newBalance)
+	exports.GTIlogs:outputLog(getPlayerName(client).." withdrew $"..cash.." (Balance: $"..newBalance..")", "bank", client)
+	GPM(client, cash, "BANK: Withdrawal")
+	exports.GTIhud:dm("Account Withdrawal Successful. Amount: $"..exports.GTIutil:tocomma(cash), client, 75, 200, 75)
+	setTimer(function(player, account)
+		local cashOnHand = getPlayerMoney(player)
+		local balance = getBankData(account, "balance")
+		triggerClientEvent(player, "GTIbank.updateCash", player, balance, cashOnHand)
+	end, CHANGE_BAL_TIMEOUT, 1, client, account)
+end
+addEvent("GTIbank.withdrawCash", true)
+addEventHandler("GTIbank.withdrawCash", root, withdrawCash)
+
+-- Transfer Cash
+----------------->>
+
+local transferInProgress = {}
+function transferCash(toAccountName, cash)
+	if (transferInProgress[client]) then return end
+	transferInProgress[client] = true
+	
+	local account = getPlayerAccount(client)
+	local balance = getBankData(account, "balance") or 0
+	if (balance < cash) then
+		exports.GTIhud:dm("You do not have enough money to transfer this amount ($"..exports.GTIutil:tocomma(cash-balance).." needed)", client, 255, 125, 0)
+		return
+	end
+	local toAccount = getAccount(toAccountName)
+	if (not toAccount) then
+		exports.GTIhud:dm("An account with this name does not exist. Please enter a valid account name.", client, 255, 125, 0)
+		return
+	end	
+	setBankData(account, "balance", balance-cash)
+	local toBalance = getBankData(toAccount, "balance") or 0
+	setBankData(toAccount, "balance", toBalance+cash)
+	
+	exports.GTIlogs:outputLog(getPlayerName(client).." transferred $"..cash.." to account "..toAccountName.." (Balance: $"..balance-cash..")", "bank", client)
+	exports.GTIlogs:outputLog("Account "..toAccountName.." received $"..cash.." from "..getPlayerName(client).." (Balance: $"..toBalance+cash..")", "bank", toAccount)
+	
+	exports.GTIhud:dm("Account Transfer Successful. (Account: "..toAccountName..", Amount: $"..exports.GTIutil:tocomma(cash)..")", client, 75, 200, 75)
+	local cashOnHand = getPlayerMoney(client)
+	triggerClientEvent(client, "GTIbank.updateCash", client, balance-cash, cashOnHand)
+	transferInProgress[client] = nil
+end
+addEvent("GTIbank.transferCash", true)
+addEventHandler("GTIbank.transferCash", root, transferCash)
+
+-- Secure Account
+------------------>>
+
+function showSecureAccountPanel()
+	local account = getPlayerAccount(client)
+	local isSecure = getBankData(account, "secure")
+	if (isSecure == 1) then
+		triggerClientEvent(client, "GTIbank.returnSecureAccount", client, true)
+	else
+		triggerClientEvent(client, "GTIbank.returnSecureAccount", client, false)
+	end
+end
+addEvent("GTIbank.showSecureAccountPanel", true)
+addEventHandler("GTIbank.showSecureAccountPanel", root, showSecureAccountPanel)
+
+function secureAccount(isSecure, pin)
+	local account = getPlayerAccount(client)
+	if (isSecure) then
+		local isSecureNow = getBankData(account, "secure")
+		if (isSecureNow == 1) then
+			setBankData(account, "pin", pin)
+			exports.GTIhud:dm("Your pin number has been successfully changed! Remember it!", client, 75, 255, 75)
+			exports.GTIlogs:outputLog(getPlayerName(client).." changed their pin number", "bank", client)
+		else
+			setBankData(account, "secure", 1)
+			setBankData(account, "pin", pin)
+			exports.GTIhud:dm("Your account has been secured! Mobile Banking unlocked.", client, 75, 255, 75)
+			exports.GTIhud:dm("Remember your pin number, you will need it to access your bank account from now on.", client, 75, 255, 75)
+			exports.GTIlogs:outputLog(getPlayerName(client).." secured their account with a pin number", "bank", client)
+		end
+	else
+		setBankData(account, "secure", 0)
+		setBankData(account, "pin", nil)
+		exports.GTIhud:dm("Your account has been unsecured! Mobile Banking locked.", client, 75, 255, 75)
+		exports.GTIlogs:outputLog(getPlayerName(client).." removed their account security", "bank", client)
+	end
+	triggerClientEvent(client, "GTIbank.cancelSecure", client, "left", "up")
+end
+addEvent("GTIbank.secureAccount", true)
+addEventHandler("GTIbank.secureAccount", root, secureAccount)
+
+-- Load/Save Cash
+------------------>>
+
+function loadCash(_, account)
+	if (isGuestAccount(account)) then return end
+	local cash = getBankData(account, "cash") or START_CASH
+	if (cash == 0) then return end
+	GPM(source, cash, "BANK: cash on hand loaded from bank database")
+	local balance = getBankData(account, "balance")
+	if (not balance) then
+		setBankData(account, "balance", START_BANK_BALANCE)
+	end
+end
+addEventHandler("onPlayerLogin", root, loadCash)
+
+function saveCash()
+	local account = getPlayerAccount(source)
+	if (isGuestAccount(account)) then return end
+	local cash = getPlayerMoney(source)
+	setBankData(account, "cash", cash)
+end
+addEventHandler("onPlayerQuit", root, saveCash)
+
+-- Exports and Events
+---------------------->>
+
+addEvent("onPlayerGiveMoney", true)
+function GPM(player, amount, log)
+	if (not isElement(player) or type(amount) ~= "number" or amount < 0) then return false end
+	givePlayerMoney(player, amount)
+	if (log) then
+		exports.GTIlogs:outputLog(getPlayerName(player).." was given $"..amount.." ("..log..")", "money", player)
+	else
+		outputDebugString("Money was unlogged", 2)
+	end
+	triggerEvent("onPlayerGiveMoney", player, amount)
+	triggerClientEvent(player, "onClientPlayerGiveMoney", player, amount)
+end
+
+addEvent("onPlayerTakeMoney", true)
+function TPM(player, amount, log)
+	if (not isElement(player) or type(amount) ~= "number" or amount < 0) then return false end
+	takePlayerMoney(player, amount)
+	if (log) then
+		exports.GTIlogs:outputLog(getPlayerName(player).." $"..amount.." was taken ("..log..")", "money", player)
+	else
+		outputDebugString("Money was unlogged", 2)
+	end
+	triggerEvent("onPlayerTakeMoney", player, amount)
+	triggerClientEvent(player, "onClientPlayerTakeMoney", player, amount)
+end
+
+function getPlayerBankBalance(player)
+	if (not isElement(player)) then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	local balance = getBankData(account, "balance") or 0
+	return balance
+end
+
+function modifyPlayerBankBalance(player, amount, log)
+	if (not isElement(player) or type(amount) ~= "number") then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	local balance = getBankData(account, "balance") or 0
+	setBankData(account, "balance", balance+amount)
+	
+	exports.GTIlogs:outputLog(getPlayerName(player).." account balance changed by $"..amount.." ("..log..")", "bank", player)
+	return true
+end

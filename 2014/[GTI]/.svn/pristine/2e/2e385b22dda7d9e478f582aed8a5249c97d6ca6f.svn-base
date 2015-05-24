@@ -1,0 +1,4 @@
+<meta>
+    <script src="glueS.lua" type="server" />
+    <script src="glue.lua" type="client" />
+</meta>

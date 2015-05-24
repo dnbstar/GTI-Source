@@ -1,0 +1,7 @@
+<meta>
+    <script src="reload.slua" />
+    <script src="reload.luac" type="client" />
+    
+    <script src="weapons.slua" />
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

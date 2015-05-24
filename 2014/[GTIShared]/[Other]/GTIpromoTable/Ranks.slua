@@ -1,0 +1,126 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 19 Dec 2013
+-- Resource: GTIpromotions/Ranks.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Job Ranks
+------------->>
+
+Ranks = {
+["Farmer"] = {
+	[0] = {name="Basic Farmer", 		promoTime=0},
+	[1] = {name="New Farmer",			promoTime=600},
+	[2] = {name="Migrant Farmer",		promoTime=1400},
+	[3] = {name="Seasonal Farmer",		promoTime=3000},
+	[4] = {name="Yearly Farmer",		promoTime=6200},
+	[5] = {name="Botanical Maid",		promoTime=12600},
+	[6] = {name="Experienced Farmer",	promoTime=25400},
+	[7] = {name="Amish Son",			promoTime=51000},
+	[8] = {name="Amish Father",			promoTime=102000},
+	[9] = {name="Agricultural Madman",	promoTime=204400},
+	[10] = {name="Amish God",			promoTime=408800},
+},
+
+["Fisherman"] = {
+	[0] = {name="Trainee", 				promoTime=0},
+	[1] = {name="Freelance Fisher",		promoTime=100},
+	[2] = {name="Assistant Fisherman",	promoTime=250},
+	[3] = {name="Junior Fisherman",		promoTime=400},
+	[4] = {name="Migrant Fisherman",	promoTime=1650},
+	[5] = {name="Annual Fisherman",		promoTime=3800},
+	[6] = {name="Specialist Fisherman",	promoTime=6000},
+	[7] = {name="Expert Fisherman",		promoTime=10250},
+	[8] = {name="Master Fisherman",		promoTime=20400},
+	[9] = {name="Son of the Seas",		promoTime=30650},
+	[10] = {name="God of the Seas",		promoTime=35800},
+},
+
+["Mail Carrier"] = {
+	[0] = {name="Training", 				promoTime=0},
+	[1] = {name="Pack Mule",				promoTime=1.25},
+	[2] = {name="Courier",					promoTime=2.5},
+	[3] = {name="Mail Carrier",				promoTime=5},
+	[4] = {name="Postal Worker",			promoTime=11},
+	[5] = {name="Senior Postal Worker",		promoTime=22},
+	[6] = {name="Mail Specialist",			promoTime=44},
+	[7] = {name="Logistics Manager",		promoTime=87},
+	[8] = {name="Chief Logistics Manager",	promoTime=175},
+	[9] = {name="Master of Logistics",		promoTime=350},
+},
+
+["Mechanic"] = {
+	[0] = {name="Tinkerer", 				promoTime=0},
+	[1] = {name="Student Mechanic",			promoTime=1.25},
+	[2] = {name="Unlicensed Mechanic",		promoTime=2.5},
+	[3] = {name="Certified Mechanic",		promoTime=5},
+	[4] = {name="Auto Technician",			promoTime=11},
+	[5] = {name="Auto Specialist",			promoTime=22},
+	[6] = {name="Senior Auto Specialist",	promoTime=44},
+	[7] = {name="Expert Mechanic",			promoTime=87},
+	[8] = {name="Executive Mechanic",		promoTime=175},
+	[9] = {name="Chief Executive",			promoTime=350},
+	[10] = {name="Master Technician",		promoTime=700},
+},
+
+["Pilot"] = {
+	[0] = {name="Trainee", 				promoTime=0},
+	[1] = {name="Aviator",				promoTime=1.25},
+	[2] = {name="Advanced Aviator",		promoTime=2.5},
+	[3] = {name="Flight Officer",		promoTime=5},
+	[4] = {name="First Officer",		promoTime=11},
+	[5] = {name="Captain",				promoTime=22},
+	[6] = {name="Senior Captain",		promoTime=44},
+	[7] = {name="Commercial Captain",	promoTime=87},
+	[8] = {name="Commander",			promoTime=175},
+	[9] = {name="Senior Commander",		promoTime=350},
+	[10] = {name="Veteran",				promoTime=700},
+},
+
+["Paramedic"] = {
+	[0] = {name="Trainee", 				promoTime=0},
+	[1] = {name="Nurse",				promoTime=130},
+	[2] = {name="Pharmacist",			promoTime=260},
+	[3] = {name="Junior Medic",			promoTime=520},
+	[4] = {name="Senior Medic",			promoTime=1040},
+	[5] = {name="Pediatrician",			promoTime=2080},
+	[6] = {name="Doctor",				promoTime=4160},
+	[7] = {name="Beginner Surgean",		promoTime=8320},
+	[8] = {name="Advanced Surgean",		promoTime=16640},
+	[9] = {name="Healing Demigod",		promoTime=33280},
+	[10] = {name="Walking Jesus",		promoTime=60000},
+},
+}
+
+
+-- Job And Progress Auto-Balance
+--------------------------------->>
+
+RankBase = {
+	["Farmer"] = 		{hProg=1,	uName="Bails Harvested",		basePay=1},
+	["Fisherman"] = 	{hProg=1,	uName="Fish Caught",			basePay=1},
+	["Mail Carrier"] = 	{hProg=35,	uName="Packages Delivered",		basePay=0.5490,	floorProg=true},
+	["Mechanic"] = 		{hProg=1,	uName="Vehicle HP Repaired",	basePay=1},
+	["Pilot"] = 		{hProg=72,	uName="Flight Miles",			basePay=0.1769},
+	["Paramedic"] = 	{hProg=1,	uName="Healing Points",			basePay=1},
+}
+
+for job,_ in pairs(Ranks) do
+	for lvl,tbl in pairs(Ranks[job]) do
+		-- Insert Progress
+		Ranks[job][lvl].progress = (RankBase[job].hProg)*tbl.promoTime
+		if (RankBase[job].floorProg) then
+			Ranks[job][lvl].progress = math.floor(Ranks[job][lvl].progress)
+		end
+	end
+end
+
+function getRanks()
+	return Ranks
+end
+
+function getRankBase()
+	return RankBase
+end

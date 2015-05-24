@@ -1,0 +1,84 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 28 Dec 2013
+-- Resource: GTIvehiclesApp/panel.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local callVehicleInfoOcc = {}	-- Records of instances of callVehicleInfo
+local vehStatRunning = {}		-- Records of instances of callVehicleStatInfo
+
+-- Toggle Panel
+---------------->>
+
+function callVehicleInfo()
+	if (callVehicleInfoOcc[client]) then return end
+	callVehicleInfoOcc[client] = true
+	
+	local account = getPlayerAccount(client)
+		
+		-- Player Owned Vehicle Info
+	local vehData = exports.GTIvehicles:getAllVehicleOwnerData(account) or {}
+	local vehTable = {}
+	for vehKey,vehID in pairs(vehData) do
+		local int = string.gsub(vehKey, "vehicle", "")
+		local int = tonumber(int)
+		if (int) then
+			vehTable[int] = {}
+			vehTable[int][1] = exports.GTIvehicles:getVehicleData(vehID, "vehicleID")
+			vehTable[int][2] = exports.GTIvehicles:getVehicleData(vehID, "health")
+			vehTable[int][3] = exports.GTIvehicles:getVehicleData(vehID, "fuel")
+			if (exports.GTIvehicles:isVehicleSpawned(vehID)) then
+				vehTable[int][4] = true
+				local vehicle = exports.GTIvehicles:getVehicleByID(vehID)
+				vehTable[int][2] = getElementHealth(vehicle)
+			end
+			vehTable[int][5] = vehID
+		end
+	end
+	
+	triggerClientEvent(client, "GTIvehiclesApp.returnVehicleInfo", client, vehTable)
+	callVehicleInfoOcc[client] = nil
+end
+addEvent("GTIvehiclesApp.callVehicleInfo", true)
+addEventHandler("GTIvehiclesApp.callVehicleInfo", root, callVehicleInfo)
+
+-- Send Vehicle Stat Info
+-------------------------->>
+
+function callVehicleStatInfo(vehID)
+	if (vehStatRunning[client]) then return end
+	vehStatRunning[client] = true
+	
+	local vehInfo = {}
+	local vehID = exports.GTIvehicles:getVehicleIDFromSlot(client, vehID)
+	if (not vehID) then vehStatRunning[client] = nil return end
+	
+	vehInfo["name"] = exports.GTIvehicles:getVehicleData(vehID, "vehicleID")
+	vehInfo["name"] = getVehicleNameFromModel(tonumber(vehInfo["name"]))
+	
+	local vehicle = exports.GTIvehicles:getVehicleByID(vehID)
+	if (not isElement(vehicle)) then
+		local pos = exports.GTIvehicles:getVehicleData(vehID, "position")
+		pos = split(pos, ",")
+		x,y,z = tonumber(pos[1]), tonumber(pos[2]), tonumber(pos[3])
+	else
+		x,y,z = getElementPosition(vehicle)
+	end
+	local district, city = getZoneName(x,y,z), getZoneName(x,y,z, true)
+	if (district == "Unknown") then district = "San Andreas" end
+	if (city == "Unknown") then city = "San Andreas" end
+	vehInfo["zone"] = district..", "..city
+	
+	vehInfo["active"] = exports.GTIvehicles:isVehicleSpawned(vehID)
+	
+	if (exports.GTIvehicles:isVehicleMarkedOnRadar(vehicle)) then
+		vehInfo["blipped"] = true
+	end
+
+	triggerClientEvent(client, "GTIvehiclesApp.returnVehicleStatInfo", client, vehInfo)
+	vehStatRunning[client] = nil
+end
+addEvent("GTIvehiclesApp.callVehicleStatInfo", true)
+addEventHandler("GTIvehiclesApp.callVehicleStatInfo", root, callVehicleStatInfo)

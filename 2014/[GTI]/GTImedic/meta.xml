@@ -1,0 +1,5 @@
+<meta>
+     <script src="medic_c.luac" type="client" />
+     <script src="medic_s.lua" type="server" />
+     <script src="medicgui_c.lua" type="client" />
+</meta>

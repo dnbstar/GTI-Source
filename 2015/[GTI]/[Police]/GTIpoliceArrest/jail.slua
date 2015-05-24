@@ -1,0 +1,362 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 19 May 2014
+-- Resource: GTIpoliceArrest/jail.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local pd_jail = {
+	{1564.429, -1694.440, 4.891,	{"Los Santos"}},
+	{616.745, -587.768, 16.233, 	{"Red County"}},
+	{-1589.512, 716.492, -6.242, 	{"San Fierro", "Flint County", "Whetstone"}},
+	{-1404.837, 2651.522, 54.688,	{"Tierra Robada"}},
+	{-220.706, 995.297, 18.609,		{"Bone County"}},
+	{2281.930, 2451.503, 9.820,		{"Las Venturas"}},
+}
+
+local JAIL_PER_WP = 1.5		-- Time in Prison per WP
+local PRISON_WP = 25		-- WP Threshold before going to prison
+local HOURLY_PROG = 15		-- Arrests per hour
+local CASH_PER_WP = 30		-- Cash earned per WP
+local MAX_SENTENCE = 3600	-- Max Jail Time
+local PAY_FLOOR = 1250		-- Minimum Payment from a single arrest
+local NEAR_OFFICER_M = 75	-- Distance to be Near an Officer (meters)
+
+-- Get Police Stations
+----------------------->>
+
+function getNearestPoliceStation(player)
+	local x,y,z = getElementPosition(player)
+		-- Sort Through Zones First
+	local city = getZoneName(x, y, z, true)
+	for i,loc in ipairs(pd_jail) do
+		for i,city_ in ipairs(loc[4]) do
+			if (city_ == city) then
+				return loc[1], loc[2], loc[3]
+			end
+		end
+	end
+		-- Then Find the Nearest by Distance
+	local distance, loc
+	for i,pos in ipairs(pd_jail) do
+		local dist = getDistanceBetweenPoints3D(x,y,z, pos[1],pos[2],pos[3])
+		if (not distance) then distance = dist end
+		if (not dist or dist < distance) then
+			distance = dist
+			loc = i
+		end
+	end
+	return pd_jail[loc][1], pd_jail[loc][2], pd_jail[loc][3]
+end
+
+-- Show Police Station
+----------------------->>
+
+function showPoliceStation(player, all)
+	if (all) then
+		triggerClientEvent(player, "GTIpoliceArrest.showPoliceStation", resourceRoot, player, all, pd_jail)
+	else
+		local x,y,z = getNearestPoliceStation(player)
+		triggerClientEvent(player, "GTIpoliceArrest.showPoliceStation", resourceRoot, player, all, {x,y,z})
+	end
+	return true
+end
+
+-- Jail Player
+--------------->>
+
+function jailPlayer(player, dim)
+	if (client) then client = player end
+	if (not isElement(player) or not dim) then return false end
+	
+	local cop_arrests = getPlayerArrests(player)
+	if (#cop_arrests == 0) then return false end
+	local arrest_amt = #cop_arrests
+	local total_wp = 0
+	
+	local payments = {}
+	local bonuses = {}
+	for i,plr in ipairs(cop_arrests) do
+		addArrestParticipant(plr, player)
+		local wp = exports.GTIpoliceWanted:getPlayerWantedLevel(plr, true)
+		
+			-- Log Officer Payment Offset
+		for i,cop in ipairs(getArrestParticipants(plr)) do
+			if (not payments[cop]) then payments[cop] = {} end
+			payments[cop][1] = (payments[cop][1] or 0) + 1/#getArrestParticipants(plr)	-- Offset
+		end
+			-- Log Officer Arrests, WP
+		for cop,_ in pairs(payments) do
+			payments[cop][2] = (payments[cop][2] or 0) + 1	-- Arrests
+			payments[cop][3] = (payments[cop][3] or 0) + wp	-- Wanted Points
+		end
+		
+			-- Log Bonuses
+		for i,cop in ipairs(getNearbyBonusCops(plr)) do
+			if (not bonuses[cop]) then bonuses[cop] = {} end
+			bonuses[cop][1] = (bonuses[cop][1] or 0) + 1	-- Arrests
+			bonuses[cop][2] = (bonuses[cop][2] or 0) + wp	-- Wanted Points
+		end
+		
+			-- Jail the Player
+		local sentence = wp * JAIL_PER_WP
+		--if (sentence > getMaxSentence()) then sentence = getMaxSentence() end
+			-- Reduced Sentence for Surrendered Players
+		if (isPlayerSurrendered(plr)) then
+			sentence = sentence - SUR_REDUCED_SENT
+		end
+		setPedAnimation(plr)
+		if (wp >= PRISON_WP) then
+			-- Jail at State Prison
+			exports.GTIprison:jailPlayer(plr, sentence, player)
+		else
+			-- Jail at Police Station
+			exports.GTIprison:jailPlayer(plr, sentence, player)
+		end
+		releasePlayer(plr, true)
+	end
+	
+	removePDMarkers(player)
+	
+		-- Pay the Officers
+	for cop,pay in pairs(payments) do
+		payPlayerForArrest(cop, pay[2], pay[3], pay[1]/pay[2])
+		bonuses[cop] = nil
+	end
+		-- Pay Bonus Cops
+	for cop,pay in pairs(bonuses) do
+		if (canPlayerArrest(cop)) then
+			payPlayerForArrestBonus(cop, pay[1], pay[2])
+		end
+	end
+end
+addEvent("GTIpoliceArrest.jailPlayer", true)
+addEventHandler("GTIpoliceArrest.jailPlayer", root, jailPlayer)
+
+-- Quit Arrest System
+---------------------->>
+
+function jailOfflinePlayer(player)
+	if (isPedDead(player)) then return end
+	-- Jail Player in Custody
+	local inCustody
+	if (not isPlayerInPoliceCustody(player, true, true, true, false, false)) then
+		-- Or jail offline player
+		if (not exports.GTIpoliceWanted:isPlayerNearOfficer(player)) then return else inCustody = false end
+	else inCustody = true end
+	
+	local account = getPlayerAccount(player)
+	local wp = math.ceil(getElementData(player, "wanted") * 10)
+	if (wp == 0) then return end
+	local sentence = wp * getJailTimePerWP()
+		-- Reduced Sentence for Surrendered Players
+	if (isPlayerSurrendered(player)) then
+		sentence = sentence - SUR_REDUCED_SENT
+	end
+	--if (sentence > getMaxSentence()) then sentence = getMaxSentence() end
+	exports.GTIaccounts:SAD(account, "jail_time", sentence)
+	
+	local participants = getArrestParticipants(player)
+		-- Get Nearby Cops
+	if (not inCustody) then
+		participants = {}
+		local x1,y1,z1 = getElementPosition(player)
+		for k,police in ipairs(getElementsByType("player")) do
+			local x2,y2,z2 = getElementPosition(police)
+			if (getDistanceBetweenPoints3D(x1,y1,z1, x2,y2,z2) <= NEAR_OFFICER_M) then
+				local team = getPlayerTeam(police)
+				if (team and getTeamName(team) == "Law Enforcement") then
+					table.insert(participants, police)
+				end
+			end
+		end
+	end
+		-- Pay All Officers
+	local bonuses = {}
+	if (#participants > 0) then
+		local payments = {}
+		-- Log Payments
+		for i,cop in ipairs(participants) do
+			payments[cop] = (payments[cop] or 0) + 1/#participants	-- Offset
+		end
+		
+		-- Log Bonuses
+		for i,cop in ipairs(getNearbyBonusCops(player)) do
+			bonuses[cop] = true
+		end
+		
+		-- Pay Officers
+		for cop,offset in pairs(payments) do
+			payPlayerForArrest(cop, 1, wp, offset)
+			bonuses[cop] = nil
+		end
+	end
+	
+		-- And all nearby bonus cops
+	if (inCustody) then
+		for cop in pairs(bonuses) do
+			payPlayerForArrestBonus(player, 1, wp)
+		end
+	end
+end
+
+-- Kill Arrest
+--------------->>
+
+addEventHandler("onPlayerWasted", root, function(_, cop)
+	if (not cop or not isElement(cop) or getElementType(cop) ~= "player") then return end
+	if (exports.GTIemployment:getPlayerJob(cop, true) ~= "Police Officer") then return end
+	if (cop == source or not exports.GTIpoliceWanted:isPlayerWanted(source)) then return end
+	
+	-- Jail Player
+	local wp = exports.GTIpoliceWanted:getPlayerWantedLevel(source, true)
+	if (wp == 0) then return end
+	local sentence = wp * getJailTimePerWP()
+	--if (sentence > getMaxSentence()) then sentence = getMaxSentence() end
+	local account = getPlayerAccount(source)
+	exports.GTIaccounts:SAD(account, "jail_time", sentence)
+	exports.GTIweapons:saveWeapons(source)
+	
+	-- Pay Officer
+	payPlayerForArrest(cop, 1, wp, 1)
+	
+	-- Pay Bonus Cops
+	local x1,y1,z1 = getElementPosition(source)
+	for k,police in ipairs(getElementsByType("player")) do
+		local x2,y2,z2 = getElementPosition(police)
+		if (getDistanceBetweenPoints3D(x1,y1,z1, x2,y2,z2) <= BONUS_DIST) then
+			local team = getPlayerTeam(police)
+			if (canPlayerArrest(police) and police ~= cop) then
+				payPlayerForArrestBonus(police, 1, wp)
+			end
+		end
+	end
+end)
+
+-- Suicide Arrest
+------------------>>
+
+addEventHandler("onPlayerWasted", root, function(_, killer)
+	if (exports.GTIemployment:getPlayerJob(killer, true) == "Police Officer" or killer == source) then return end
+	
+	local participants = {}
+	local x1,y1,z1 = getElementPosition(source)
+	for k,police in ipairs(getElementsByType("player")) do
+		local x2,y2,z2 = getElementPosition(police)
+		if (getDistanceBetweenPoints3D(x1,y1,z1, x2,y2,z2) <= NEAR_OFFICER_M) then
+			local team = getPlayerTeam(police)
+			if (team and getTeamName(team) == "Law Enforcement") then
+				table.insert(participants, police)
+			end
+		end
+	end
+	
+	if (#participants == 0) then return end
+	
+	-- Jail Player
+	local wp = exports.GTIpoliceWanted:getPlayerWantedLevel(source, true)
+	if (wp == 0) then return end
+	local sentence = wp * getJailTimePerWP()
+	--if (sentence > getMaxSentence()) then sentence = getMaxSentence() end
+	local account = getPlayerAccount(source)
+	exports.GTIaccounts:SAD(account, "jail_time", sentence)
+	exports.GTIweapons:saveWeapons(source)
+	
+	-- Pay Officers
+	local payments = {}
+	for i,cop in ipairs(participants) do
+		payments[cop] = (payments[cop] or 0) + 1/#participants	-- Offset
+	end
+	
+	for cop,offset in pairs(payments) do
+		payPlayerForArrest(cop, 1, wp, offset)
+	end
+end)
+
+-- Police Payments
+------------------->>
+
+function payPlayerForArrest(player, arrests, total_wp, offset, ignore_pay)
+	if (not isElement(player) or getElementType(player) ~= "player") then return false end
+	if (not canPlayerArrest(player)) then return false end
+	
+	local hrExp = exports.GTIemployment:getHourlyExperience()
+	local exp_ = math.ceil( (arrests/getHourlyProgress())*hrExp * offset ) 
+	exports.GTIemployment:modifyPlayerJobProgress(player, "Police Officer", arrests)
+	exports.GTIemployment:modifyPlayerEmploymentExp(player, exp_, "Police Officer")
+	
+	if (not ignore_pay) then
+		local pay = getCashPerWP()*total_wp
+		if (pay > getMaxPay(player)*arrests) then pay = getMaxPay(player)*arrests end
+		if (pay < getMinPay()*arrests) then pay = getMinPay()*arrests end
+		pay = math.ceil(pay * offset)
+		exports.GTIemployment:givePlayerJobMoney(player, "Police Officer", math.ceil(pay))
+	end
+	-- Add to Group Stats
+	if (exports.GTIgroups:isPlayerInGroup(player)) then
+		local groupID = exports.GTIgroups:getPlayerGroup(player)
+		exports.GTIgroups:modifyGroupStat(groupID, "arrests", arrests)
+		exports.GTIgroups:modifyGroupStat(groupID, "arrest_points", total_wp)
+	end
+	
+	--outputDebugString("Arrester: "..getPlayerName(player).."; Arrests: "..arrests..", XP: "..exp_.."; Pay: $"..pay)
+	if (not ignore_pay) then
+		exports.GTIhud:dm("POLICE: You "..(offset < 1 and "helped jail" or "jailed").." "..(arrests == 1 and arrests.." player" or arrests.." players").." worth a total of "..total_wp.." WP.", player, 30, 125, 255)
+	end
+	return true
+end
+
+function payPlayerForArrestBonus(player, arrests, total_wp)
+	if (not isElement(player) or getElementType(player) ~= "player") then return false end
+	if (not canPlayerArrest(player)) then return false end
+	
+	local hrExp = exports.GTIemployment:getHourlyExperience()
+	local exp_ = math.ceil( (arrests/getHourlyProgress())*hrExp * 0.1 )
+	exports.GTIemployment:modifyPlayerEmploymentExp(player, exp_, "Police Officer")
+	
+	local pay = getCashPerWP()*total_wp
+	if (pay > getMaxPay(player)*arrests) then pay = getMaxPay(player)*arrests end
+	if (pay < getMinPay()*arrests) then pay = getMinPay()*arrests end
+	pay = math.ceil(pay * 0.1)
+	exports.GTIemployment:givePlayerJobMoney(player, "Police Officer", math.ceil(pay))
+	
+	--outputDebugString("Arrester: "..getPlayerName(player).."; Arrests: "..arrests..", XP: "..exp_.."; Pay: $"..pay)
+	exports.GTIhud:dm("POLICE: You were in the area when "..(arrests == 1 and arrests.." player" or arrests.." players").." was arrested and have been paid a 10% bonus.", player, 30, 125, 255)
+	return true
+end
+
+-- Jail Player Util
+-------------------->>
+
+function getJailTimePerWP()
+	return JAIL_PER_WP
+end
+
+function getHourlyProgress()
+	return HOURLY_PROG
+end
+
+function getCashPerWP()
+	return CASH_PER_WP
+end	
+
+function getMaxSentence()
+	return MAX_SENTENCE
+end
+
+function getMaxPay(player)
+	local hrPay = exports.GTIemployment:getPlayerHourlyPay(player)
+	return hrPay * 0.375
+end
+
+function getMinPay()
+	return PAY_FLOOR
+end
+
+-- Delete Objects 
+------------------>>
+
+function removePDMarkers(player)
+	triggerClientEvent(player, "GTIpoliceWanted.removePDMarkers", resourceRoot)
+end

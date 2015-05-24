@@ -1,0 +1,10 @@
+<meta>
+	<script src="clothing/clothing_c.luac" type="client"/>
+	<script src="clothing/clothing_s.lua" type="server"/>
+	<script src="clothing/saving_s.lua" type="server"/>
+<--
+	<script src="skins/skins_c.luac" type="client"/>
+	<script src="skins/skins_s.lua" type="server"/>
+-->
+	<script src="blips.lua" type="server"/>
+</meta>

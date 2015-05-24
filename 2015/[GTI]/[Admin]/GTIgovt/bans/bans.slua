@@ -1,0 +1,16 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn)
+-- Date: 18 Sept 2014
+-- Resource: GTIadmin/bans.slua
+-- Version: 1.0
+----------------------------------------->>
+
+-- Compose Ban List
+-------------------->>
+
+addEvent("GTIgovtPanel.getBans", true)
+addEventHandler("GTIgovtPanel.getBans", root, function()
+	local bans = getBans()
+	triggerClientEvent(client, "GTIgovtPanel.composeBanList", resourceRoot, bans)
+end)

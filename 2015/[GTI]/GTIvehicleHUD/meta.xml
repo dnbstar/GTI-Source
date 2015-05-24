@@ -1,0 +1,6 @@
+<meta>
+    <info name="vehicle hud" author="LilDolla" type="script" autostart="true" />
+    <!--<script src="vehicle_locks.lua" type="server" />-->
+    <script src="vehhud_c.lua" type="client" cache="false"/>
+	<script src="vehhud_s.lua" type="server"/>
+</meta>

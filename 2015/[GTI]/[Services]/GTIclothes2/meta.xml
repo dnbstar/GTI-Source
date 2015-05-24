@@ -1,0 +1,39 @@
+<meta>
+    <info author="JTPenn, LilDolla" version="1.0" name="Clothing Stores and Skin Selection" autostart="false" />
+    <file src="mods/kendl.dff" type="client" />
+    <file src="mods/kendl.txd" type="client" />
+    
+    <!--Clothing Skins doesn't work properly
+	<script src="clothing/clothing_c.luac"	type="client" />
+    <script src="clothing/clothing_s.lua" 	/>
+    <script src="clothing/saving_s.lua" 	/>-->
+	<script src="clothing/clothing_tbl_c.luac"	type="client" />
+	<script src="clothing/clothing-gui_c.luac"	type="client" />
+	<script src="clothing/clothing_functions_c.luac"	type="client" />
+    
+    <script src="clothes.luac" type="client" />
+    <script src="clothes.slua" />
+    <script src="elements.luac" type="client" />
+    <script src="clothesTable.slua" />
+
+	<file src="clothing/images/panel.png" />
+	<file src="clothing/images/button.png" />
+	<file src="clothing/images/backdrop.png" />
+
+	<file src="clothing/images/logo.png" />
+	<file src="clothing/images/logo_binco.png" />
+	<file src="clothing/images/logo_ds.png" />
+	<file src="clothing/images/logo_plaps.png" />
+	<file src="clothing/images/logo_surban.png" />
+	<file src="clothing/images/logo_victim.png" />
+	<file src="clothing/images/logo_zip.png" />
+
+    <export function="selectSkinFromStore" type="server" />
+    <export function="getSkinCostFromID" type="server" />
+    <export function="getSkinNameFromID" type="server" />
+    <export function="getPlayerPurchasedSkins" type="server" />
+    <export function="doesPlayerOwnSkin" type="server" />
+    <export function="addSkinToInventory" type="server" />
+    
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

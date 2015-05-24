@@ -1,0 +1,43 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 21 Dec 2013
+-- Resource: GTIpilot/pilot.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local vehIDs = {
+	[593] = 1.000,	-- Dodo
+		-- 115,834 meters per hour
+	[511] = 1.000,	-- Beagle
+		-- 115,834 meters per hour
+}
+
+local METERS_TO_MI = 1609
+
+local dist = {}	-- Table of Player Distances (Debug Only)
+
+function completeMission(distance)
+	local vehicle = getPedOccupiedVehicle(client)
+	local vehOffset = vehIDs[getElementModel(vehicle)]
+	local payOffset = exports.GTIpromotions:getPlayerJobPayment(client, "Pilot")
+	local hrPay = exports.GTIpromotions:getPlayerHourlyPay(client)
+	local hrExp = exports.GTIpromotions:getHourlyExperience()
+	
+	local progress = distance / METERS_TO_MI
+	local progress = tonumber(string.format("%.3f", progress ))
+	local pay = math.ceil( distance*payOffset	* vehOffset )
+	local Exp = math.ceil( (pay/hrPay)*hrExp 	* vehOffset )
+		
+	exports.GTIpromotions:modifyPlayerJobProgress(client, "Pilot", progress)
+	exports.GTIpromotions:modifyPlayerCivilianExp(client, Exp, "Pilot")
+	exports.GTIpromotions:givePlayerJobMoney(client, "Pilot", pay)
+	
+	exports.GTIhud:dm("Passenger Dropped Off! +$"..exports.GTIutil:tocomma(pay).." -|- +"..exports.GTIutil:tocomma(Exp).." XP", client, 255, 200, 0)
+	
+	if (not dist[client]) then dist[client] = 0 end
+	dist[client] = dist[client] + distance
+	outputChatBox("* Total Distance: "..dist[client].." meters ("..string.format("%.3f", (dist[client]/1609)).." miles)", client, 25, 255, 25)
+end
+addEvent("GTIpilot.completeMission", true)
+addEventHandler("GTIpilot.completeMission", root, completeMission)

@@ -1,0 +1,150 @@
+local antiTick = {}
+local spam = {}
+
+function mainChat(message, messageType)
+	if (messageType == 0) then
+		-- perhaps not allow the player to chat if he's not logged in, not yet.
+		message = message:gsub("#%x%x%x%x%x%x", "")
+		if (isPlayerMuted(source)) then
+			outputChatBox("You are muted!", source, 255, 0, 0)
+			return
+		end
+		cancelEvent()
+		if (not exports.metall:isPlayerInTeams(source, "Staff")) then
+			local tick = getTickCount()
+			if (antiTick[source] and antiTick[source][1] and tick - antiTick[source][1] < 5000) then
+				outputChatBox("You need to wait 5 seconds between each message", source, 255, 0, 0)
+				return
+			end
+			if (spam[source] and spam[source][1] and spam[source][1] == message) then
+				outputChatBox("You can not submit the same message twice ("..message..")", source, 255, 0, 0)
+				return
+			end
+		end
+		if (getPlayerTeam(source)) then
+			r, g, b = getTeamColor(getPlayerTeam(source))
+		end
+		local city = exports.metall:getPlayerCity(source)
+		local newMessage = "("..city..") "..getPlayerName(source).. ": #FFFFFF"..message
+		if (not antiTick[source]) then
+			antiTick[source] = {}
+		end
+		
+		if (not spam[source]) then
+			spam[source] = {}
+		end
+		
+		antiTick[source][1] = getTickCount()
+		spam[source][1] = message
+		-- perhaps log the message (:
+		outputChatBox(newMessage, root, r or 255, g or 255, b or 255, true)
+	end
+end
+addEventHandler("onPlayerChat", root, mainChat)
+
+function teamChat(message, messageType)
+	if (messageType == 2) then
+		if (isPlayerMuted(source)) then
+			outputChatBox("You are muted!", source, 255, 0, 0)
+			return
+		end
+		cancelEvent()
+		message = message:gsub("#%x%x%x%x%x%x", "")
+		if (not exports.metall:isPlayerInTeams(source, "Staff")) then
+			local tick = getTickCount()
+			if (antiTick[source] and antiTick[source][2] and tick - antiTick[source][2] < 2000) then
+				outputChatBox("You need to wait 2 seconds between each message", source, 255, 0, 0)
+				return
+			end
+			if (spam[source] and spam[source][2] and spam[source][2] == message) then
+				outputChatBox("You can not submit the same message twice ("..message..")", source, 255, 0, 0)
+				return
+			end
+		end
+		if (getPlayerTeam(source)) then
+			local sourceTeam = getPlayerTeam(source)
+			for i, player in pairs(getElementsByType("player")) do
+				local playerTeam = getPlayerTeam(player)
+				if (playerTeam) then
+					local r, g, b = getTeamColor(sourceTeam)
+					if (exports.metall:isPlayerInTeams(player, getTeamName(sourceTeam))) then
+						local newMessage = "(TEAM) "..getPlayerName(source).. ": #FFFFFF"..message
+						outputChatBox(newMessage, player,  r or 255, g or 255, b or 255, true)
+					end
+				end
+			end
+			if (not antiTick[source]) then
+				antiTick[source] = {}
+			end
+			if (not spam[source]) then
+				spam[source] = {}
+			end
+			antiTick[source][2] = getTickCount()
+			spam[source][2] = message
+		end
+	end
+end
+addEventHandler("onPlayerChat", root, teamChat)
+
+function localChat(player, _, ...)
+	if (isPlayerMuted(player)) then
+		outputChatBox("You are muted!", player, 255, 0, 0)
+		return
+	end
+	local message = table.concat({...}, " ")
+	if (not message) then return end
+	message = message:gsub("#%x%x%x%x%x%x", "")
+	if (message == "") then return end
+	local r, g, b = getPlayerNametagColor(player)
+	local hex = getHexFromRGB(r, g, b)
+	local posX, posY, posZ = getElementPosition(player)
+	local recipients = {}
+	for i, player2 in pairs(getElementsByType("player")) do
+		local posX2, posY2, posZ2 = getElementPosition(player2)
+		if (--[[player ~= player2 and ]]getDistanceBetweenPoints3D(posX, posY, posZ, posX2, posY2, posZ2)) <= 30 then
+			table.insert(recipients, player2)
+		end
+	end
+	for i, player2 in pairs(recipients) do
+		local r, g, b = getTeamColor(getPlayerTeam(player))
+		outputChatBox("(LOCAL) ["..#recipients.."]"..getPlayerName(player)..": #FFFFFF"..message, player2, r or 255, g or 255, b or 255, true)
+	end
+	triggerEvent("onPlayerLocalChat", player, message, recipients)
+end
+addCommandHandler("local", localChat)
+
+function getHexFromRGB(r, g, b)
+	return ("#%02X%02X%02X"):format(r, g, b)
+end
+
+function bindLocalChat()
+	bindKey(source, "u", "down", "chatbox", "local")
+end
+addEventHandler("onPlayerJoin", root, bindLocalChat)
+
+function bindLocalChatForAll()
+	for index, player in pairs(getElementsByType("player")) do
+		bindKey(player, "u", "down", "chatbox", "local")
+	end
+end
+addEventHandler("onResourceStart", resourceRoot, bindLocalChatForAll)
+
+function addBubble(message, recipients)
+	for index, player in pairs(recipients) do
+		triggerClientEvent(player, "addBubble", source, message)
+	end
+end
+addEvent("onPlayerLocalChat")
+addEventHandler("onPlayerLocalChat", root, addBubble)
+
+function privateMessage(player, _, name, ...)
+	if (not name) then outputChatBox("You did not enter a playername", player, 255, 0, 0) return end
+	local message = table.concat({...}, " ")
+	if not message then outputChatBox("You did not enter a message", player, 255, 0, 0) return end
+	local target = exports.metall:findPlayer(name)
+	if (not target) then return end
+	if (target == player) then outputChatBox("You can't PM yourself", player, 255, 0, 0) return end
+	outputChatBox("PM From "..getPlayerName(player)..": "..message, target, 255, 255, 0)
+	outputChatBox("PM To "..getPlayerName(target)..": "..message, player, 255, 255, 0)
+end
+addCommandHandler("pm", privateMessage)

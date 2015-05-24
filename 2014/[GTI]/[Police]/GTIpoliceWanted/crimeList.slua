@@ -1,0 +1,40 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 23 Dec 2013
+-- Resource: GTIpoliceWanted/crimeList.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+crimeList = {
+	-- One Star
+	[1] = {"Discharge of a Firearm", 2}, 		-- When near a civilian
+	[2] = {"Battery", 6}, 						-- Hitting a Person with a melee weapon
+	[3] = {"Aggravated Assault", 8}, 			-- Shooting a person
+	[24] = {"Vehicular Assault", 5}, 			-- Running over a person
+	[4] = {"Grand Theft Auto", 5}, 				-- Stealing a Car
+	[5] = {"Petty Vehicle Theft", 3}, 			-- Stealing a Bike
+	[6] = {"Criminal Hijacking", 20}, 			-- Stealing a Plane
+	[7] = {"Marine Vehicle Theft", 9}, 			-- Stealing a Boat
+	[8] = {"Criminal Damage to Property", 4}, 	-- Damaging a Vehicle
+	[9] = {"Harassment", 2}, 					-- If a Civilian calls the police on you
+	[10] = {"Assault", 4}, 						-- Pointing a gun at a person
+	-- Two Stars (10+)
+	[11] = {"Resisting Arrest", 10}, 					-- Running while nearby a police officer
+	[12] = {"Evading the Police", 10}, 					-- Fleeing after being asked to pull over
+	[13] = {"Manslaughter", 9},							-- Killing a person with a melee weapon
+	[14] = {"Murder", 10}, 								-- Killing of a person with a weapon
+	[15] = {"Vehicular Homicide", 8}, 					-- Killing a person with a vehicle
+	[16] = {"Assault against Law Enforcement", 12}, 	-- Shooting near or aiming at a police officer
+	[17] = {"Destruction of Property", 10}, 			-- Destroying a Vehicle
+	[18] = {"Trespassing over Forbidden Airspace", 15}, -- Flying over a no-fly zone
+	[24] = {"Armed Robbery", 18}, 						-- Robbing a Store
+	[25] = {"Burglary", 12}, 							-- Robbing a House
+	-- Three Stars (20+)
+	[19] = {"2nd Degree Murder", 25}, 	-- Killing a Police Officer
+	[20] = {"1st Degree Murder", 30}, 	-- Revenge Killing, Killing the Same Person over and over
+	[21] = {"Trespassing", 20}, 		-- Trespassing
+	[22] = {"Terrorism", 35}, 			-- Shooting down an Aircraft
+	-- Five Stars (40+)
+	[23] = {"Grand Larceny", 50},	-- Committing a Robbery
+}

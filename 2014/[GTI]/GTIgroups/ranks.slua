@@ -1,0 +1,104 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 04 Mar 2014
+-- Resource: GTIgroups/ranks.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Add Group Rank
+------------------>>
+
+function addGroupRank(groupID, rankName, permissions, rankType)
+		-- Is Group Valid?
+	local isGroup = getGroupData(groupID, "display_name")
+	if (not isGroup) then return false end
+		-- Add Rank to Database
+	local rankID = getNextGroupRankSlot()
+	setGroupRankData(rankID, "parent_group", groupID)
+		-- Add Display Name
+	setGroupRankData(rankID, "name", rankName)
+		-- Add Permissions Set
+	if (type(permissions) ~= "table") then
+		permissions = getDefaultPermissionSet("New Member")
+	end
+	permissions = table.concat(permissions, ",")
+	setGroupRankData(rankID, "permissions", permissions)
+	
+		-- Make Default Rank?
+	if (rankType == "default") then
+		setGroupRankData(rankID, "isDefault", 1)
+	else
+		setGroupRankData(rankID, "isDefault", 0)
+	end
+		-- Make Leader Rank?
+	if (rankType == "leader") then
+		setGroupRankData(rankID, "isLeader", 1)
+	else
+		setGroupRankData(rankID, "isLeader", 0)
+	end
+	
+		-- Rank by Group Association
+	if not (RanksByGroup[groupID]) then RanksByGroup[groupID] = {} end
+	table.insert(RanksByGroup[groupID], rankID)
+	return true
+end
+
+-- Call Group Rank
+------------------->>
+
+function getGroupRanks(groupID)
+	if (not groupID or type(groupID) ~= "number") then return false end
+	return RanksByGroup[groupID] or {}
+end
+
+function getGroupRankIDByName(groupID, rankName)
+	local ranks = getGroupRanks(groupID)
+	for i,rankID in ipairs(ranks) do
+		local rName = getGroupRankData(rankID, "name")
+		if (rName == rankName) then 
+			return rankID
+		end
+	end
+	return false
+end
+
+function getDefaultRank(groupID)
+	if (not groupID or type(groupID) ~= "number") then return false end
+	local ranks = getGroupRanks(groupID)
+	for i,rankID in ipairs(ranks) do
+		local default = getGroupRankData(rankID, "isDefault")
+		if (default) then return true end
+	end
+	return false
+end
+
+-- Get Rank Info
+----------------->>
+
+function getRankName(rankID)
+	if (not rankID or type(rankID) ~= "number") then return false end
+	return getGroupRankData(rankID, "name")
+end
+
+-- Player Rank
+--------------->>
+
+function getPlayerGroupRank(player)
+	if (not player or not isElement(player) or 
+		getElementType(player) ~= "player") then return false end
+	
+	local account = getPlayerAccount(player)
+	local rankID = getGroupMemberData(account, "id_rank") or false
+	return rankID
+end
+
+function setPlayerGroupRank(player, rankID)
+	if (not player or not rankID) then return false end
+	if (not isElement(player) or getElementType(player) ~= "player" 
+		or type(rankID) ~= "number") then return false end
+	
+	local account = getPlayerAccount(player)
+	setGroupMemberData(account, "id_rank", rankID)
+	return true
+end

@@ -1,0 +1,7 @@
+<meta>
+	<script src="ATMs.luac" type="client" />
+	<script src="LSBankOutside.luac" type="client" />
+	<script src="LVBankOutside.luac" type="client" />
+	<script src="SFBankCarLot.luac" type="client" />
+	<script src="SFBankOutside.luac" type="client" />
+</meta>

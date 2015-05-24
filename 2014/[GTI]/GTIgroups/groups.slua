@@ -1,0 +1,131 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 04 Mar 2014
+-- Resource: GTIgroups/groups.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+	-- Group Types as Shown in Group Creation Panel
+local validGroupTypes = { ["Business"] = "business", ["Criminal Gang"] = "criminal", ["Police Division"] = "police", 
+	["EMS Division"] = "ems", ["Other"] = "other", }
+
+	-- Group Types as Shown in Group Management Panel
+local g_type_oneWord = { ["business"] = "Business", ["criminal"] = "Gang", ["police"] = "Division",
+	["ems"] = "EMS Division", ["other"] = "Group" }
+
+	-- Default Group Information
+DEFAULT_GROUP_INFO = "This group has no group information! The group leader should click the \"Modify\" button below to edit the group info."
+
+-- Group Creation
+------------------>>
+
+function createGroup(name, password, creator, groupType)
+	if (not name or not password or not creator or not groupType) then return false end
+	if (type(name) ~= "string" or type(password) ~= "string") then return false end
+	if (not isElement(creator) or getElementType(creator) ~= "player") then return false end
+	if (not validGroupTypes[groupType]) then return false end
+
+	-- Create Group Account
+	local gAccount = createGroupAccount(name, password)
+	if (not gAccount) then return false end
+
+	-- Create Group -->>
+	-- Set Account Name
+	local groupID = getNextGroupSlot()
+	local accountName = getGroupAccountName(name)
+	setGroupData(groupID, "account_name", accountName)
+	-- Set Display Name
+	setGroupData(groupID, "display_name", name)
+	-- Set Group Type
+	setGroupData(groupID, "group_type", validGroupTypes[groupType])
+	-- Store Creation Date
+	setGroupData(groupID, "creation_date", getRealTime().timestamp)
+	
+	-- Create Group Ranks
+	local permAll = getDefaultPermissionSet("*")
+	addGroupRank(groupID, "Leader", permAll, "leader")
+	local permNew = getDefaultPermissionSet("New Member")
+	addGroupRank(groupID, "New Member", permNew, "default")
+	
+	-- Add Creator as Leader
+	local rankID = getGroupRankIDByName(groupID, "Leader")
+	addMember(groupID, creator, rankID)
+	return true
+end
+
+function getGroupAccountName(name)
+	local friendly_name = string.gsub(name, "%p", "")
+	friendly_name = string.gsub(friendly_name, "%s", "_")
+	return friendly_name
+end
+
+function createGroupAccount(name, password)
+	local friendly_name = getGroupAccountName(name)
+	local account = getAccount(friendly_name)
+	if (account) then return false end
+	
+	return addAccount(friendly_name, password)
+end
+
+-- Get Group Info
+------------------>>
+
+function getGroupName(groupID)
+	if (not groupID or type(groupID) ~= "number") then return false end
+	local groupName = getGroupData(groupID, "display_name")
+	return groupName
+end
+
+function getGroupType(groupID, oneWord)
+	if (not groupID or type(groupID) ~= "number") then return false end
+	local groupType = getGroupData(groupID, "group_type")
+	if (oneWord) then
+		return g_type_oneWord[groupType] or "Group"
+	else
+		return groupType
+	end
+end
+
+function getGroupInfo(groupID)
+	if (not groupID or type(groupID) ~= "number") then return false end
+	local groupInfo = getGroupData(groupID, "info")
+	return groupInfo or DEFAULT_GROUP_INFO
+end
+
+function getGroupCreationDate(groupID)
+	if (not groupID or type(groupID) ~= "number") then return false end
+	local groupCreation = getGroupData(groupID, "creation_date")
+	return groupCreation
+end
+
+-- Group Misc Features
+----------------------->>
+
+function modifyGroupName(groupID, newName)
+	if (not groupID or not newName) then return false end
+	if (type(groupID) ~= "number" or type(newName) ~= "string") then return false end
+	
+	setGroupData(groupID, "display_name", newName)
+	return true
+end
+
+function modifyGroupInformation(groupID, info)
+	if (not groupID or not info) then return false end
+	if (type(groupID) ~= "number" or type(info) ~= "string") then return false end
+	
+	setGroupData(groupID, "info", info)
+	return true
+end
+
+function modifyGroupApplicationFormat(groupID, appFormat)
+	if (not groupID or not appFormat) then return false end
+	if (type(groupID) ~= "number" or type(appFormat) ~= "string") then return false end
+	
+	setGroupData(groupID, "application", appFormat)
+	return true
+end
+
+function getValidGroupTypes()
+	return validGroupTypes
+end

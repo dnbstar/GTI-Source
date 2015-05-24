@@ -1,0 +1,1023 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Jan 2014
+-- Resource: GTIinteriors/interiorsTable.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+--[[
+{
+	{ pos={x, y, z}, rot=0, int=0, size=1.5, color={200, 0, 255}, dim=0, size=1.5, color={r, g, b}, res={team={"Team 1", "Team 2"}, job={"Job 1", "Job 2"}} } -- ENTRY
+	{ pos={x, y, z}, rot=0, int=0, size=1.5, color={200, 0, 255}, dim=0, size=1.5, color={r, g, b}, res={team={"Team 1", "Team 2"}, job={"Job 1", "Job 2"}} } -- RETURN
+},
+
+id and refid are not needed nor used. They only exist to make conversion between the default interiors resource easier
+
+* EACH NEW INTERIOR SHOULD BE LOCATED IN ITS OWN DIMENSION
+	- Dimensions Start at 100 for mapped interiors
+
+* THE MARKER OUTSIDE THE INTERIOR GOES FIRST (Entry Points)
+* THE MARKER INSIDE THE INTERIOR GOES LAST (Exit Points)
+--]]
+
+interiors = {
+
+-- Ammu-Nations
+---------------->>
+
+{	-- Market, LS
+	{id="Ammo1", pos={1368.35, -1279.06, 12.55}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="Ammo1", pos={315.755, -143.355, 998.602}, rot=0, size=1.5, color={200, 0, 255}, dim=100, int=7},
+},
+{	-- Market, LS Gun Range
+	{id="Ammo1.1", pos={304.321, -141.818, 1003.555}, rot=90, size=1.5, color={200, 0, 255}, dim=100, int=7},
+	{refid="Ammo1.1", pos={305.819, -141.818, 1003.555}, rot=270, size=1.5, color={200, 0, 255}, dim=100, int=7},
+},
+{
+	{refid="Ammo2", pos={-2625.88, 209.26, 3.61}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo2", pos={285.48, -85.56, 1000.51}, rot=90, size=1.5, color={200, 0, 255}, dim=101, int=4},
+},
+{
+	{refid="Ammo3", pos={2400.50, -1980.40, 12.54}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo3", pos={286.15, -41.54, 1000.57}, rot=90, size=1.5, color={200, 0, 255}, dim=102, int=1},
+},
+{
+	{refid="Ammo4", pos={-2093.00, -2464.01, 30.62}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo4", pos={285.48, -85.56, 1000.51}, rot=90, size=1.5, color={200, 0, 255}, dim=103, int=4},
+},
+{
+	{refid="Ammo5", pos={-1508.91, 2609.73, 54.835}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo5", pos={285.48, -85.56, 1000.51}, rot=90, size=1.5, color={200, 0, 255}, dim=104, int=4},
+},
+{
+	{refid="Ammo6", pos={-315.08, 829.89, 13.242}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo6", pos={286.15, -41.54, 1000.57}, rot=90, size=1.5, color={200, 0, 255}, dim=105, int=1},
+},
+{
+	{refid="Ammo7", pos={777.81, 1871.40, 3.906}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo7", pos={285.48, -85.56, 1000.51}, rot=90, size=1.5, color={200, 0, 255}, dim=106, int=4},
+},
+{
+	{refid="Ammo8", pos={2158.50, 943.19, 9.820}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo8", pos={286.15, -41.54, 1000.57}, rot=90, size=1.5, color={200, 0, 255}, dim=107, int=1},
+},
+{
+	{refid="Ammo9", pos={2538.68, 2083.99, 9.820}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo9", pos={286.15, -41.54, 1000.57}, rot=90, size=1.5, color={200, 0, 255}, dim=108, int=1},
+},
+{
+	{refid="Ammo10", pos={242.55, -178.42, 0.578}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo10", pos={285.48, -85.56, 1000.51}, rot=100, size=1.5, color={200, 0, 255}, dim=109, int=4},
+},
+{
+	{refid="Ammo11", pos={2333.580, 61.522, 26.705}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{id="Ammo11", pos={316.366, -169.369, 998.601}, rot=90, size=1.5, color={200, 0, 255}, dim=110, int=6},
+},
+--[[{
+	{id="Sky1", pos={1564.429, -1275.199, 16.006}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="Sky1", pos={1561.429, -1220.632, 276.480}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},--]]
+
+-- Cluckin' Bells
+------------------>>
+
+{
+	{id="CB1", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=111, int=9},
+	{refid="CB1", pos={2397.749, -1898.438, 12.546}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB2", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=112, int=9},
+	{refid="CB2", pos={2420.372, -1508.951, 23}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB2", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=113, int=9},
+	{refid="CB2", pos={-2154.987, -2460.417, 29.851}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB3", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=114, int=9},
+	{refid="CB3", pos={-2672.449, 258.561, 3.632}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB4", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=115, int=9},
+	{refid="CB4", pos={-1816.506, 617.286, 34.171}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB5", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=116, int=9},
+	{refid="CB5", pos={-1213.416, 1830.782, 40.929}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB6", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=117, int=9},
+	{refid="CB6", pos={172.791, 1176.790, 13.757}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB7", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=118, int=9},
+	{refid="CB7", pos={2102.897, 2228.837, 10.023}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB8", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=119, int=9},
+	{refid="CB8", pos={2846.290, 2414.998, 10.068}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB9", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=120, int=9},
+	{refid="CB9", pos={2392.984, 2042.247, 9.820}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="CB9", pos={364.820, -11.593, 1000.851}, rot=360, size=1.5, color={200, 0, 255}, dim=121, int=9},
+	{refid="CB9", pos={2637.669, 1671.942, 10.023}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+
+-- Burger Shots
+---------------->>
+
+{
+	{id="BS1", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=122, int=10},
+	{refid="BS1", pos={1200.413, -918.528, 42.112}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="BS2", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=123, int=10},
+	{refid="BS2", pos={810.830, -1616.094, 12.546}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="BS3", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=124, int=10},
+	{refid="BS3", pos={-2336.182, -166.779, 34.554}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="BS4", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=125, int=10},
+	{refid="BS4", pos={-1912.099, 828.147, 34.205}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="BS5", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=126, int=10},
+	{refid="BS5", pos={-2356.808, 1008.071, 49.898}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="BS6", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=127, int=10},
+	{refid="BS6", pos={1158.207, 2072.208, 10.062}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="BS7", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=128, int=10},
+	{refid="BS7", pos={1872.776, 2071.883, 10.062}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="BS8", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=129, int=10},
+	{refid="BS8", pos={2170.282, 2795.774, 9.820}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="BS9", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=130, int=10},
+	{refid="BS9", pos={2366.213, 2070.998, 9.820}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="BS10", pos={363.161, -74.797, 1000.507}, rot=360, size=1.5, color={200, 0, 255}, dim=131, int=10},
+	{refid="BS10", pos={2472.069, 2034.090, 10.062}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+
+-- Well Stacked Pizza's
+------------------------>>
+
+{
+	{id="WSP1", pos={372.340, -133.0791, 1000.492}, rot=360, size=1.5, color={200, 0, 255}, dim=132, int=5},
+	{refid="WPS1", pos={2105.479, -1806.513, 12.554}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="WSP2", pos={372.340, -133.0791, 1000.492}, rot=360, size=1.5, color={200, 0, 255}, dim=133, int=5},
+	{refid="WPS2", pos={-1808.0712, 945.398, 23.890}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="WSP3", pos={372.340, -133.0791, 1000.492}, rot=360, size=1.5, color={200, 0, 255}, dim=134, int=5},
+	{refid="WPS3", pos={-1721.782, 1359.757, 6.185}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="WSP4", pos={372.340, -133.0791, 1000.492}, rot=360, size=1.5, color={200, 0, 255}, dim=135, int=5},
+	{refid="WPS4", pos={2083.343, 2224.089, 10.0234}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="WSP5", pos={372.340, -133.0791, 1000.492}, rot=360, size=1.5, color={200, 0, 255}, dim=136, int=5},
+	{refid="WPS5", pos={2351.811, 2532.613, 9.820}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="WSP6", pos={372.340, -133.0791, 1000.492}, rot=360, size=1.5, color={200, 0, 255}, dim=137, int=5},
+	{refid="WPS6", pos={2756.495, 2477.017, 10.062}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="WSP7", pos={372.340, -133.0791, 1000.492}, rot=360, size=1.5, color={200, 0, 255}, dim=138, int=5},
+	{refid="WPS7", pos={2637.850, 1849.898, 10.023}, rot=3600, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+
+-- Rusty Brown's Ring Donuts
+----------------------------->>
+{
+	{id="RBRD1", pos={377.112, -193.208, 999.632}, rot=360, size=1.5, color={200, 0, 255}, dim=139, int=17},
+	{refid="RBRD1", pos={1038.270, -1340.133, 12.737}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+{
+	{id="RBRD2", pos={377.112, -193.208, 999.632}, rot=360, size=1.5, color={200, 0, 255}, dim=140, int=17},
+	{refid="RBRD2", pos={-2767.755, 788.823, 51.781}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+},
+
+-- Los Santos
+-------------->>
+
+{ -- LSPD
+	{pos={1554.95, -1674.99, 15.3283}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{pos={246.442, 108.074, 1002.219}, rot=0, size=1.5, color={200, 0, 255}, dim=141, int=10},
+},
+
+-- San Fierro
+-------------->>
+
+{ -- San Fierro PD
+	{pos={-1605.542, 711.151, 12.867}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{pos={246.442, 108.074, 1002.219}, rot=0, size=1.5, color={200, 0, 255}, dim=142, int=10},
+},
+
+{ -- San Fierro Bank
+	{pos={-2056.072, 455.144, 34.172}, rot=315, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{pos={390.096, 173.993, 1007.383}, rot=90, size=1.5, color={200, 0, 255}, dim=143, int=3},
+},
+
+-- National Guard Toll Booth Posts (LS Flint County)
+----------------------------------------------------->>
+
+{
+	{id="NGFC1", pos={42.637, -1529.037, 4.174}, rot=260, size=1.5, color={0, 50, 0}, dim=0, int=0, res={team={"National Guard"}}},
+	{refid="NGFC1", pos={40.982, -1528.926, 4.189}, rot=85, int=0, size=1.5, color={0, 50, 0}, dim=0},
+},
+{
+	{id="NGFC2", pos={59.735, -1533.934, 4.215}, rot=85, size=1.5, color={0, 50, 0}, dim=0, int=0, res={team={"National Guard"}}},
+	{refid="NGFC2", pos={61.8876953125, -1534.046875, 4.193}, rot=260, int=0, size=1.5, color={0, 50, 0}, dim=0},
+},
+
+--ASGH Interior (LS)
+--------------------->>
+--[[
+{
+	{id="ASGH.1", pos={1172.736, -1323.255, 14.401}, rot=270, size=1.5, color={0, 255, 255}, dim=0, int=0},
+	{refid="ASGH.1", pos={1170.391, -1323.385, 14.385}, rot=90, int=0, size=1.5, color={0, 255, 255}, dim=0},
+},
+--]]
+{
+	{id="ASGH.2", pos={1159.581, -1375.487, 13.385}, rot=0, size=1.5, color={0, 255, 255}, dim=0, int=0, res={job={"Paramedic"}}},
+	{refid="ASGH.2", pos={1161.534, -1329.190, 30.496}, rot=0, int=0, size=1.5, color={0, 255, 255}, dim=0, res={ job={"Paramedic"}}},
+},
+{
+	{id="ASGH.3", pos={1157.094, -1323.827, 14.385}, rot=270, size=1.5, color={0, 255, 255}, dim=0, int=0, res={job={"Paramedic"}}},
+	{refid="ASGH.3", pos={1144.409, -1323.943, 12.593}, rot=90, int=0, size=1.5, color={0, 255, 255}, dim=0, res={job={"Paramedic"}}},
+},
+--[[
+{
+	{id="AMRG", pos={286, -27.7, 1000.40}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=1},
+	{refid="AMRG", pos={286, -31, 1000.40}, rot=0, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+--]]
+
+-- Airports
+------------>>
+
+{ -- LS Airport
+	{pos={1585.135, -2286.59, 12.7}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{pos={-1835.590, 61.181, 1054.392}, rot=90, size=1.5, color={200, 0, 255}, dim=144, int=14},
+},
+{ -- SF Airport
+	{pos={-1244.063, 22.073, 13.256}, rot=225, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{pos={-1835.590, 61.181, 1054.392}, rot=90, size=1.5, color={200, 0, 255}, dim=145, int=14},
+},
+{ -- LV Airport
+	{pos={1319.177, 1250.098, 10.020}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{pos={-1835.590, 61.181, 1054.392}, rot=90, size=1.5, color={200, 0, 255}, dim=146, int=14},
+},
+
+-- Gyms
+------------>>
+
+{
+	{pos={2229.63, -1721.63, 12.6529}, rot=497, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{pos={772.11, -5, 999.69}, rot=0, size=1.5, color={200, 0, 255}, dim=147, int=5},
+},
+{
+	{pos={-2270.46, -155.957, 34.3573}, rot=270, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{pos={774.21, -50.02, 999.69}, rot=0, size=1.5, color={200, 0, 255}, dim=148, int=6},
+},
+{
+	{pos={1968.7, 2295.3, 15.4955}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{pos={773.58, -78.2, 999.69}, rot=0, size=1.5, color={200, 0, 255}, dim=149, int=7},
+},
+
+-- Default MTA Interiors
+------------------------->>
+{
+	{id="SPECIAL1", pos={-225.433, 1397.02, 69.0501}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SPECIAL1", pos={-224.733, 1395.82, 172.05}, rot=0, int=0, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SPECIAL2", pos={2896.57, 57.2165, 0}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SPECIAL2", pos={2980.16, 76.1581, 0}, rot=0, int=0, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SPECIAL3", pos={-1749.35, 869.279, 24.0593}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SPECIAL3", pos={-1753.85, 885.679, 295.059}, rot=0, int=0, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="SPECIAL4", pos={-1753.75, 883.965, 294.645}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SPECIAL4", pos={-1749.38, 865.158, 24.1455}, rot=0, int=0, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="ABATOIR", pos={966.608, 2160.68, 9.82222}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="ABATOIR", pos={965.38, 2159.33, 1010.02}, rot=270, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="ATRIUME", pos={1727.64, -1636.88, 19.2198}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="ATRIUME", pos={1726.19, -1638.01, 19.27}, rot=180, int=18, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="ATRIUMX", pos={1699.36, -1667.16, 19.2198}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="ATRIUMX", pos={1700.74, -1668.48, 19.22}, rot=270, int=18, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="BAR1", pos={1836.9, -1681.75, 12.3635}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BAR1", pos={493.39, -24.92, 999.69}, rot=90, int=17, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="BAR1 (2)", pos={-2551.79, 193.778, 5.21905}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BAR1 (2)", pos={493.39, -24.92, 999.69}, rot=105, int=17, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="BAR1 (3)", pos={2507.44, 1242.31, 9.83339}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BAR1 (3)", pos={493.39, -24.92, 999.69}, rot=-3600.01, int=17, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="BAR2", pos={2309.62, -1643.63, 13.8385}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BAR2", pos={501.98, -67.75, 997.84}, rot=93, int=11, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="BAR2 (2)", pos={-2242.69, -88.2558, 34.3578}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BAR2 (2)", pos={501.98, -67.75, 997.84}, rot=3691.82, int=11, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="BAR2 (3)", pos={2441.15, 2065.15, 9.8472}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BAR2 (3)", pos={501.98, -67.75, 997.84}, rot=180, int=11, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="BARBER2", pos={672.355, -496.834, 15.3751}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BARBER2", pos={418.65, -84.14, 1000.96}, rot=-88.9025, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="BARBER2 (2)", pos={-1449.87, 2592.780, 54.8378}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BARBER2 (2)", pos={418.65, -84.14, 1000.96}, rot=360, int=3, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="BARBER2 (3)", pos={823.629, -1588.9, 12.5764}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BARBER2 (3)", pos={418.65, -84.14, 1000.96}, rot=-1297.58, int=3, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="BARBER2 (4)", pos={-2571.18, 246.698, 9.64213}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BARBER2 (4)", pos={418.65, -84.14, 1000.96}, rot=-138, int=3, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="BARBER2 (5)", pos={2080.36, 2122.13, 9.82222}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BARBER2 (5)", pos={418.65, -84.14, 1000.96}, rot=180, int=3, size=1.5, color={200, 0, 255}, dim=4},
+},
+{
+	{id="BARBER3", pos={2723.76, -2026.72, 12.5753}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BARBER3", pos={412.02, -54.55, 1000.96}, rot=90, int=12, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="BARBERS", pos={2070.86, -1793.84, 12.661}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BARBERS", pos={411.63, -23.33, 1000.8}, rot=-90, int=2, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="BURHOUS", pos={2808, -1175.99, 24.7745}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="BURHOUS", pos={2807.62, -1174.1, 1024.58}, rot=-180, int=8, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="CARLS", pos={2495.33, -1690.75, 13.7847}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CARLS", pos={2496.05, -1692.73, 1013.75}, rot=0, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="CASINO2", pos={1659.42, 2249.69, 10.0664}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CASINO2", pos={1133.07, -12.77, 999.75}, rot=0, int=12, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="CLOTHGP", pos={1456.77, -1138.02, 23.2872}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CLOTHGP", pos={161.39, -96.69, 1000.81}, rot=-141, int=18, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="CLOTHGP (2)", pos={-1883.2, 865.473, 34.2601}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CLOTHGP (2)", pos={161.39, -96.69, 1000.81}, rot=129, int=18, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="CLOTHGP (3)", pos={2572.07, 1904.83, 10.0231}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CLOTHGP (3)", pos={161.39, -96.69, 1000.81}, rot=180, int=18, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="CLOTHGP (4)", pos={2090.58, 2224.2, 10.0579}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CLOTHGP (4)", pos={161.39, -96.69, 1000.81}, rot=180, int=18, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="CSCHP", pos={2244.47, -1665.36, 14.4839}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSCHP", pos={207.74, -111.42, 1004.27}, rot=-363, int=15, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="CSCHP (2)", pos={-2375.32, 910.293, 44.4578}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSCHP (2)", pos={207.74, -111.42, 1004.27}, rot=5507.58, int=15, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="CSCHP (3)", pos={1657.01, 1733.33, 10.0209}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSCHP (3)", pos={207.74, -111.42, 1004.27}, rot=90, int=15, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="CSCHP (4)", pos={2102.69, 2257.49, 10.0579}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSCHP (4)", pos={207.74, -111.42, 1004.27}, rot=270, int=15, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="CSDESGN", pos={461.158, -1499.98, 30.1742}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSDESGN", pos={227.29, -7.43, 1001.26}, rot=100, int=5, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="CSDESGN (2)", pos={-1694.76, 951.599, 24.2706}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSDESGN (2)", pos={227.29, -7.43, 1001.26}, rot=92, int=5, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="CSDESGN (3)", pos={2802.34, 2430.6, 10.061}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSDESGN (3)", pos={227.29, -7.43, 1001.26}, rot=125, int=5, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="CSEXL", pos={453.868, -1478.07, 29.9609}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSEXL", pos={204.33, -168.7, 999.58}, rot=129, int=14, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="CSSPRT", pos={499.637, -1360.4, 15.4261}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSSPRT", pos={207.06, -139.81, 1002.52}, rot=-45, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="CSSPRT (2)", pos={2825.74, 2407.44, 10.061}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="CSSPRT (2)", pos={207.06, -139.81, 1002.52}, rot=125, int=3, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="DAMIN", pos={-594.874, 2018.21, 59.6792}, rot=330, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DAMIN", pos={-959.671, 1955.55, 8.08044}, rot=270, int=17, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="DESHOUS", pos={423.99, 2536.49, 15.19}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DESHOUS", pos={422.16, 2536.52, 9.01}, rot=270, int=10, size=1.5, color={200, 0, 255}, dim=0},
+},
+--[[ -- Diners are commented out due to their poor collisions
+{
+	{id="DINER1", pos={-1941.72, 2379.54, 48.7008}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER1", pos={460.1, -88.43, 998.62}, rot=292, int=4, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="DINER1 (2)", pos={386.918, -1817.79, 6.90008}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER1 (2)", pos={460.1, -88.43, 998.62}, rot=90, int=4, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="DINER1 (3)", pos={1376.89, 2327.79, 9.82222}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER1 (3)", pos={460.1, -88.43, 998.62}, rot=270, int=4, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="DINER2", pos={-206, 1062.21, 18.8298}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER2", pos={459.35, -111.01, 998.72}, rot=308.648, int=5, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="DINER2 (2)", pos={-53.87, 1189.17, 18.4108}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER2 (2)", pos={459.35, -111.01, 998.72}, rot=308.648, int=5, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="DINER2 (3)", pos={291.974, -195.463, 0.852}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER2 (3)", pos={459.35, -111.01, 998.72}, rot=-269.903, int=5, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="DINER2 (4)", pos={2863.23, -1439.44, 10.0083}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER2 (4)", pos={459.35, -111.01, 998.72}, rot=270, int=5, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="DINER2 (5)", pos={-1700.01, 1380.49, 6.20434}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER2 (5)", pos={459.35, -111.01, 998.72}, rot=3729.57, int=5, size=1.5, color={200, 0, 255}, dim=4},
+},
+{
+	{id="DINER2 (6)", pos={-2524.11, 1216.16, 36.4496}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER2 (6)", pos={459.35, -111.01, 998.72}, rot=-90, int=5, size=1.5, color={200, 0, 255}, dim=5},
+},
+{
+	{id="DINER2 (7)", pos={2368.06, 1983.19, 10.003}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DINER2 (7)", pos={459.35, -111.01, 998.72}, rot=125, int=5, size=1.5, color={200, 0, 255}, dim=6}, -->
+},
+--]]
+{
+	{id="DRIVES", pos={-2029.72, -120.926, 34.1691}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DRIVES", pos={-2029.72, -119.55, 1034.17}, rot=180, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="DRIVES2", pos={-2026.92, -101.459, 34.259}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="DRIVES2", pos={-2026.92, -103.48, 1034.27}, rot=0, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="FDREST1", pos={419.191, -1428.71, 31.8959}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="FDREST1", pos={452.89, -18.18, 1000.18}, rot=129, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="FDREST1 (2)", pos={-2463.06, 132.287, 34.198}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="FDREST1 (2)", pos={452.89, -18.18, 1000.18}, rot=5359.06, int=1, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="FDREST1 (3)", pos={2489.87, 2065.15, 9.8472}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="FDREST1 (3)", pos={452.89, -18.18, 1000.18}, rot=180, int=1, size=1.5, color={200, 0, 255}, dim=2},
+},
+--[[{ -- LV Stakehouse
+	{id="FDREST1 (4)", pos={1693.19, 2209.13, 10.0212}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="FDREST1 (4)", pos={452.89, -18.18, 1000.18}, rot=180, int=1, size=1.5, color={200, 0, 255}, dim=3},
+},--]]
+{
+	{id="GANG", pos={2351.97, -1169.86, 27.0309}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="GANG", pos={2352.34, -1181.25, 1027}, rot=0, int=5, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="GENOTB", pos={1288.8, 271.002, 18.5554}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="GENOTB", pos={834.82, 7.42, 1003.18}, rot=-2285.19, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="GENOTB (2)", pos={1631.86, -1172.57, 23.1349}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="GENOTB (2)", pos={834.82, 7.42, 1003.18}, rot=-3240.3, int=3, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="GF1", pos={2402.52, -1715.28, 14.13}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="GF1", pos={243.75, 304.82, 999.14}, rot=270, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="GF2", pos={-2574.04, 1152.31, 55.72}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="GF2", pos={266.56, 304.95, 999.14}, rot=270, int=2, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="GF3", pos={-382.67, -1438.83, 26.12}, rot=270, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="GF3", pos={292.89, 309.90, 999.15}, rot=90, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="GF4", pos={-1800.21, 1200.576, 25.119}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="GF4", pos={300.239, 300.584, 999.15}, rot=0, int=4, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="GF5", pos={-1390.186, 2638.72, 55.98}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="GF5", pos={322.25, 302.42, 999.15}, rot=0, int=5, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="GF6", pos={2037.22, 2721.81, 11.29}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="GF6", pos={343.74, 305.0347, 999.15}, rot=180, int=6, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="JUMP1", pos={2268.07, 1619.59, 93.9124}, rot=270, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="JUMP1", pos={2264.49, 1619.58, 1089.5}, rot=270, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="JUMP2", pos={2268.14, 1675.89, 93.9124}, rot=270, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="JUMP2", pos={2264.48, 1675.93, 1089.5}, rot=270, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="LACRAK", pos={2166.2, -1671.47, 14.1977}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LACRAK", pos={318.57, 1115.21, 1082.98}, rot=220, int=5, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="LACS1", pos={2112.73, -1211.7, 22.9614}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LACS1", pos={203.78, -49.89, 1000.8}, rot=180, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="LACS1 (2)", pos={-2491.98, -29.1065, 24.817}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LACS1 (2)", pos={203.78, -49.89, 1000.8}, rot=90, int=1, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="LACS1 (3)", pos={2779.12, 2453.54, 10.061}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LACS1 (3)", pos={203.78, -49.89, 1000.8}, rot=125, int=1, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="LAHS1B", pos={-2058.97, 889.859, 60.9137}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LAHS1B", pos={223.04, 1287.26, 1081.2}, rot=362, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="LAHS2A", pos={-2139.85, 1189.84, 54.7634}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LAHS2A", pos={260.98, 1284.55, 1079.3}, rot=179, int=4, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="LAHS2A (2)", pos={-2152.4, 1250.16, 24.9503}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LAHS2A (2)", pos={260.98, 1284.55, 1079.3}, rot=362, int=4, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="LAHS2A (3)", pos={-1955.25, 1190.6, 44.4531}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LAHS2A (3)", pos={260.98, 1284.55, 1079.3}, rot=180, int=4, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="LASTRIP", pos={2421.52, -1220.65, 24.6085}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LASTRIP", pos={1204.81, -12.79, 1000.09}, rot=-180, int=2, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="LASTRIP (2)", pos={2506.74, 2120.39, 9.8472}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="LASTRIP (2)", pos={1204.81, -12.79, 1000.09}, rot=0, int=2, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="MADDOGS", pos={1259.39, -785.332, 91.042}, rot=270, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="MADDOGS", pos={1260.58, -785.31, 1090.96}, rot=90, int=5, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="MAFCAS", pos={2196.92, 1676.52, 11.368}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="MAFCAS", pos={2233.91, 1714.73, 1011.38}, rot=90, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="MDDOGS", pos={1298.34, -797.968, 83.1574}, rot=-8, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="MDDOGS", pos={1299.08, -796.83, 1083.03}, rot=200, int=5, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="MOTEL1", pos={2232.87, -1159.71, 24.9416}, rot=-90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="MOTEL1", pos={2214.34, -1150.51, 1024.8}, rot=90, int=15, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="PAPER", pos={2412.6, 1123.81, 9.8529}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="PAPER", pos={390.87, 173.81, 1007.39}, rot=270, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="PDOMES", pos={-2661.35, 1424.39, 23.0043}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="PDOMES", pos={-2661.01, 1417.74, 921.31}, rot=15, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="PDOMES2", pos={-2625.33, 1412.62, 6.13148}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="PDOMES2", pos={-2637.45, 1402.24, 905.46}, rot=0, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="RCPLAY", pos={-2242.01, 128.521, 34.4174}, rot=94, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="RCPLAY", pos={-2241.07, 128.52, 1034.42}, rot=270, int=6, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="REST2", pos={-857.938, 1535.56, 21.6348}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="REST2", pos={441.98, -49.92, 998.69}, rot=323, int=6, size=1.5, color={200, 0, 255}, dim=0},
+},
+--[[{ -- Bugged Marker in SF
+	{id="REST2 (2)", pos={-1887.43, 749.592, 44.4658}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="REST2 (2)", pos={441.98, -49.92, 998.69}, rot=3691.82, int=6, size=1.5, color={200, 0, 255}, dim=1},
+},--]]
+{
+	{id="RYDER", pos={2459.43, -1690.91, 13.54}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="RYDER", pos={2468.18, -1698.29, 1013.5}, rot=90, int=2, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SEXSHOP", pos={2086.42, 2074.48, 10.2043}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SEXSHOP", pos={-100.33, -24.92, 999.74}, rot=270, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SFHSB1", pos={-2627.09, 2309.93, 7.35039}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSB1", pos={140.18, 1366.58, 1082.97}, rot=-90, int=5, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SFHSB1 (2)", pos={-2684.77, 819.657, 49.0326}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSB1 (2)", pos={140.18, 1366.58, 1082.97}, rot=186, int=5, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SFHSB3", pos={-2569.1, 795.796, 48.9819}, rot=-40, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSB3", pos={82.95, 1322.44, 1082.89}, rot=2, int=9, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SFHSB3 (2)", pos={-2539.92, 767.238, 39.0419}, rot=-40, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSB3 (2)", pos={82.95, 1322.44, 1082.89}, rot=270, int=9, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SFHSM1", pos={-2401.5, 869.344, 43.3889}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSM1", pos={-283.55, 1470.98, 1083.45}, rot=270, int=15, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SFHSM2", pos={-2627.09, 2283.33, 7.3178}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSM2", pos={-260.6, 1456.62, 1083.45}, rot=270, int=4, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SFHSS1", pos={-2084.21, 1160.33, 49.2421}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1", pos={-42.58, 1405.61, 1083.45}, rot=362, int=8, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SFHSS1 (2)", pos={-1913.32, 1252.89, 18.5367}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (2)", pos={-42.58, 1405.61, 1083.45}, rot=362, int=8, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SFHSS1 (3)", pos={-1820.62, 1116.27, 45.5432}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (3)", pos={-42.58, 1405.61, 1083.45}, rot=180, int=8, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="SFHSS1 (4)", pos={-1742.78, 1174.34, 24.1582}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (4)", pos={-42.58, 1405.61, 1083.45}, rot=362, int=8, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="SFHSS1 (5)", pos={-2157.2, 889.192, 79.0246}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (5)", pos={-42.58, 1405.61, 1083.45}, rot=274, int=8, size=1.5, color={200, 0, 255}, dim=4},
+},
+{
+	{id="SFHSS1 (6)", pos={-2234.16, 830.667, 53.5143}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (6)", pos={-42.58, 1405.61, 1083.45}, rot=92, int=8, size=1.5, color={200, 0, 255}, dim=5},
+},
+{
+	{id="SFHSS1 (7)", pos={-2159.69, 1048.74, 79.03}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (7)", pos={-42.58, 1405.61, 1083.45}, rot=280, int=8, size=1.5, color={200, 0, 255}, dim=6},
+},
+{
+	{id="SFHSS1 (8)", pos={-2239.22, 962.248, 65.6541}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (8)", pos={-42.58, 1405.61, 1083.45}, rot=89, int=8, size=1.5, color={200, 0, 255}, dim=7},
+},
+{
+	{id="SFHSS1 (9)", pos={-2112.58, 745.657, 68.582}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (9)", pos={-42.58, 1405.61, 1083.45}, rot=180, int=8, size=1.5, color={200, 0, 255}, dim=8},
+},
+{
+	{id="SFHSS1 (10)", pos={-2205.27, 743.061, 49.4742}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (10)", pos={-42.58, 1405.61, 1083.45}, rot=185, int=8, size=1.5, color={200, 0, 255}, dim=9},
+},
+{
+	{id="SFHSS1 (11)", pos={-2636.13, 2351.92, 7.59756}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (11)", pos={-42.58, 1405.61, 1083.45}, rot=-90, int=8, size=1.5, color={200, 0, 255}, dim=10},
+},
+{
+	{id="SFHSS1 (12)", pos={-2591.41, -158.542, 3.36046}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (12)", pos={-42.58, 1405.61, 1083.45}, rot=90, int=8, size=1.5, color={200, 0, 255}, dim=11},
+},
+{
+	{id="SFHSS1 (13)", pos={-2558.79, -79.623, 10.0789}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (13)", pos={-42.58, 1405.61, 1083.45}, rot=0, int=8, size=1.5, color={200, 0, 255}, dim=12},
+},
+{
+	{id="SFHSS1 (14)", pos={-2514.04, -170.797, 24.2706}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (14)", pos={-42.58, 1405.61, 1083.45}, rot=-90, int=8, size=1.5, color={200, 0, 255}, dim=13},
+},
+{
+	{id="SFHSS1 (15)", pos={-2447.62, 820.771, 34.256}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (15)", pos={-42.58, 1405.61, 1083.45}, rot=-182, int=8, size=1.5, color={200, 0, 255}, dim=14},
+},
+{
+	{id="SFHSS1 (16)", pos={-2338.61, 579.323, 27.0123}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (16)", pos={-42.58, 1405.61, 1083.45}, rot=-182, int=8, size=1.5, color={200, 0, 255}, dim=15},
+},
+{
+	{id="SFHSS1 (17)", pos={-2321.97, 819.509, 44.3052}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (17)", pos={-42.58, 1405.61, 1083.45}, rot=-182, int=8, size=1.5, color={200, 0, 255}, dim=16},
+},
+{
+	{id="SFHSS1 (18)", pos={-2401.48, 930.783, 44.4973}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (18)", pos={-42.58, 1405.61, 1083.45}, rot=-94, int=8, size=1.5, color={200, 0, 255}, dim=17},
+},
+{
+	{id="SFHSS1 (19)", pos={-2381.23, 1281.01, 22.1852}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (19)", pos={-42.58, 1405.61, 1083.45}, rot=269, int=8, size=1.5, color={200, 0, 255}, dim=18},
+},
+{
+	{id="SFHSS1 (20)", pos={-2279.5, 1148.84, 61.0751}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (20)", pos={-42.58, 1405.61, 1083.45}, rot=260, int=8, size=1.5, color={200, 0, 255}, dim=19},
+},
+{
+	{id="SFHSS1 (21)", pos={-2280.55, 916.429, 65.6849}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS1 (21)", pos={-42.58, 1405.61, 1083.45}, rot=260, int=8, size=1.5, color={200, 0, 255}, dim=20},
+},
+{
+	{id="SFHSS2", pos={-2626.29, 2359.75, 8.00576}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS2", pos={-68.69, 1351.97, 1079.28}, rot=-90, int=6, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SFHSS2 (2)", pos={-2591.41, -95.538, 3.44458}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS2 (2)", pos={-68.69, 1351.97, 1079.28}, rot=90, int=6, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SFHSS2 (3)", pos={-2541.61, -145.321, 14.7826}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS2 (3)", pos={-68.69, 1351.97, 1079.28}, rot=0, int=6, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="SFHSS2 (4)", pos={-2449.72, 921.163, 57.2093}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS2 (4)", pos={-68.69, 1351.97, 1079.28}, rot=-182, int=6, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="SFHSS2 (5)", pos={-2372.92, 692.687, 34.138}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SFHSS2 (5)", pos={-68.69, 1351.97, 1079.28}, rot=-182, int=6, size=1.5, color={200, 0, 255}, dim=4},
+},
+{
+	{id="STADDIRT", pos={1100.72, 1597.29, 12.54}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="STADDIRT", pos={-1400.0179, -663.382, 1051.232}, rot=85, int=4, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="STADSTUNT", pos={1093.99, 1597.04, 12.54}, rot=7, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="STADSTUNT", pos={-1464.942, 1556.091, 1052.53}, rot=0, int=14, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="STAD8TRACK", pos={2779.80, -1812.735, 11.84}, rot=211, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="STAD8TRACK", pos={-1407.80, -269.016, 1043.65}, rot=343, int=7, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="STADBLOOD", pos={2727.618, -1826.647, 11.8}, rot=168, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="STADBLOOD", pos={-1463.46, 941.49, 1036.64}, rot=306, int=15, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="STRIP2", pos={693.632, 1966.4, 4.56038}, rot=-180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="STRIP2", pos={1212.02, -25.86, 1000.09}, rot=198.385, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="STRIP2 (2)", pos={2543.15, 1025.16, 9.82133}, rot=-180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="STRIP2 (2)", pos={1212.02, -25.86, 1000.09}, rot=-3780.01, int=3, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SVCUNT", pos={-369.456, 1169.14, 19.3978}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVCUNT", pos={2333.11, -1077.1, 1048.04}, rot=230, int=6, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SVCUNT (2)", pos={794.884, -506.702, 17.1238}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVCUNT (2)", pos={2333.11, -1077.1, 1048.04}, rot=180, int=6, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SVCUNT (3)", pos={2236.53, 167.997, 27.196}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVCUNT (3)", pos={2333.11, -1077.1, 1048.04}, rot=180, int=6, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="SVCUNT (4)", pos={206.802, -112.542, 3.98153}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVCUNT (4)", pos={2333.11, -1077.1, 1048.04}, rot=-350.903, int=6, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="SVCUNT (5)", pos={-1533.1, 2656.65, 55.275}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVCUNT (5)", pos={2333.11, -1077.1, 1048.04}, rot=180, int=6, size=1.5, color={200, 0, 255}, dim=4},
+},
+{
+	{id="SVCUNT (6)", pos={-1051.47, 1549.76, 32.496}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVCUNT (6)", pos={2333.11, -1077.1, 1048.04}, rot=300, int=6, size=1.5, color={200, 0, 255}, dim=5},
+},
+{
+	{id="SVCUNT (7)", pos={-2075.91, -2312.55, 30.1313}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVCUNT (7)", pos={2333.11, -1077.1, 1048.04}, rot=50, int=6, size=1.5, color={200, 0, 255}, dim=6},
+},
+{
+	{id="SVCUNT (8)", pos={-1438.72, -1544.58, 100.713}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVCUNT (8)", pos={2333.11, -1077.1, 1048.04}, rot=0, int=6, size=1.5, color={200, 0, 255}, dim=7},
+},
+{
+	{id="SVHOT1", pos={-2425.94, 337.87, 35.997}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVHOT1", pos={2233.8, -1115.36, 1049.91}, rot=-118, int=5, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SVLAMD", pos={1684.74, -2099, 12.8507}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVLAMD", pos={2365.3, -1134.92, 1049.91}, rot=-180, int=8, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SVLAMD (2)", pos={315.684, -1769.81, 3.62877}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVLAMD (2)", pos={2365.3, -1134.92, 1049.91}, rot=180, int=8, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="SVLAMD (3)", pos={893.617, -1636.3, 13.9872}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVLAMD (3)", pos={2365.3, -1134.92, 1049.91}, rot=-180, int=8, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="SVLAMD (4)", pos={2449.17, 689.839, 10.471}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVLAMD (4)", pos={2365.3, -1134.92, 1049.91}, rot=450, int=8, size=1.5, color={200, 0, 255}, dim=4},
+},
+{
+	{id="SVLAMD (5)", pos={1408.05, 1897.08, 10.5873}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVLAMD (5)", pos={2365.3, -1134.92, 1049.91}, rot=450, int=8, size=1.5, color={200, 0, 255}, dim=5},
+},
+{
+	{id="SVLAMD (6)", pos={929.122, 2006.43, 10.4781}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVLAMD (6)", pos={2365.3, -1134.92, 1049.91}, rot=450, int=8, size=1.5, color={200, 0, 255}, dim=6},
+},
+{
+	{id="SVLASM", pos={2111.23, -1279.71, 24.9546}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVLASM", pos={2282.91, -1140.29, 1049.91}, rot=180, int=11, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SVLASM (2)", pos={2483.38, -1996.19, 12.8507}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVLASM (2)", pos={2282.91, -1140.29, 1049.91}, rot=-180, int=11, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SVSFBG", pos={1331.94, -633.096, 108.245}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVSFBG", pos={2196.79, -1204.35, 1048.05}, rot=-1.90253, int=6, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SVSFBG (2)", pos={-2099.68, 897.485, 75.9661}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVSFBG (2)", pos={2196.79, -1204.35, 1048.05}, rot=4374.68, int=6, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SVSFBG (3)", pos={-2027.73, -40.5488, 37.8263}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVSFBG (3)", pos={2196.79, -1204.35, 1048.05}, rot=4139.7, int=6, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="SVSFMD", pos={-2454.44, -135.879, 25.2223}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVSFMD", pos={2270.39, -1210.45, 1046.57}, rot=90, int=10, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SVSFSM", pos={-2213.54, 720.845, 48.4262}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVSFSM", pos={2308.79, -1212.88, 1048.03}, rot=36, int=6, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SVSFSM (2)", pos={-2700.32, 820.308, 48.999}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVSFSM (2)", pos={2308.79, -1212.88, 1048.03}, rot=-180, int=6, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SVSFSM (3)", pos={2818.75, 2140.56, 13.7132}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVSFSM (3)", pos={2308.79, -1212.88, 1048.03}, rot=360, int=6, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="SVVGHO1", pos={2238.99, 1285.05, 9.82528}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVVGHO1", pos={2217.54, -1076.29, 1049.52}, rot=-3870.01, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SVVGHO1 (2)", pos={2226.03, 1837.92, 9.964}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVVGHO1 (2)", pos={2217.54, -1076.29, 1049.52}, rot=90, int=1, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SVVGHO2", pos={1965.11, 1622.54, 11.879}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVVGHO2", pos={2237.59, -1080.87, 1048.07}, rot=270, int=2, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="SVVGHO2 (2)", pos={2374.55, 2167.88, 9.8472}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVVGHO2 (2)", pos={2237.59, -1080.87, 1048.07}, rot=125, int=2, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="SVVGMD", pos={1274.28, 2522.47, 9.99299}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="SVVGMD", pos={2317.82, -1026.75, 1049.21}, rot=270, int=9, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="TATinterior2", pos={-2491.98, -38.9587, 24.817}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="TATinterior2", pos={-204.44, -9.17, 1001.3}, rot=90, int=17, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="TATinterior3", pos={2094.7, 2122.13, 9.82222}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="TATinterior3", pos={-204.44, -44.35, 1001.3}, rot=180, int=3, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="TATinteriorO", pos={2068.71, -1779.84, 12.5103}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="TATinteriorO", pos={-204.44, -27.15, 1001.3}, rot=-90, int=16, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="TATinteriorO (2)", pos={1975.79, -2036.65, 12.5753}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="TATinteriorO (2)", pos={-204.44, -27.15, 1001.3}, rot=90, int=16, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="TRICAS", pos={2019.49, 1007.11, 9.82133}, rot=90, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="TRICAS", pos={2018.95, 1017.09, 995.88}, rot=-3690.01, int=10, size=1.5, color={200, 0, 255}, dim=0},
+},
+--[[{ -- Cafe Shop (Catalina)
+	{id="TSDINER", pos={681.579, -473.419, 15.592}, rot=180, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="TSDINER", pos={681.58, -473.42, 15.592}, rot=180, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},--]]
+{
+	{id="UFOBAR", pos={-88.5875, 1378.36, 9.56984}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="UFOBAR", pos={-229.03, 1401.23, 26.77}, rot=270, int=18, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="WUZIBET", pos={-2155.92, 645.38, 52.37}, rot=270, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="WUZIBET", pos={-2158.675, 642.8, 1052.4}, rot=134, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="X7_11B", pos={1833.54, -1843.38, 12.5595}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11B", pos={-30.95, -91.71, 1002.55}, rot=90, int=18, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="X7_11B (2)", pos={1315.49, -897.843, 38.571}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11B (2)", pos={-30.95, -91.71, 1002.55}, rot=180, int=18, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="X7_11B (3)", pos={2546.71, 1972.28, 9.822}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11B (3)", pos={-30.95, -91.71, 1002.55}, rot=180, int=18, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="X7_11B (4)", pos={2884.83, 2453.28, 10.061}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11B (4)", pos={-30.95, -91.71, 1002.55}, rot=224, int=18, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="X7_11S", pos={-181.004, 1034.83, 18.8298}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11S", pos={-26.69, -57.81, 1002.55}, rot=381.648, int=6, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="X7_11S (2)", pos={-1562.63, -2732.98, 47.7435}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11S (2)", pos={-26.69, -57.81, 1002.55}, rot=237, int=6, size=1.5, color={200, 0, 255}, dim=1},
+},
+{
+	{id="X7_11S (3)", pos={1352.31, -1758.3, 12.5149}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11S (3)", pos={-26.69, -57.81, 1002.55}, rot=-2520.26, int=6, size=1.5, color={200, 0, 255}, dim=2},
+},
+{
+	{id="X7_11S (4)", pos={2247.66, 2396.26, 9.8218}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11S (4)", pos={-26.69, -57.81, 1002.55}, rot=0, int=6, size=1.5, color={200, 0, 255}, dim=3},
+},
+{
+	{id="X7_11S (5)", pos={2452.47, 2065.15, 9.8472}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11S (5)", pos={-26.69, -57.81, 1002.55}, rot=180, int=6, size=1.5, color={200, 0, 255}, dim=4},
+},
+{
+	{id="X7_11S (6)", pos={2194.38, 1991.02, 11.301}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11S (6)", pos={-26.69, -57.81, 1002.55}, rot=90, int=6, size=1.5, color={200, 0, 255}, dim=5},
+},
+{
+	{id="X7_11S (7)", pos={2097.76, 2224.2, 10.0579}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11S (7)", pos={-26.69, -57.81, 1002.55}, rot=180, int=6, size=1.5, color={200, 0, 255}, dim=6},
+},
+{
+	{id="X7_11S (8)", pos={1937.25, 2307.17, 9.82222}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X7_11S (8)", pos={-26.69, -57.81, 1002.55}, rot=90, int=6, size=1.5, color={200, 0, 255}, dim=7},
+},
+{
+	{id="X711S2", pos={1000.33, -919.924, 41.2368}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=0},
+	{refid="X711S2", pos={-27.31, -31.38, 1002.55}, rot=97, int=4, size=1.5, color={200, 0, 255}, dim=0},
+},
+{
+	{id="AMRG", pos={286, -27.7, 1000.40}, rot=0, size=1.5, color={200, 0, 255}, dim=0, int=1},
+	{refid="AMRG", pos={286, -31, 1000.40}, rot=0, int=1, size=1.5, color={200, 0, 255}, dim=0},
+},
+
+}
+
+-- Export
+function getInteriorsTable()
+	return interiors
+end

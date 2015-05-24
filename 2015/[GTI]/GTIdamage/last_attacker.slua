@@ -1,0 +1,71 @@
+lastAttacker = {}
+lastAttackerWeapon = {}
+lastDMG = {}
+lastVictim = {}
+
+addEventHandler( "onPlayerDamage", root,
+	function( attacker, attackerWeapon, bodyPart, loss)
+		-- Last Attacker
+		lastAttacker[source] = attacker or false
+		lastAttackerWeapon[source] = attackerWeapon or false
+		if not tonumber(lastDMG[source]) then
+			lastDMG[source] = math.floor(loss)
+		else
+			lastDMG[source] = lastDMG[source]+math.floor(loss)
+		end
+		if isElement( attacker) then
+			lastVictim[attacker] = source
+		end
+	end
+)
+
+addEventHandler( "onPlayerWasted", root,
+	function()
+		if (lastDMG[source] and lastDMG[source] > 0) then
+			lastDMG[source] = 0
+		end
+		lastVictim[source] = false
+		lastAttacker[source] = false
+		lastAttackerWeapon[source] = false
+	end
+)
+
+function getLastAttacker( element)
+	if not isElement( element) then return false end
+	local prevAttker = lastAttacker[element]
+	if prevAttker then
+		return prevAttker
+	else
+		return false
+	end
+end
+
+function getLastAttackedPlayer( element)
+	if not isElement( element) then return false end
+	local lastAttack = lastVictim[element]
+	if lastAttack then
+		return lastAttack
+	else
+		return false
+	end
+end
+
+function getLastAttackerWeapon( element)
+	if not isElement( element) then return false end
+	local lastWeap = lastAttackerWeapon[element]
+	if lastWeap then
+		return lastWeap
+	else
+		return false
+	end
+end
+
+function getPlayerDamage( element)
+	if not isElement(element) then return false end
+	local dmg = lastDMG[element]
+	if tonumber(dmg) then
+		return dmg
+	else
+		return false
+	end
+end

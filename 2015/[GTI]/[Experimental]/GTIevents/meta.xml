@@ -1,0 +1,76 @@
+<meta>
+	<script src="gui_settings.luac" type="client" />
+	<script src="event_gui.luac" type="client" />
+	<script src="eventc_functions.luac" type="client" />
+	<script src="obj_placement.luac" type="client" />
+	
+	<script src="event_functions.lua" type="server" />
+	<script src="event_spawn.lua" type="server" />
+	
+<file src="images/blips/01.png" />
+<file src="images/blips/02.png" />
+<file src="images/blips/03.png" />
+<file src="images/blips/04.png" />
+<file src="images/blips/05.png" />
+<file src="images/blips/06.png" />
+<file src="images/blips/07.png" />
+<file src="images/blips/08.png" />
+<file src="images/blips/09.png" />
+<file src="images/blips/10.png" />
+<file src="images/blips/11.png" />
+<file src="images/blips/12.png" />
+<file src="images/blips/13.png" />
+<file src="images/blips/14.png" />
+<file src="images/blips/15.png" />
+<file src="images/blips/16.png" />
+<file src="images/blips/17.png" />
+<file src="images/blips/18.png" />
+<file src="images/blips/19.png" />
+<file src="images/blips/20.png" />
+<file src="images/blips/21.png" />
+<file src="images/blips/22.png" />
+<file src="images/blips/23.png" />
+<file src="images/blips/24.png" />
+<file src="images/blips/25.png" />
+<file src="images/blips/26.png" />
+<file src="images/blips/27.png" />
+<file src="images/blips/28.png" />
+<file src="images/blips/29.png" />
+<file src="images/blips/30.png" />
+<file src="images/blips/31.png" />
+<file src="images/blips/32.png" />
+<file src="images/blips/33.png" />
+<file src="images/blips/34.png" />
+<file src="images/blips/35.png" />
+<file src="images/blips/36.png" />
+<file src="images/blips/37.png" />
+<file src="images/blips/38.png" />
+<file src="images/blips/39.png" />
+<file src="images/blips/40.png" />
+<file src="images/blips/41.png" />
+<file src="images/blips/42.png" />
+<file src="images/blips/43.png" />
+<file src="images/blips/44.png" />
+<file src="images/blips/45.png" />
+<file src="images/blips/46.png" />
+<file src="images/blips/47.png" />
+<file src="images/blips/48.png" />
+<file src="images/blips/49.png" />
+<file src="images/blips/50.png" />
+<file src="images/blips/51.png" />
+<file src="images/blips/52.png" />
+<file src="images/blips/53.png" />
+<file src="images/blips/54.png" />
+<file src="images/blips/55.png" />
+<file src="images/blips/56.png" />
+<file src="images/blips/57.png" />
+<file src="images/blips/58.png" />
+<file src="images/blips/59.png" />
+<file src="images/blips/60.png" />
+<file src="images/blips/61.png" />
+<file src="images/blips/62.png" />
+<file src="images/blips/63.png" />
+<file src="images/blips/down.png" />
+<file src="images/blips/up.png" />
+<file src="images/blips/square.png" />
+</meta>

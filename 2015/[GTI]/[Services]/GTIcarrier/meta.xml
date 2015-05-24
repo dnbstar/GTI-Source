@@ -1,0 +1,12 @@
+<meta>
+	<info author="LilDolla" name="Cell Carriers" autostart="false"></info>
+	<script src="carrier.luac" type="client" />
+	<script src="carrier_table.luac" type="client" />
+	<script src="carrier_s.lua" type="server" />
+
+	<file src="images/logo_gero.png" />
+	<file src="images/logo_gmo.png" />
+	<file src="images/logo_gtni.png" />
+	<file src="images/logo_pro.png" />
+	<file src="images/logo_sacell.png" />
+</meta>

@@ -1,0 +1,24 @@
+<meta>
+    <info author="JTPenn" version="1.0" name="Clothing Stores and Skin Selection" autostart="true" />
+    <file src="mods/kendl.dff" type="client" />
+    <file src="mods/kendl.txd" type="client" />
+    
+    <!--Clothing Skins doesn't work properly
+	<script src="clothing/clothing_c.luac"	type="client" />
+    <script src="clothing/clothing_s.lua" 	/>
+    <script src="clothing/saving_s.lua" 	/>-->
+    
+    <script src="clothes.luac" type="client" />
+    <script src="clothes.slua" />
+    <script src="elements.luac" type="client" />
+    <script src="clothesTable.slua" />
+    
+    <export function="selectSkinFromStore" type="server" />
+    <export function="getSkinCostFromID" type="server" />
+    <export function="getSkinNameFromID" type="server" />
+    <export function="getPlayerPurchasedSkins" type="server" />
+    <export function="doesPlayerOwnSkin" type="server" />
+    <export function="addSkinToInventory" type="server" />
+    
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

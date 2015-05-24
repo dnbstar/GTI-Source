@@ -1,0 +1,56 @@
+--------------------
+Basic Codes:
+------------------->>
+10-0: Use caution
+
+10-1: Estimated time of arrival in
+
+10-2: Busy unless urgent
+
+10-3: Patrolling
+
+10-4: Affirmative
+
+10-5: Negative
+
+10-6: On Duty
+
+10-7: Off Duty
+
+--------------------
+Operational Codes:
+------------------->>
+10-15: Requesting a medic on #loc
+
+10-16: Man down
+
+10-20: Requesting Pickup #loc
+
+10-21: Requesting available units to respond to #loc
+
+10-22: Requesting all units to respond to #loc
+
+10-23F: Requesting fast pursuit Unit to #loc
+
+10-23A: Requesting air support to #loc
+
+10-23B: Requesting boat support to #loc 
+
+10-25: In Pursuit on #loc
+
+10-26: All suspects in custody
+
+10-30: Current status of situation
+
+--------------------
+Misc Codes:
+------------------->>
+10-50: Do I have backup my coming
+
+10-51: Subject disturbing the peace
+
+10-52: Suspect has a Gun
+
+10-53: Multiple suspects in the area of #loc
+
+10-55: Preparing a roadblock at #loc

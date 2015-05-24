@@ -1,0 +1,136 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Author: JT Pennington (JTPenn)
+-- Date: 22 Nov 2014
+-- Resource: GTIvending/vending.slua
+-- Version: 1.0
+----------------------------------------->>
+
+machines = {
+	{1929.9, -1772.4, 12.5},
+	{2325.8999, -1646.2, 13.8},
+	{1729.8, -1944.2, 12.7},
+	{2845.8, 1294, 10.4},
+	{1278.8, 372, 18.5},
+	{199.7, -107.6, 0.5},
+	{1634.2, -2238.8, 12.5},
+	{-1981.9, 142.6, 26.7},
+	{2154.2, -1015.5, 62},
+	{2060.1001, -1898.9, 12.5},
+	{2480.8, -1958.2, 12.6},
+	{2353.3, -1357, 23.5},
+	{2140.6001, -1161.5, 22.9},
+	{2117.3, 287.4, -808.6},
+	{662.4, -550.9, 15.4},
+	{-2039.8, -397.3, 34.6},
+	{2271.7, -77.5, 25.6},
+	{-2010.9, -397.1, 34.6},
+	{-2068.6001, -397.1, 34.5},
+	{-2097.3, -397.2, 34.5},
+	{-2119.7, -422.1, 34.6},
+	{-2120.1001, -423.4, 34.6},
+	{-2092.1001, -491.1, 34.5},
+	{-2063.3, -491.2, 34.5},
+	{-1349, 492.3, 10.2},
+	{-2034.4, -491.3, 34.4},
+	{-2005.6, -491.2, 34.5},
+	{-2229.3, 287.5, 34.3},
+	{-1348.9, 493.9, 10.2},
+	{-2419.2, 984.5, 44.3},
+	{-2419.2, 985.9, 44.3},
+	{-74.8, 1228, 18.8},
+	{-1455.1, 2592.8, 54.8},
+	{-862.8, 1537.7, 21.5},
+	{-14.7, 1176.5, 18.5},
+	{2502.7, 1244.8, 9.9},
+	{-252.5, 2599.8999, 61.9},
+	{-252.5, 2598, 61.8},
+	{1398.8, 2223.6001, 10},
+	{1519, 1055.2, 9.8},
+	{2647.7, 1128.6, 10.2},
+	{2086.8999, 2071.3999, 10.1},
+	{1659.5, 1721.7, 9.8},
+	{2320, 2531.7, 9.8},
+}
+
+local VEND_COST = 1		-- Cost to buy item
+local VEND_HEAL = 25	-- HP to heal player
+
+local timer 	-- Vend Timer
+
+-- Make Purchase
+----------------->>
+
+--[[
+addEventHandler("onColShapeHit", resourceRoot, function(player, dim)
+	if (not isElement(player) or getElementType(player) ~= "player" or isPedInVehicle(player) or not dim) then return end
+	if (isTimer(timer)) then return end
+	exports.GTIhud:drawNote("vending.msg", "Press [Z] to buy a snack ($1)", player, 0, 0, 255)
+	bindKey(player, "z", "up", healPlayer, player)
+end)
+
+addEventHandler("onColShapeLeave", resourceRoot, function(player, dim)
+	if (not isElement(player) or getElementType(player) ~= "player" or isPedInVehicle(player) or not dim) then return end
+	unbindKey(player, "z", "up", healPlayer)
+	exports.GTIhud:drawNote("vending.msg", "", player)
+end)
+--]]
+
+function enterMachine( player, dim)
+	if (not isElement(player) or getElementType(player) ~= "player" or isPedInVehicle(player) or not dim) then return end
+	if (isTimer(timer)) then return end
+	exports.GTIhud:drawNote("vending.msg", "Press [Z] to buy a snack ($1)", player, 0, 0, 255)
+	bindKey(player, "z", "up", healPlayer, player)
+end
+
+function exitMachine( player, dim)
+	if (not isElement(player) or getElementType(player) ~= "player" or isPedInVehicle(player) or not dim) then return end
+	unbindKey(player, "z", "up", healPlayer)
+	exports.GTIhud:drawNote("vending.msg", "", player)
+end
+
+for i,v in ipairs(machines) do
+	createMarker(v[1], v[2], v[3], "cylinder", 1.1, 0, 0, 150, 25)
+	local col = createColTube( v[1], v[2], v[3], 1, 2)
+	addEventHandler( "onColShapeHit", col, enterMachine)
+	addEventHandler( "onColShapeLeave", col, exitMachine)
+end
+
+-- Heal Player
+--------------->>
+
+function healPlayer(player)
+	if (not isElement(player)) then return end
+
+	unbindKey(player, "z", "up", healPlayer)
+	exports.GTIhud:drawNote("vending.msg", "", player)
+
+	local money = getPlayerMoney(player)
+	if (money < VEND_COST) then
+		exports.GTIhud:dm("Sorry, you cannot afford to buy a snack.", player, 255, 125, 0)
+		return
+	end
+
+
+	local maxHealth = getPedStat(player, 24)
+	local maxHealth = (((maxHealth-569)/(1000-569))*100)+100
+
+	local health = getElementHealth(player)
+	if (maxHealth <= health) then
+		exports.GTIhud:dm("You are full.", player, 255, 125, 0)
+		return
+	end
+
+
+	-- Animations
+	toggleControl(player, "jump", false)
+	setPedAnimation(player, "VENDING", "vend_use", 1000, false, false, false)
+	setTimer(setPedAnimation, 2700, 1, player, "VENDING", "VEND_use_pt2", 1000, false, false, false)
+	setTimer(setPedAnimation, 3400, 1, player, "VENDING", "VEND_drink_p", 1000, false, false, false)
+	timer = setTimer(function(player)
+		setPedAnimation(player)
+		toggleControl(player, "jump", true)
+		exports.GTIbank:TPM(player, VEND_COST, "Vending Machine Snack")
+		setElementHealth(player, (health+VEND_HEAL < maxHealth and health+VEND_HEAL or maxHealth))
+	end, 4000, 1, player)
+end

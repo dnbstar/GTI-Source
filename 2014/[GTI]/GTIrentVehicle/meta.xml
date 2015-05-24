@@ -1,0 +1,25 @@
+<meta>
+	<script src="gui.luac" type="client" />
+	<script src="rentVehicle.luac" type="client" />
+	<script src="rentPanel.luac" type="client" />
+	
+	<script src="database.slua" />
+	<script src="rentPanel.slua" />
+	<script src="rentVehicle.slua" />
+	
+	<export function="getVehicleData" type="server" />
+	<export function="setVehicleData" type="server" />
+	
+	<export function="spawnRental" 					type="server" />
+	<export function="hideVehicle" 					type="server" />
+	<export function="blipVehicle" 					type="server" />
+	<export function="recoverVehicle" 				type="server" />
+	<export function="callAdvancedVehicleStats" 	type="server" />
+	<export function="dropRentalVehicle" 			type="server" />
+	
+	<export function="isVehicleRented" 				type="server" />
+	<export function="isPlayerRentedVehicleActive"	type="server" />
+	<export function="doesPlayerHaveRentalVehicle" 	type="server" />
+	<export function="getPlayerRentedVehicle" 		type="server" />
+	<export function="isRentalBlipped" 				type="server" />
+</meta>

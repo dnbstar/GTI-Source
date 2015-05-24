@@ -1,0 +1,103 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Mar 2014
+-- Resource: GTIcriminals/reputation.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+MAX_REPUTATION = 5000000
+MAX_LEVEL = 50
+HOURLY_EXP = 1923
+
+local repPoints = {}
+local EXP_ANTICHEAT_CUTOFF = HOURLY_EXP * 1.33
+
+-- Reputation System Exports
+----------------------------->>
+
+function getCriminalLevelFromRep(rep)
+	if (type(rep) ~= "number") then return false end
+	local reputation = getReputation()
+	local level = 0
+	for lvl,hours in ipairs(reputation) do
+		local repMulti = reputation[lvl]/reputation[MAX_LEVEL]
+		local crimRep = math.floor(repMulti*MAX_REPUTATION)
+		if (rep >= crimRep) then
+			level = level + 1
+		end
+	end
+	return level or false
+end
+
+function getCriminalLevelRequirement(level)
+	if (type(level) ~= "number") then return false end
+	if (level > MAX_LEVEL) then level = MAX_LEVEL end
+	if (level == 0) then return 0 end
+	local reputation = getReputation()
+	local repMulti = reputation[level]/reputation[MAX_LEVEL]
+	return math.floor(repMulti*MAX_REPUTATION)
+end
+
+function getHourlyReputation()
+	return HOURLY_EXP
+end
+
+function getPlayerCriminalLevel(player)
+	if (not isElement(player)) then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	local reputation = getReputation()
+	local reputation = exports.GTIaccounts:GAD(account, "criminal_rep") or 0
+	return getCriminalLevelFromRep(reputation)
+end
+
+function getPlayerCriminalRep(player)
+	if (not isElement(player)) then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	local crimRep = exports.GTIaccounts:GAD(account, "criminal_rep") or 0
+	return crimRep
+end
+
+local repTimer
+function modifyPlayerCriminalRep(player, reputation)
+	if (not isElement(player) or type(reputation) ~= "number") then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+		-- Anti-Cheat
+	local serial = getPlayerSerial(player)
+	if (not repPoints[serial]) then repPoints[serial] = 0 end
+	repPoints[serial] = repPoints[serial] + reputation
+	if (isReputationAntiCheatEnabled(player)) then 
+		outputChatBox("Anti-Cheat Triggered: You've gained a lot of reputation points in this hour.", player, 255, 0, 0)
+		local timeLeft = getTimerDetails(repTimer)
+		local M = math.floor(timeLeft/60000)
+		outputChatBox("You will not gain any more reputation points for the next "..M.." minutes.", player, 255, 0, 0)
+		return false 
+	end
+		
+	local crimRep = exports.GTIaccounts:GAD(account, "criminal_rep") or 0
+	exports.GTIaccounts:SAD(account, "criminal_rep", crimRep+reputation)
+	return true
+end
+
+-- AntiCheat Functions
+----------------------->>
+
+function isReputationAntiCheatEnabled(player)
+	if (not isElement(player)) then return false end
+	if ((repPoints[getPlayerSerial(player)] or 0) > EXP_ANTICHEAT_CUTOFF) then
+		return true
+	end
+	return false
+end
+
+function decreaseAntiCheatReputation()
+	for serial,_ in pairs(repPoints) do
+		repPoints[serial] = 0
+	end
+end
+repTimer = setTimer(decreaseAntiCheatReputation, 60000*60, 0)

@@ -1,0 +1,17 @@
+<meta>
+	<info name="Police Computer" author="Diego" autostart="true" />
+	
+    <script src="policeComputer.luac" type="client"/>
+	<script src="policeComputer.slua" type="server"/>
+	
+	<file src="miscfiles/coc.txt" download="true"/>		
+    <file src="images/page.png"/>	
+	<file src="images/search.png"/>	
+	<file src="sounds/button_click.mp3"/>	
+	<file src="sounds/button_hit.mp3"/>		
+	<file src="miscfiles/crimes.txt" download="true"/>	
+	<file src="miscfiles/codes.txt" download="true"/>	
+	<file src="miscfiles/features.txt" download="true"/>	
+	
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

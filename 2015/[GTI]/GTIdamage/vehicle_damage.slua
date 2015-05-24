@@ -1,0 +1,12 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Author: JT Pennington (JTPenn)
+-- Date: 17 Dec 2014
+-- Resource: GTIdamage/vehicle_damage.slua
+-- Version: 1.0
+----------------------------------------->>
+
+addEvent("GTIdamage.killPed", true)
+addEventHandler("GTIdamage.killPed", root, function(player, killer, weapon)
+	killPed(player, killer, weapon, 3)
+end)

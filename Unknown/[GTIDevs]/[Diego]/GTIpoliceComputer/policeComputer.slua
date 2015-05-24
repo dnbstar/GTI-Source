@@ -1,0 +1,170 @@
+------------------------------------------------->>
+-- PROJECT:			Grand Theft International
+-- RESOURCE: 		GTImdc/mobileDataComputer.slua
+-- DESCRIPTION:		GTI Police Computer.
+-- AUTHOR:			Diego Hernandez & Kanto
+-- RIGHTS:			All rights reserved to author
+------------------------------------------------->>
+
+-- PART I: STATS TAB
+----------------------->>
+
+function managePoliceStats()
+	local accountName = getAccountName(getPlayerAccount(client))
+	local divisionName = exports.GTIemployment:getPlayerJobDivision(client) or "Police Officer"
+	local rankName = exports.GTIemployment:getJobRankFromLevel("Police Officer", exports.GTIemployment:getPlayerJobLevel(client, "Police Officer"))
+	local nextRank = exports.GTIemployment:getJobRankFromLevel("Police Officer", exports.GTIemployment:getPlayerJobLevel(client, "Police Officer")+1)
+	local arrests = exports.GTIemployment:getPlayerJobProgress(client, "Police Officer")
+	local onDutyHrs_ = exports.GTIemployment:getPlayerJobTime(client, "Police Officer")--*0.000277777778
+	local onDutyHrs = string.format("%.2d:%.2d", onDutyHrs_/(60*60), onDutyHrs_/60%60)
+
+	local federalAgents = getPlayersInDivision("Police Officer", "Federal Agent")
+	local correctionalOfficers = getPlayersInDivision("Police Officer", "Corrections")
+	local gangUnits = getPlayersInDivision("Police Officer", "SWAT division")
+	local trafficOfficers = getPlayersInDivision("Police Officer", "Highway Patrol")
+	local totalOfficers = getPlayersInTeam(getTeamFromName("Law Enforcement"))
+
+	local wantedPlrs = countWantedPlayers()
+
+	triggerClientEvent(client, "GTIpoliceComputer.sendPoliceStatsToClient", client, accountName, divisionName, rankName, nextRank, arrests, onDutyHrs, federalAgents, correctionalOfficers, gangUnits, trafficOfficers, totalOfficers, wantedPlrs)
+end
+addEvent("GTIpoliceComputer.showPoliceStats", true)
+addEventHandler("GTIpoliceComputer.showPoliceStats", root, managePoliceStats)
+
+function getPlayersInDivision(job, division)
+    local divisionPlayers = {}
+    if not job and division then return end
+    if type(job) ~= "string" and type(division) ~= "string" then return end
+    for i,v in ipairs (getElementsByType("player")) do
+		if (exports.GTIemployment:getPlayerJob(v, true) == job) and (exports.GTIemployment:getPlayerJobDivision(v) == division)  then
+			table.insert(divisionPlayers, v)
+		end
+    end
+	return divisionPlayers
+end
+
+function countWantedPlayers()
+    local wantedPlayers = {}
+    for i, v in ipairs(getElementsByType("player")) do
+        if getPlayerWantedLevel(v) > 0 then
+            table.insert(wantedPlayers, v)
+        end
+    end
+    return #wantedPlayers
+end
+
+-- PART II: WANTED PLRS
+----------------------->>
+
+function table.empty (tbl)
+    for i, v in pairs(tbl) do
+        tbl[i] = nil
+    end
+end
+
+local wantedLvlT = {}
+function wantedPlayersHandler()
+    table.empty(wantedLvlT)
+    for i, player in ipairs (getElementsByType("player")) do
+        if getPlayerWantedLevel(player) > 0 then
+            wantedLvlT[player] = exports.GTIpoliceWanted:getPlayerWantedLevel(player, true)
+        end
+    end
+    triggerClientEvent("GTIpoliceComputer.sendWantedPlayers", resourceRoot, wantedLvlT)
+end
+addEvent("GTIpoliceComputer.showWantedGridlist", true)
+addEventHandler("GTIpoliceComputer.showWantedGridlist", root, wantedPlayersHandler)
+
+for i, v in ipairs (getElementsByType("player")) do
+	bindKey(v, "F6", "down", wantedPlayersHandler)
+end
+
+function informOnArrest()
+    triggerClientEvent(getPlayersInTeam(getTeamFromName("Law Enforcement")), "GTIpoliceComputer.onClientArrest", source, source)
+end
+addEvent("onPlayerArrested" ,true)
+addEventHandler("onPlayerArrested", root, informOnArrest)
+
+function untrackOnJail()
+    triggerClientEvent(getPlayersInTeam(getTeamFromName("Law Enforcement")), "GTIpoliceComputer.onClientJail", source, source)
+end
+addEvent("onPlayerJailed" ,true)
+addEventHandler("onPlayerJailed", root, untrackOnJail)
+
+addEvent("onPlayerWantedLevelCleared", true)
+addEventHandler("onPlayerWantedLevelCleared", root, function()
+	triggerClientEvent(getPlayersInTeam(getTeamFromName("Law Enforcement")), "GTIpoliceComputer.onClientJail", source, source, true)
+end)
+
+-- PART III: 911 CALLS
+----------------------->>
+
+function outputToPlayersInTeam(s, v, r, g, b)
+    for i, v in ipairs(getPlayersInTeam(getTeamFromName("Law Enforcement"))) do
+        outputChatBox(s, v, 30, 125, 255, true)
+    end
+end
+addEvent("GTIpoliceComputer.outputToPlayersInTeam", true)
+addEventHandler("GTIpoliceComputer.outputToPlayersInTeam", root, outputToPlayersInTeam)
+
+-- PART IV: RECORDS
+----------------------->>
+
+function getAccountFromName(accountName)
+	if type(accountName) ~= "string" then return end
+	for i, accounts in ipairs (getAccounts()) do
+		if getAccountName(accounts) == accountName then
+			return accounts
+		else
+			return false
+		end
+	end
+end
+
+function outputRecordsMsg(text, player, r, g, b, time)
+	if not isElement(player) and not getElementType(player) == "player" then return end
+	if type(text) ~= "string" and type(r) ~= "number" and type(g) ~= "number" and type(b) ~= "number" and type(time) ~= "number" then return end
+	triggerClientEvent(player, "GTIpoliceComputer.outputRecordsMsg", player, text, r, g, b, time)
+end
+
+local crimes = {}
+
+function getPlayerRecords(accountName)
+	if not type(accountName) == "string" then return end
+	local account = getAccount(accountName)
+	if not account then
+		outputRecordsMsg("Invalid account name entered.", client, 255, 0, 0, 5000)
+	else
+		outputRecordsMsg("Showing "..accountName.."'s records", client, 20, 188, 20, 20000)
+		 for i = 1, 27 do
+			crimes[i] = exports.GTIpoliceWanted:getWantedData(account, "crimeID"..tostring(i)) or "0"
+		 end
+		 triggerClientEvent(client, "GTIpoliceComputer.sendWantedData", client, crimes)
+	end
+end
+addEvent("GTIpoliceComputer.sendRecordsData", true)
+addEventHandler("GTIpoliceComputer.sendRecordsData", root, getPlayerRecords)
+
+local state = {}
+
+function restrictRecordsTab()
+	if exports.GTIemployment:getPlayerJobLevel(client, "Police Officer") >= 3 then
+		state[client] = true
+	else
+		state[client] = false
+	end
+	triggerClientEvent(client, "GTIpoliceComputer.restrictRecordsUsage", client, state)
+end
+addEvent("GTIpoliceComputer.loadRestrictions", true)
+addEventHandler("GTIpoliceComputer.loadRestrictions", root, restrictRecordsTab)
+
+-----------------------------------------------------------
+--	COPYRIGHT GRAND THEFT INTERNATIONAL (C)
+-----------------------------------------------------------
+
+function math.round(number, decimals, method)
+    decimals = decimals or 0
+    local factor = 10 ^ decimals
+    if (method == "ceil" or method == "floor") then return math[method](number * factor) / factor
+    else return tonumber(("%."..decimals.."f"):format(number)) end
+end

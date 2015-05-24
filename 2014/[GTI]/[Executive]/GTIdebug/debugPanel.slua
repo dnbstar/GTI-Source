@@ -1,0 +1,102 @@
+----------------------------------------->>
+-- GTI: Grand Theft International Network
+-- Date: 15 Dec 2013
+-- Resource: GTIdebug/debugPanel.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+MAX_DEBUGS = 250 -- Maximum Number of Debug Lines to Display
+
+local clientDebugs = {}
+local serverDebugs = {}
+
+-- Process Client Debugs
+------------------------->>
+
+function sendDebugInformationToServer(message, level, file, line)
+	local t = getRealTime()
+	local month, day, hour, minute, second = t.month+1, t.monthday, t.hour, t.minute, t.second
+	if (hour < 10) then hour = "0"..hour end
+	if (minute < 10) then minute = "0"..minute end
+	if (second < 10) then second = "0"..second end
+	
+	local debugString = "["..month.."/"..day.."] ("..hour..":"..minute..":"..second..") "
+	
+	local player = getPlayerName(client)
+	local account = getPlayerAccount(client)
+	if (not isGuestAccount(account)) then
+		account = "("..getAccountName(account)..") "
+	else
+		account = ""
+	end
+	debugString = debugString..player.." "..account
+	
+	local dType
+	if (level == 0) then dType = "CUSTOM: "
+	elseif (level == 1) then dType = "ERROR: "
+	elseif (level == 2) then dType = "WARNING: "
+	else dType = "INFO: " end
+	
+	debugString = debugString..dType
+	if (level ~= 3) then
+		if (not file) then file = "Unknown" end
+		debugString = debugString..file
+		if (not line) then line = "??" end
+		debugString = debugString..":"..line
+	end
+	
+	debugString = debugString.." "..message
+	table.insert(clientDebugs, 1, {debugString, level})
+	if (#clientDebugs > MAX_DEBUGS) then
+		for i=251,#clientDebugs do
+			table.remove(clientDebugs,251)
+		end
+	end
+end
+addEvent("GTIdebug.sendDebugInformationToServer", true)
+addEventHandler("GTIdebug.sendDebugInformationToServer", root, sendDebugInformationToServer)
+
+-- Process Server Debugs
+------------------------->>
+
+function processServerDebugs(message, level, file, line)
+	local t = getRealTime()
+	local month, day, hour, minute, second = t.month+1, t.monthday, t.hour, t.minute, t.second
+	if (hour < 10) then hour = "0"..hour end
+	if (minute < 10) then minute = "0"..minute end
+	if (second < 10) then second = "0"..second end
+	
+	local debugString = "["..month.."/"..day.."] ("..hour..":"..minute..":"..second..") "
+	local dType
+	if (level == 0) then dType = "CUSTOM: "
+	elseif (level == 1) then dType = "ERROR: "
+	elseif (level == 2) then dType = "WARNING: "
+	else dType = "INFO: " end
+	
+	debugString = debugString..dType
+	if (level ~= 3) then
+		if (not file) then file = "Unknown" end
+		debugString = debugString..file
+		if (not line) then line = "??" end
+		debugString = debugString..":"..line
+	end
+	
+	debugString = debugString.." "..message
+	table.insert(serverDebugs, 1, {debugString, level})
+	if (#serverDebugs > MAX_DEBUGS) then
+		for i=251,#serverDebugs do
+			table.remove(serverDebugs,251)
+		end
+	end
+end
+addEventHandler("onDebugMessage", root, processServerDebugs)
+
+-- Display Debugs
+------------------>>
+
+function displayDebugs(player)
+	if (not hasObjectPermissionTo(player, "command.start")) then return end
+	triggerClientEvent(player, "GTIdebug.displayDebugs", player, clientDebugs, serverDebugs)
+end
+addCommandHandler("debug", displayDebugs)

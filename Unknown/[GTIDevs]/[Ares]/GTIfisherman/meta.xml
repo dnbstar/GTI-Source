@@ -1,0 +1,13 @@
+<meta>
+<!-- Info -->
+<info name="Fisherman Job" author="Ares" autostart="true" />
+<!-- Core -->
+	<script src="core/fisherman_c.luac" type="client" />
+	<script src="core/fisherman_s.lua" />
+<!-- Images -->
+	<file src="images/fish1.png"/>
+<!-- Font -->
+	<file src="font/Champagne_Limousines.ttf"/>
+<!-- Sound -->
+	<file src="sound/FishingReel.mp3"/>
+</meta>

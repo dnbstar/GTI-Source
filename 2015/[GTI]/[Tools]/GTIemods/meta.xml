@@ -1,0 +1,30 @@
+<meta>
+    <info author="LilDolla" name="Element Modding System"></info>
+    
+    <script src="mods-gui.luac" type="client" />
+    <script src="mods_table.luac" type="client" />
+    
+    <script src="mods_s.lua" type="server" />
+    
+    <file src="mods/admiral.dff" download="false" />
+    <file src="mods/admiral.txd" download="false" />
+
+    <file src="mods/bullet.dff" download="false" />
+    <file src="mods/bullet.txd" download="false" />
+    
+    <file src="mods/mesa.dff" download="false" />
+    <file src="mods/mesa.txd" download="false" />
+    
+    <file src="mods/euros.dff" download="false" />
+    <file src="mods/euros.txd" download="false" />
+    
+    <file src="mods/copcarsf.dff" download="false" />
+    <file src="mods/copcarsf.txd" download="false" />
+    
+    <file src="mods/yankee.dff" download="false" />
+    <file src="mods/yankee.txd" download="false" />
+    
+    <file src="mods/rhino.dff" download="false" />
+    <file src="mods/rhino.txd" download="false" />
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

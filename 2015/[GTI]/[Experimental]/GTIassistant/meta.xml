@@ -1,0 +1,17 @@
+<meta>
+    <info author="LilDolla" version="0.1" name="Virtual Voice Assistant + Other Elements" description="A virtual voice assistant" type="script" autostart="true" />
+    <script src="assist_c.luac" type="client" />
+    <script src="assist_s.lua" type="server" />
+    
+    <export function="queryAssistantSound" type="client" />
+    <export function="queryAssistantSound" type="server" />
+    
+    <script src="mocap_c.luac" type="client" />
+    <script src="mocap_s.lua" type="server" />
+    
+    <export function="smoothMoveCamera" type="client" />
+    <export function="moveCameraToSelf" type="client" />
+    <export function="moveCameraToPlayer" type="server" />
+    
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

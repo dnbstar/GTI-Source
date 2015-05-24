@@ -1,0 +1,61 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 10 Apr 2014
+-- Resource: GTIgroups/g_invites.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Show Group Invites
+---------------------->>
+
+function showGroupInvites(player)
+	if (not client) then client = player end
+	local invites = getGroupInvites(client)
+	if (not invites or invites == {}) then return end
+	local groupNames = {}
+	for groupID in pairs(invites) do
+		local gName = getGroupName(groupID)
+		table.insert(groupNames, {gName, groupID})
+	end
+	triggerClientEvent(client, "GTIgroups.updateGroupInvites", resourceRoot)
+end
+addEvent("GTIgroups.showGroupInvites", true)
+addEventHandler("GTIgroups.showGroupInvites", root, showGroupInvites)
+
+-- Accept/Deny/Deny All
+------------------------>>
+
+function manageInvite(groupID, accept, denyAll)
+	if (type(groupID) == "string") then
+		if (accept) then
+			-- Accepted Invite
+			local rank = getDefaultRank(groupID)
+			addMember(groupID, client, rank)
+			exports.GTIhud:dm("You are now a member of "..getGroupName(groupID)..". Press F2 to view group information.", client, 255, 100, 100)
+			outputGroupChat(getPlayerName(client).." has joined the group.", groupID)
+			clearGroupInvite(client, groupID)
+				-- Deny the Rest
+			local invites = getGroupInvites(client)
+			for gID in ipairs(invites) do
+				outputGroupChat(getPlayerName(client).." had denied the invitation.", gID)
+			end
+			clearAllInvites(client)
+			triggerClientEvent(client, "GTIgroups.closeInvites", resourceRoot)
+		else
+			-- Denied Invite
+			outputGroupChat(getPlayerName(client).." had denied the invitation.", groupID)
+			clearGroupInvite(client, groupID)
+			showGroupInvites(client)
+		end
+	else
+		-- Denied All Invites
+		for i,gID in ipairs(groupID) do
+			outputGroupChat(getPlayerName(client).." had denied the invitation.", gID)
+		end
+		clearAllInvites(client)
+		showGroupInvites(client)
+	end
+end
+addEvent("GTIgroups.manageInvite", true)
+addEventHandler("GTIgroups.manageInvite", root, manageInvite)

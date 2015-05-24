@@ -1,0 +1,23 @@
+<meta>
+    <info author="Diego" type="script" name="Police Radio, Lights, Armor" autostart="true" />
+    <script src="police_radio/policeRadio_s.lua"	/>
+    <script src="police_radio/policeRadio_c.luac" 	type="client" />
+	<file src="police_radio/rpt_ast.mp3" 	/>
+    <file src="police_radio/need_astn.mp3"	/>
+    
+	<script src="police_lights/plb_s.lua" 	/>
+    <script src="c_objects.luac" 	type="client" />
+    <file src="PoliceLight1.col" 	/>
+    <file src="PoliceLight1.dff" 	/>
+    <file src="MatColours.txd" 		/>
+	
+	<script src="kevlar_vest/c_objects.lua" 	type="client" />
+    <script src="kevlar_vest/s_armorAttach.lua"	/>
+    <include resource="bone_attach"	/>
+    <file src="kevlar_vest/swat.dff" 	/>
+    <file src="kevlar_vest/swat.txd" 	/>
+    <file src="kevlar_vest/armor.col" 	/>
+    <file src="kevlar_vest/swat2.txd" 	/>
+	
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

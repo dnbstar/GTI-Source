@@ -1,0 +1,97 @@
+------------------------------------------------->>
+-- PROJECT:			Grand Theft International
+-- RESOURCE: 		Diegomisc/speedlimiter.slua
+-- DESCRIPTION:		Speed limiter.
+-- AUTHOR:			Diego Hernandez (diegonese)
+-- RIGHTS:			All rights reserved to author.
+------------------------------------------------->>
+
+-- Speed limiter
+---------------------->>
+--[[
+local VEHICLE
+local LIMIT
+
+local speedLimiter = {}
+
+function limitTheSpeed(thePlayer, command, limit)
+	if limit then
+		if not isTimer(speedLimiter[thePlayer]) then
+			local theVehicle = getPedOccupiedVehicle(thePlayer)
+			local theLimit = tonumber(limit)
+	
+			if not theVehicle then 
+				outputChatBox("* You can only use this command while driving a vehicle.", thePlayer, 255, 0, 0)
+				return
+			end
+	
+			local vehicleController = getVehicleController(theVehicle)
+	
+			if vehicleController ~= thePlayer then
+				outputChatBox("* You can only use this command while driving a vehicle.", thePlayer, 255, 0, 0)
+				return
+			end
+	
+	
+			VEHICLE = theVehicle
+			LIMIT = theLimit
+			
+			outputChatBox("* Speed limiter has been enabled, limit: "..theLimit.."", thePlayer)
+			
+			speedLimiter[thePlayer] = setTimer(function()
+				speedx, speedy, speedz = getElementVelocity (VEHICLE)
+ 				actualspeed = math.sqrt(speedx^2 + speedy^2 + speedz^2)
+				kmh = actualspeed * 180
+				mph = actualspeed * 111.847
+				
+				 speedx, speedy, speedz =  (speedx^2 + speedy^2 + speedz^2)^(0.5) * 180 (kph)
+				kmh = (speedx^2 + speedy^2 + speedz^2)^(0.5) * 180
+				
+				myLimit = (speedx^2 + speedy^2 + speedz^2)^(2)/180
+				
+				--myLimit = (speedx^2 + speedy^2 + speedz^2)^(2)/180
+				I've got the element velocity in KPH, I want to transform the KPH to 3 values, which are speedX, speedY, speedZ
+				limitX, limitY, limitZ = LIMIT / 
+				if kmh > LIMIT then
+					setElementVelocity(VEHICLE, 
+				end
+			end, 50, 0)
+		else
+			outputChatBox("* You already have speedlimiter on, /speedlimiter to turn it off", thePlayer, 255, 0, 0)
+		end
+	else
+		if isTimer(speedLimiter[thePlayer]) then
+			killTimer(speedLimiter[thePlayer])
+			outputChatBox("* Speed limiter has been disabled", thePlayer, 255, 0, 0)
+		end
+	end
+end
+addCommandHandler("speedlimit", limitTheSpeed)
+					
+			
+function setElementSpeed(element, unit, speed)
+	if (unit == nil) then unit = 0 end
+	if (speed == nil) then speed = 0 end
+	speed = tonumber(speed)
+	local acSpeed = exports.GTIutil:getElementSpeed(element, unit)
+	if (acSpeed~=false) then 
+		local diff = speed/acSpeed
+		local x,y,z = getElementVelocity(element)
+		setElementVelocity(element,x*diff,y*diff,z*diff)
+		return true
+	end
+ 
+	return false
+end]]
+--[[
+function animRender(diego)
+        setPedAnimationProgress(diego, "phone_in", 0.8)
+        setTimer(animRender, 1000, 1, diego)
+end
+
+function makeMe(thePlr, cmd) 
+	setPedAnimation(thePlr, "ped", "phone_in", 50, false, false, false, true)
+	animRender(thePlr)
+end
+addCommandHandler("phone", makeMe)]]
+	

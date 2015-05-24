@@ -1,0 +1,44 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Dec 2013
+-- Resource: startup/startList.lua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local startList = {
+	-- JTPenn (Sec.)
+	"GTIutil",			"GTIaccounts", 			"GTIbank", 			"GTIblips",			"GTIdamage", 		
+	"GTIdebug", 		"GTIdevTools", 			"GTIdroid", 		"GTIeconomy",		"GTIgroups",		
+	"GTIhud",			"GTIintTable", 			"GTIinteriors",		"GTIjobsTable",		"GTIjobs",			
+	"GTIvehTable",		"GTIjobvehicles",		"GTIlogs",			"GTImailcarrier",	"GTIpolice",
+	"GTIpoliceArrest",	"GTIpoliceDatabase",	"GTIpoliceWanted",	"GTIprison",		"GTIpromoTable",	
+	"GTIpromotions",	"GTIsecurity",			"GTIsettings",		"GTIteams",			"GTIvehicles",	
+	"GTIweapons",
+	
+	-- LilDolla (D.Sec.)
+	"GTIclothes",		"GTIhelp", 		"GTImods",		"GTIserial",		"GTIsocial",		"GTIgun",
+	"GTIgatesTable",	"GTIgates",		"GTIstores",	"GTIfarmer",		"GTIspawn",			"GTIres",
+	
+	-- Steve (Dev.)
+	"steveMisc",
+	
+	-- Maps
+	"GTImapBanks",		"GTImapBases",	"GTImapCivilian",	"GTImapMisc",	"GTImapMods",	
+	"GTImapPrison",		"GTImapSFPDHQ",
+	
+	-- MTA Resources
+	"admin",			"ipb",			"runcode",			"reload",			"scoreboard",
+}
+
+function startServer()
+	for i,resName in ipairs(startList) do
+		local resource = getResourceFromName(resName)
+		if (resource) then
+			startResource(resource, true)
+		else
+			outputDebugString("Resource '"..resName.."' not found, skipping...")
+		end
+	end
+end
+addEventHandler("onResourceStart", resourceRoot, startServer)

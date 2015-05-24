@@ -1,0 +1,5 @@
+<meta>
+	<info author="LilDolla" autostart="false" />
+	<script src="utils.luac" type="client" />
+	<script src="npc.luac" type="client" />
+</meta>

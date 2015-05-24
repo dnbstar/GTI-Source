@@ -1,0 +1,44 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 26 Jan 2013
+-- Resource: GTIsecurity/lockdown.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Prevent Unauthorized Access
+------------------------------->>
+
+local validSerials = {
+-- Developers
+["C4BB0B998E8C4E40001F6827F19AEF62"] = true, -- JTPenn
+["321F315D9BA5AECE6AACD6987E0615E3"] = true, -- LilDolla
+["C415567E269AA0950329BF7118162752"] = true, -- LilDolla
+["92DBBB85D20AF4E2D07FE4E6B7FA3333"] = true, -- Steve
+-- QCAs
+["6BA3803B669214242C0670D980402812"] = true, -- BowDel
+["4E4AF05DA36720B9EA4A9A7FC649DA54"] = true, -- RonRon
+["E026CB68AD8A0474DCE01785336DC044"] = true, -- RonRon
+["C9684209813CB23C62027F7522290B52"] = true, -- Angel
+-- Architects
+["A518795AE5CE59CEB7F378E7D002EAA1"] = true, -- Gus
+["4565F9F7849E733320BD84D1C16A5A53"] = true, -- Smoke
+["F9708F5DB91F1A34C6949A716CB55584"] = true, -- Cork0
+["876C4C75EF43A88F7D625C5BCA7D80A1"] = true, -- ChicoRDL
+["059B325A06CC1E21205CF9238E6B2853"] = true, -- Mitch
+["C729C71C877D331DFBBF38B84C786C94"] = true, -- EnemyCRO
+["69D8D5EE298429EF872593D1FF107742"] = true, -- Diego
+}
+
+function secureServer(_, _, _, serial)
+	if (not validSerials[serial]) then
+		cancelEvent(true, "You are not authorized to access this server")
+	end
+end
+addEventHandler("onPlayerConnect", root, secureServer)
+
+-- Record All Screenshots
+-------------------------->>
+--[[
+function notifyScreenshot()
+	--]]

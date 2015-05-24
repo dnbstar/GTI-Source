@@ -1,0 +1,5 @@
+<meta>
+	<script src="teams.slua" />
+	
+	<export function="assignTeam" type="server" />
+</meta>

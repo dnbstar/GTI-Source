@@ -1,0 +1,25 @@
+<meta>
+    <script src="drugs_c.luac" type="client" />
+    <script src="drug-table_c.luac" type="client" />
+    
+    <script src="drugs_s.lua" type="server" />
+    <script src="database.lua" type="server" />
+    
+    <file src="images/window.png" />
+    
+    <file src="images/Acid.png" />
+    <file src="images/Adderal.png" />
+    <file src="images/Cocaine.png" />
+    <file src="images/Ecstasy.png" />
+    <file src="images/LSD.png" />
+    <file src="images/Meth.png" />
+    <file src="images/PCP.png" />
+    <file src="images/Weed.png" />
+    
+    <export function="givePlayerDrug" type="server" />
+    <export function="takePlayerDrug" type="server" />
+    <export function="getPlayerDrugAmount" type="server" />
+    
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+    <info name="Drugs System"></info>
+</meta>

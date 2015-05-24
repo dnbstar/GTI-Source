@@ -1,0 +1,141 @@
+local sackInformation = {}
+local sacked = {}
+local cheifs  = {}
+local theChiefs = {
+	["Metallpizza"] = true,
+}
+
+function identifyCheifs()
+	local account = getPlayerAccount(source)
+	local account = getAccountName(account)
+	if (theChiefs[accounts]) then
+		cheifs[source] = true
+	end
+end
+addEventHandler("onPlayerLogin", root, identifyCheifs)
+
+function identifyStart()
+	for index, player in pairs(getElementsByType("player")) do
+		local account = getPlayerAccount(player)
+		local account = getAccountName(account)
+		if (theChiefs[account]) then
+			cheifs[player] = true
+		end
+	end
+end
+addEventHandler("onResourceStart", resourceRoot, identifyStart)
+
+function isPlayerSacked(player)
+	if (not isElement(player)) then return end
+	return sacked[player] or false
+end
+
+function sackSomebody(player, cmd, target, time)
+	if (not cheifs[player]) then return end
+	if (not target or not tonumber(time)) then
+		outputChatBox("Command is: /sack playername time (hours)", player, 255, 0, 0)
+		return
+	end
+	local playerToSack = exports.UIPmisc:findPlayer(target)
+	if (isElement(playerToSack)) then
+		local account = getPlayerAccount(playerToSack)
+		if (isGuestAccount(account)) then
+			outputChatBox("Target is not logged in, try when the player is logged in!", player, 255, 0, 0)
+			return
+		end
+		local seconds = time * 3600
+		setAccountData(account, "sackTime", seconds)
+		sacked[playerToSack] = player
+		sackInformation[playerToSack] = setTimer(updateSackTime, 1000, seconds, playerToSack)
+		outputChatBox(getPlayerName(playerToSack).." has been sacked by Police Cheif "..getPlayerName(player).." for "..time.." hours", root, 0, 245, 185)
+	else
+		outputChatBox("No player with that name", player, 255, 0, 0)
+	end
+end
+addCommandHandler("sack", sackSomebody)
+
+function removeSack(player, cmd, target)
+	if (not exports.DEGadmin:getStaffRank(player) == "Head Staff") then return end
+	if (target) then
+		local plr = exports.UIPmisc:findPlayer(target)
+		if (not isElement(plr)) then return end
+		local acc = getPlayerAccount(plr)
+		if (isGuestAccount(acc)) then return end
+		if (sacked[plr]) then
+			sacked[plr] = false
+			sackInformation[plr] = false
+			outputChatBox("Removed sack on "..getPlayerName(plr).."!", player, 0, 255, 0)
+			setAccountData(acc, "sackTime", false)
+		end
+	end
+end
+addCommandHandler("removesack", removeSack)
+
+function sackedLogin()
+	local account = getPlayerAccount(source)
+	if (isGuestAccount(account)) then return end
+	local time = getAccountData(account, "sackTime") or 0
+	if (tonumber(time) >= 1) then
+		sacked[source] = true
+		sackInformation[source] = setTimer(updateSackTime, 1000, time, source)
+	else
+		sacked[source] = false
+		sackInformation[source] = false
+	end
+end
+addEventHandler("onPlayerLogin", root, sackedLogin)
+
+function sackStart()
+	for index, player in pairs(getElementsByType("player")) do
+		local account = getPlayerAccount(player)
+		if (not isGuestAccount(account)) then
+			local time = getAccountData(account, "sackTime") or 0
+			if (tonumber(time) >= 1) then
+				sacked[player] = true
+				sackInformation[player] = setTimer(updateSackTime, 1000, time, player)
+			else
+				sacked[player] = false
+				sackInformation[player] = false
+			end
+		end
+	end
+end
+addEventHandler("onResourceStart", resourceRoot, sackStart)
+
+function updateSackTime(player)
+	if (not isElement(player)) then
+		if (isTimer(sackInformation[player])) then
+			killTimer(sackInformation[player])
+		end
+		return 
+	end
+	if (not sackInformation[player]) then return end
+	if (not sacked[player]) then return end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then
+		if (isTimer(sackInformation[player])) then
+			killTimer(sackInformation[player])
+		end
+		return
+	end
+	local currenttime = getAccountData(account, "sackTime") or 0
+	setAccountData(account, "sackTime", currenttime - 1)
+	if (currenttime <= 0) then
+		outputChatBox(sackInformation[player])
+		if (isTimer(sackInformation[player])) then
+			killTimer(sackInformation[player])
+		end
+		sackInformation[player] = nil
+		sacked[player] = false
+	end
+end
+
+function goCheif(plr)
+	if (not cheifs[plr]) then return end
+--	exports.GTIjobs:firePlayerFromJob(plr)
+--	exports.GTIteams:assignTeam(plr, "Police")
+	outputChatBox("You are now working as a Police Chief", plr, 0, 255, 0)
+	setElementModel(plr, 147)
+	setElementData(plr, "Occupation", "Police Chief")
+end
+addCommandHandler("gochief", goCheif)

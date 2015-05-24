@@ -1,0 +1,120 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 28 Dec 2013
+-- Resource: GTIvehicles/util.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local vehicleRecovery = {
+{-1917.357, 285.238, 40.047, 180, "Wang Cars Dealership"},
+}
+
+DRIVE_OFF_LOT_DEVALUE = 0.05 -- Amount value decreases by on purchase
+MILES_PER_DAY = 75
+
+-- Database Exports
+-------------------->>
+
+function getMaximumVehicleID()
+	return maxVehicleID
+end
+
+function getNextAvailibleVehicleIDSlot(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return 1 end
+	local account = getAccountName(account)
+	if (not vehicleOwnerData[account]) then return 1 end
+		-- Calculate Total Number of Columns
+	local totalCol = 0
+	for col,val in pairs(vehicleOwnerData["Console"]) do
+		totalCol = totalCol + 1
+	end
+		-- Find Next Available Slot
+	for i=1,totalCol do
+		if (not vehicleOwnerData[account]["vehicle"..(i+1)]) then
+			return i+1
+		end
+	end
+	return 1
+end
+
+-- Vehicle Exports
+------------------->>
+
+function getVehicleByID(ID)
+	for i,vehicle in ipairs(getElementsByType("vehicle", resourceRoot)) do
+		local vehID = getElementData(vehicle, "vehicleID")
+		if (vehID == ID) then return vehicle end
+	end
+	return false
+end
+
+function getVehicleIDFromSlot(player, slot)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	local vehID = getVehicleOwnerData(account, "vehicle"..slot) or false
+	return vehID
+end
+
+function isVehicleInCategory(vehID, category)
+	local vehPrices = exports.GTIeconomy:getVehiclePriceTable()
+	for i,v in ipairs(vehPrices[category]) do
+		if (v.id == vehID) then
+			return true
+		end
+	end
+	return false
+end
+
+function getVehicleValue(vehID)
+	local originalCost = getVehicleData(vehID, "originalPrice")
+	if (not originalCost) then
+		local model = getVehicleData(vehID, "vehicleID")
+		originalCost = getVehicleCost(model)
+	end
+	local value = originalCost*(1-DRIVE_OFF_LOT_DEVALUE)
+	
+	local mileage = getVehicleData(vehID, "mileage")
+	local miles = tonumber( string.format("%.3f", (mileage*0.000621371)) )
+	local value = value * ( 0.85 ^ (miles/(MILES_PER_DAY*7)) )
+	return math.floor(value)
+end
+
+function isVehicleBeingSold(vehID)
+	if (vehicleBeingSold[vehID]) then return true end
+	return false
+end
+
+-- Recovery
+------------>>
+
+function getNearestRecoveryPoint(vehicle)
+	local x,y = getElementPosition(vehicle)
+	local index = 1
+	local lowestDistance
+	for i,v in ipairs(vehicleRecovery) do
+		local distance = getDistanceBetweenPoints2D(x,y, v[1],v[2])
+		if (not lowestDistance or lowestDistance >= distance) then
+			lowestDistance = distance
+			index = 1
+		end
+	end
+	local vTable = vehicleRecovery[index]
+	return vTable[1], vTable[2], vTable[3], vTable[4], vTable[5], lowestDistance
+end
+
+-- Miscellaneous
+----------------->>
+
+function getVehicleCost(ID)
+	local vehPrices = exports.GTIeconomy:getVehiclePriceTable()
+	for category,v in pairs(vehPrices) do
+		for i,v in ipairs(vehPrices[category]) do
+			if (v.id == ID) then
+				return v.cost
+			end
+		end
+	end
+	return false
+end

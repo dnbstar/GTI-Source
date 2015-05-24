@@ -1,0 +1,6 @@
+<meta>
+	<script src="pathfinder_c.luac" type="client" />
+	<script src="retrieval_c.luac" type="client" />
+
+	<file src="map.jpg" />
+</meta>

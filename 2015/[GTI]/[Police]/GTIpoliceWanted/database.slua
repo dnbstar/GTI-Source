@@ -1,0 +1,86 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn)
+-- Date: 23 Dec 2013
+-- Resource: GTIpoliceWanted/database.slua
+-- Version: 2.5
+----------------------------------------->>
+
+local db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "2xN2U2XKneEyVxb") 
+dbExec(db, "CREATE TABLE IF NOT EXISTS `wanted`(`id` INT NOT NULL AUTO_INCREMENT, `name` TEXT, PRIMARY KEY(id))")
+
+local database_online	-- Is Database Online?
+local wanted = {}		-- 'wanted' Database Cache
+
+addEvent("onDatabaseLoad", true)	-- Triggers when the database is ready
+
+-- Database Cache
+------------------>>
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	dbQuery(cacheDatabase, {}, db, "SELECT * FROM `wanted`")
+end)
+
+function cacheDatabase(qh)
+	local result = dbPoll(qh, 0)
+	wanted["Console"] = {}
+	for i,row in ipairs(result) do
+		wanted[row.name] = {}
+		for column,value in pairs(row) do
+			if (column ~= "id" or column ~= "name") then
+				wanted["Console"][column] = true
+				if (value == "true") then value = true end
+				if (value == "false") then value = false end
+				wanted[row.name][column] = value
+			end
+		end
+	end
+	database_online = true
+	triggerEvent("onDatabaseLoad", resourceRoot, "wanted")
+end
+
+-- Database Exports
+-------------------->>
+
+function setWantedData(account, key, value)
+	if (not database_online) then return false end
+	if (not account or not key or not value) then return false end
+	if (isGuestAccount(account) or type(key) ~= "string") then return false end
+	local account = getAccountName(account)
+		
+	if (type(wanted[account]) ~= "table") then
+		wanted[account] = {}
+		dbExec(db, "INSERT INTO `wanted`(name) VALUES(?)", account)
+	end
+	
+	if (wanted["Console"][key] == nil) then
+		dbExec(db, "ALTER TABLE `wanted` ADD `??` text", key)
+		wanted["Console"][key] = true
+	end
+	
+	wanted[account][key] = value
+	if (value ~= nil) then
+		dbExec(db, "UPDATE `wanted` SET `??`=? WHERE name=?", key, tostring(value), account)
+	else
+		dbExec(db, "UPDATE `wanted` SET `??`=NULL WHERE name=?", key, account)
+	end
+	return true
+end
+
+function getWantedData(account, key)
+	if (not database_online) then return nil end
+	if (not account or not key) then return nil end
+	if (isGuestAccount(account) or type(key) ~= "string") then return nil end
+	
+	local account = getAccountName(account)
+	if (wanted[account] == nil) then return nil end
+	if (wanted[account][key] == nil) then return nil end
+	
+	return tonumber(wanted[account][key]) or wanted[account][key]
+end
+
+addEvent("onAccountDelete")
+addEventHandler("onAccountDelete", root, function(account)
+	dbExec(db, "DELETE FROM `wanted` WHERE name=?", account)
+	wanted[account] = nil
+end)

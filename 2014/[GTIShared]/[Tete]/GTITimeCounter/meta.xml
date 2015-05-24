@@ -1,0 +1,8 @@
+<meta>
+	<info author="Tete" version="1.0" name="In-game player time counter" type="script" />
+	<script src="GTC_S.lua" type="server" />
+	
+	<!-- Exports -->
+	<export function="getAccountPlayTime" type="server" />
+	<export function="setAccountPlayTime" type="server" />
+</meta>

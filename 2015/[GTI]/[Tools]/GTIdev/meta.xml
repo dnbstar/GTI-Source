@@ -1,0 +1,6 @@
+<meta>
+	<info author="LilDolla" name="GTIdev" description="Tool for sending things to and from the Dev Server, to the main server."></info>
+    
+	<script src="dev_s.lua" type="server" />
+	<export function="outputMainIRC" type="server" />
+</meta>

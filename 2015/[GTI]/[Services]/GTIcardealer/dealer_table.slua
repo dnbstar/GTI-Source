@@ -1,0 +1,273 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 27 Dec 2013
+-- Resource: GTIcardealer/dealer_table.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+dealerPoints = {}		-- Dealer Table Index by Pickup
+dealerSellPoints = {}	-- Dealer Sell Table Index by Pickup
+
+-- Buy Car Dealerships
+----------------------->>
+
+dealerLocations = {
+	
+-- Wang Cars, SF-->>
+{
+	pos={-1956.439, 257.567, 34.469+0.75}, 
+	categories={"2-Door and Compact Cars", "4 Door and Luxury Cars", "Civil Servant", "Lowriders", "Muscle Cars", "SUVs and Wagons"},
+	friendlyName="Car\nDealership", 
+	camMatrix={-1954.022, 265.046, 37.087+1, -1954.735, 265.703, 36.844+1}, 
+	spawnPoint={-1960.922, 271.462, 33.907},
+	buySpawnPoint={-1984.546, 303.867, 34.172, 270},
+},
+{	
+	pos={-1950.466, 257.567, 34.469+0.75}, 
+	categories={"Street Racers"},
+	friendlyName="Sports Car\nDealership", 
+	camMatrix={-1964.237, 293.552, 37.353+1, -1963.658, 294.050, 37.115+1}, spawnPoint={-1956.6523, 300.0966, 33.712},
+	buySpawnPoint={-1984.546, 303.867, 34.172, 270},
+},
+{	
+	pos={-1961.186, 289.912, 34.469+0.75}, 
+	categories={"Heavy and Utility Trucks", "Light Trucks and Vans", "Recreational"},
+	friendlyName="Industrial\nDealership", 
+	camMatrix={-1959.674, 277.048, 42.341+1, -1958.725, 276.051, 42.088+1}, 
+	spawnPoint={-1950.8896, 265.4863, 39.047},
+	buySpawnPoint={-1980.371, 260.024, 34.172, 0},
+},
+{
+	pos={-1961.165, 280.890, 34.474+0.75}, 
+	categories={"Bikes"},
+	friendlyName="Bike Shop", 
+	camMatrix={-1962.859, 300.039, 42.588+1, -1962.190, 300.409, 42.350+1}, 
+	spawnPoint={-1955.003, 304.736, 39.620},
+	buySpawnPoint={-1984.546, 303.867, 34.172, 270},
+},
+{
+	pos={-1960.067, 285.297, 34.469+0.75}, 
+	categories={"Helicopters"},
+	friendlyName="Helicopter\nDealership", 
+	camMatrix={-1965.765, 307.830, 54.362+1, -1965.102, 307.147, 54.057+1}, 
+	spawnPoint={-1952.400, 294.8271, 45.017},
+	buySpawnPoint={-1953.886, 267.357, 46.703, 90},
+},
+-- Boatyard, LS -->>
+{	
+	pos={86.519, -1921.419, 0.998+0.75},
+	categories={"Boats"},
+	friendlyName="Boat\nDealership", 
+	camMatrix={63.417, -1951.703, 15.307+1, 65.924, -1950.522, 14.159+1},
+	spawnPoint={92.075, -1936.041, -1.550},
+	buySpawnPoint={92.075, -1936.041, 0, 90},
+},
+-- Los Santos International, LS -->>
+{	
+	pos={1874.554, -2202.127, 15.775+0.75},
+	categories={"Airplanes", "Helicopters"},
+	friendlyName="Aircraft\nDealership", 
+	camMatrix={1858.486, -2245.045, 30.798, 1862.873, -2241.712, 28.415},
+	spawnPoint={1895.372, -2218.885, 12.547},
+	buySpawnPoint={1895.372, -2218.885, 12.547, 180},
+},
+-- Grotti, LS -->>
+{	
+	pos={542.304, -1296.146, 16.219+0.75},
+	categories={"Street Racers"},
+	friendlyName="Sports Car\nDealership", 
+	camMatrix={538.265, -1285.538, 21.386, 540.414, -1282.555, 19.686}, 
+	spawnPoint={544.120, -1277.122, 15.660},
+	buySpawnPoint={547.396, -1267.450, 16.242, 305},
+},
+-- Coutt and Schulz, LS -->>
+{	
+	pos={2131.810, -1150.415, 23.160+0.75},
+	categories={"2-Door and Compact Cars", "4 Door and Luxury Cars", "Civil Servant", "Lowriders", "Muscle Cars", "SUVs and Wagons"},
+	friendlyName="Car\nDealership", 
+	camMatrix={2124.796, -1134.262, 27.783+1, 2134.073, -1128.968, 24.251+1},
+	spawnPoint={2132.962, -1132.212, 24.673-1},
+	buySpawnPoint= {2124.302, -1129.489, 24.471, 0},
+},
+-- LS Bike Shop
+{	
+	pos={1011.338, -1302.556, 13.102+0.75},
+	categories={"Bikes"},
+	friendlyName="Bike\nDealership", 
+	camMatrix={986.677, -1306.013, 17.026, 986.304, -1305.613, 16.779}, 
+	spawnPoint={981.294, -1300.580, 13.706-1},
+	buySpawnPoint={973.654, -1303.399, 13.102, 180},
+},
+-- Industrial Dealer -->>
+{	
+	pos={2227.773, -2211.087, 12.547+0.75}, 
+	categories={"Heavy and Utility Trucks", "Light Trucks and Vans", "Recreational"},
+	friendlyName="Industrial\nDealership", 
+	camMatrix={2226.937, -2229.937, 17.915+1, 2224.722, -2229.808, 16.996+1},
+	spawnPoint={2215.924, -2229.071, 12.547},
+	buySpawnPoint={2215.924, -2229.071, 12.547, 315},
+},
+-- Boatyard, SF -->>
+{	
+	pos={-1448.902, 698.101, 0.360+0.75},
+	categories={"Boats"},
+	friendlyName="Boat\nDealership", 
+	camMatrix={-1434.068, 728.046, 6.602, -1435.162, 728.824, 6.204},
+	spawnPoint={-1450.816, 737.003, -1.550},
+	buySpawnPoint={-1450.816, 737.003, -1.550, 270},
+},
+-- Easter Bay Airport, LS -->>
+{	
+	pos={-1419.880, -512.839, 16.575+0.75},
+	categories={"Airplanes", "Helicopters"},
+	friendlyName="Aircraft\nDealership", 
+	camMatrix={-1405.499, -553.266, 31.402, -1404.898, -549.715, 29.661},
+	spawnPoint={-1398.783, -514.260, 13.148},
+	buySpawnPoint={-1398.783, -514.260, 13.148, 225},
+},
+-- Boatyard, LV -->>
+{	
+	pos={2338.497, 548.108, 6.781+0.75},
+	categories={"Boats"},
+	friendlyName="Boat\nDealership", 
+	camMatrix={2318.777, 513.734, 4.311, 2319.179, 515.038, 3.998},
+	spawnPoint={2325.616, 534.341, -1.550},
+	buySpawnPoint={2325.616, 534.341, -1.550, 180},
+},
+-- Las Venturas Airport, LS -->>
+{	
+	pos={1575.863, 1164.138, 13.175+0.75},
+	categories={"Airplanes", "Helicopters"},
+	friendlyName="Aircraft\nDealership", 
+	camMatrix={1580.306, 1218.534, 25.750, 1578.332, 1217.224, 24.680},
+	spawnPoint={1546.759, 1196.616, 9.813},
+	buySpawnPoint={1546.759, 1196.616, 9.813, 0},
+},
+
+}
+
+-- Sell Car Dealerships
+------------------------>>
+
+dealerSellers = {
+
+-- Wang Cars, SF -->>
+{
+	pos={-1946.833, 263.195, 34.469+0.75}, 
+	categories={"2-Door and Compact Cars", "4 Door and Luxury Cars", "Civil Servant", "Lowriders", "Muscle Cars", "SUVs and Wagons", "Street Racers", "Bikes"},
+	camMatrix={-1954.153, 268.551, 37.193+1, -1953.165, 269.137, 36.847+1}, 
+	spawnPoint={-1946.059, 273.233, 33.712},
+},
+-- Boatyard, LS -->>
+{	
+	pos={80.546, -1951.088, 0.998+0.75},
+	categories={"Boats"},
+	camMatrix={63.417, -1951.703, 15.307+1, 65.924, -1950.522, 14.159+1},
+	spawnPoint={92.075, -1936.041, -1.550},
+},
+-- Grotti, LS -->>
+{	
+	pos={545.253, -1296.146, 16.219+0.75},
+	categories={"Street Racers"},
+	camMatrix={538.265, -1285.538, 21.386, 540.414, -1282.555, 19.686}, 
+	spawnPoint={544.120, -1277.122, 15.660},
+},
+-- Coutt and Schulz, LS -->>
+{	
+	pos={2126.313, -1152.431, 23.000+0.75},
+	categories={"2-Door and Compact Cars", "4 Door and Luxury Cars", "Civil Servant", "Lowriders", "Muscle Cars", "SUVs and Wagons"},
+	camMatrix={2124.796, -1134.262, 27.783+1, 2134.073, -1128.968, 24.251+1},
+	spawnPoint={2132.962, -1132.212, 24.673-1},
+},
+-- LS Bike Shop -->>
+{	
+	pos={1001.102, -1300.353, 13.102+0.75},
+	categories={"Bikes"},
+	camMatrix={986.677, -1306.013, 17.026, 986.304, -1305.613, 16.779}, 
+	spawnPoint={981.294, -1300.580, 13.706-1},
+},
+-- Los Santos International, LS -->>
+{	
+	pos={-1424.122, -516.276, 16.575+0.75},
+	categories={"Airplanes", "Helicopters"},
+	camMatrix={1858.486, -2245.045, 30.798, 1862.873, -2241.712, 28.415},
+	spawnPoint={1895.372, -2218.885, 12.547},
+},
+-- Industrial Dealer -->>
+{	
+	pos={2224.922, -2208.230, 12.547+0.75}, 
+	categories={"Heavy and Utility Trucks", "Light Trucks and Vans", "Recreational"},
+	camMatrix={2226.937, -2229.937, 17.915+1, 2224.722, -2229.808, 16.996+1},
+	spawnPoint={2215.924, -2229.071, 12.547},
+},
+-- Boatyard, SF -->>
+{	
+	pos={-1448.957, 692.943, 0.360+0.75},
+	categories={"Boats"},
+	camMatrix={-1434.068, 728.046, 6.602, -1435.162, 728.824, 6.204},
+	spawnPoint={-1450.816, 737.003, -1.550},
+},
+-- Easter Bay Airport, LS -->>
+{	
+	pos={1868.520, -2201.911, 15.775+0.75},
+	categories={"Airplanes", "Helicopters"},
+	camMatrix={-1405.499, -553.266, 31.402, -1404.898, -549.715, 29.661},
+	spawnPoint={-1398.783, -514.260, 13.148},
+},
+-- Boatyard, LV -->>
+{	
+	pos={2312.218, 548.314, 6.781+0.75},
+	categories={"Boats"},
+	camMatrix={2318.777, 513.734, 4.311, 2319.179, 515.038, 3.998},
+	spawnPoint={2325.616, 534.341, -1.550},
+},
+-- Las Venturas Airport, LS -->>
+{	
+	pos={1575.766, 1159.330, 13.175+0.75},
+	categories={"Airplanes", "Helicopters"},
+	camMatrix={1580.306, 1218.534, 25.750, 1578.332, 1217.224, 24.680},
+	spawnPoint={1546.759, 1196.616, 9.813},
+},
+}
+
+-- Table Functions
+------------------->>
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	for i,v in ipairs(dealerLocations) do
+		local pickup = createPickup(v.pos[1], v.pos[2], v.pos[3], 3, 1274, 0)
+		addEventHandler("onPickupHit", pickup, bindKeyOnPickupHit)
+		dealerPoints[pickup] = i
+	end
+end)
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	for i,v in ipairs(dealerSellers) do
+		local pickup = createPickup(v.pos[1], v.pos[2], v.pos[3], 3, 1274, 0)
+		addEventHandler("onPickupHit", pickup, bindSellKeyOnPickupHit)
+		dealerSellPoints[pickup] = i
+	end
+end)
+
+
+-- Render Text Above Marker
+---------------------------->>
+
+function callPickupInfo()
+	local dealerNames = {}
+	for i,v in ipairs(dealerLocations) do
+		dealerNames[i] = {}
+		dealerNames[i]["pos"] = v.pos
+		dealerNames[i]["friendlyName"] = v.friendlyName
+	end
+	local j = #dealerLocations
+	for i,v in ipairs(dealerSellers) do
+		dealerNames[i+j] = {}
+		dealerNames[i+j]["pos"] = v.pos
+		dealerNames[i+j]["friendlyName"] = "Sell\nVehicle"
+	end
+	triggerClientEvent(client, "GTIcardealer.setPickupInfoTable", client, dealerNames)
+end
+addEvent("GTIcardealer.callPickupInfo", true )
+addEventHandler("GTIcardealer.callPickupInfo", root, callPickupInfo)

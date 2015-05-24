@@ -1,0 +1,94 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 05 Feb 2013
+-- Resource: GTIpolice/police.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+addEvent("onPlayerGetJob", true)
+addEvent("onPlayerQuitJob", true)
+
+-- Create Locations
+-------------------->>
+
+local markers = {}
+local blips = {}
+
+function createMarkers()
+	for i,v in ipairs(policeLocations) do
+			-- Markers
+		markers[i] = createMarker(v.pos[1], v.pos[2], v.pos[3], "cylinder", 1.25, v.col[1], v.col[2], v.col[3], MARKER_ALPHA)
+		setElementInterior(markers[i], v.int or 0)
+		setElementDimension(markers[i], v.dim or 0)
+		addEventHandler("onMarkerHit", markers[i], showPoliceJob)
+			-- Blips
+		blips[markers[i]] = createBlip(v.blip[1], v.blip[2], 0, v.blipID, 2, 255, 255, 255, 255, 0, BLIP_DISTANCE)
+	end
+end
+addEventHandler("onResourceStart", resourceRoot, createMarkers)
+
+-- Show Police Job
+------------------->>
+
+function showPoliceJob(player, dim)
+	if (not isElement(player) or getElementType(player) ~= "player" or not dim or isPedInVehicle(player)) then return end
+		-- Can't Take if Arrested
+	if (exports.GTIpoliceArrest:isPlayerArrested(player)) then return end
+		-- Or Wanted
+	if (exports.GTIpoliceWanted:isPlayerWanted(player)) then return end
+		-- Or Holding Prisoners
+	if (exports.GTIpoliceArrest:getPlayerTotalArrests(player) > 0) then return end
+		-- Or Not in Marker
+	local col = getElementColShape(source)
+	if (not isElementWithinColShape(player, col)) then return end
+	
+	local policeTable = policeDivisions
+	triggerClientEvent(player, "GTIpolice.showPoliceJob", resourceRoot, policeTable)
+end
+
+-- Take Police Job
+------------------->>
+
+function takePoliceJob(division, skinID)
+		-- Can't Take if Arrested
+	if (exports.GTIpoliceArrest:isPlayerArrested(player)) then return end
+		-- Or Wanted
+	if (exports.GTIpoliceWanted:isPlayerWanted(player)) then return end
+		-- Or Holding Prisoners
+	if (exports.GTIpoliceArrest:getPlayerTotalArrests(player) > 0) then return end
+	
+	local account = getPlayerAccount(client)
+	
+	local divisionData = policeDivisions[division]
+	if (not divisionData) then
+		exports.GTIhud:dm("Unable to set your police division. This division does not exist.", client, 255, 25, 25)
+		return 
+	end
+	
+	local oldJob = getElementData(client, "job") or false
+	if (oldJob == "") then oldJob = false end
+	
+	exports.GTIteams:assignTeam(client, "Law Enforcement")
+	local r,g,b = getTeamColor(getTeamFromName("Law Enforcement"))
+	
+	local oldSkin = getElementModel(client)
+	exports.GTIaccounts:SAD(account, "skin", oldSkin)
+	setElementModel(client, skinID)
+	exports.GTIaccounts:SAD(account, "jobskin", skinID)
+	
+	exports.GTIhud:dm("You are now employed as a Law Enforcement Officer. You are in the "..division.." division.", client, r, g, b)
+	triggerClientEvent(client, "GTIpolice.hidePolicePanel", client, "right", "up")
+	
+	exports.GTIaccounts:SAD(account, "job", division)
+	setElementData(client, "job", division)
+	exports.GTIaccounts:SAD(account, "isWorking", 1)
+	setElementData(client, "isWorking", 1)
+	
+	triggerEvent("onPlayerGetJob", client, division, true)
+	triggerClientEvent(client, "onClientPlayerGetJob", client, division, true)
+	triggerEvent("onPlayerQuitJob", client, oldJob, true)
+	triggerClientEvent(client, "onClientPlayerQuitJob", client, oldJob, true)
+end
+addEvent("GTIpolice.takePoliceJob", true)
+addEventHandler("GTIpolice.takePoliceJob", root, takePoliceJob)

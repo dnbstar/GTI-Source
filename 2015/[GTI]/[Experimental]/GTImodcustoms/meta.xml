@@ -1,0 +1,28 @@
+<meta>
+    <info author="LilDolla" name="Tattoo Stores" autostart="false"></info>
+    
+	<script src="functions.luac" type="client" />
+    <script src="dx_c.luac" type="client" />
+	<script src="utils.luac" type="client" />
+	<script src="tables.luac" type="client" />
+	
+	<script src="modding/settings.lua" type="server" />
+	<script src="modding/setup.lua" type="server" />
+
+	<file src="colorpicker/alpha.png" type="client" />
+	<file src="colorpicker/palette.png" type="client" />
+	
+	<script src="guide/guide.luac" type="client" />
+	
+	<file src="guide/l_mouse.png"/>
+	<file src="guide/r_mouse.png"/>
+	<file src="guide/m_mouse.png"/>
+	
+	<file src="images/tte.png"/>
+	<file src="images/t2e.png"/>
+	<file src="images/nut.png"/>
+	<file src="images/nut2.png"/>
+	<file src="images/logo.png"/>
+	<file src="images/u.png"/>
+	<file src="images/d.png"/>
+</meta>

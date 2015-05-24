@@ -1,0 +1,27 @@
+local screenW, screenH = guiGetScreenSize()
+
+statsWindow = guiCreateWindow((screenW - 649) / 2, (screenH - 467) / 2, 649, 467, "GTI - Stats", false)
+guiWindowSetSizable(statsWindow, false)
+
+playerList = guiCreateGridList(10, 80, 192, 352, false, statsWindow)
+guiGridListAddColumn(playerList, "Players", 0.9)
+guiGridListAddRow(playerList)
+guiGridListSetItemText(playerList, 0, 1, "[GTI]LilDolla", false, false)
+searchBox = guiCreateEdit(12, 41, 190, 29, "Search", false, statsWindow)
+statsList = guiCreateGridList(212, 41, 427, 391, false, statsWindow)
+guiGridListAddColumn(statsList, "Stat Name", 0.4)
+guiGridListAddColumn(statsList, "Progress", 0.4)
+for i = 1, 3 do
+    guiGridListAddRow(statsList)
+end
+guiGridListSetItemText(statsList, 0, 1, "Kills", false, false)
+guiGridListSetItemText(statsList, 0, 2, "18934", false, false)
+guiGridListSetItemText(statsList, 1, 1, "Deaths", false, false)
+guiGridListSetItemText(statsList, 1, 2, "55219", false, false)
+guiGridListSetItemText(statsList, 2, 1, "Kill/Death Ratio", false, false)
+guiGridListSetItemText(statsList, 2, 2, "0.34", false, false)
+closeLabel = guiCreateLabel(598, 19, 41, 18, "Close", false, statsWindow)
+guiSetFont(closeLabel, "default-small")
+guiLabelSetHorizontalAlign(closeLabel, "center", false)
+guiLabelSetVerticalAlign(closeLabel, "center")
+logLabel = guiCreateLabel(10, 438, 629, 15, "Viewing Stats of: [GTI]LilDolla", false, statsWindow)

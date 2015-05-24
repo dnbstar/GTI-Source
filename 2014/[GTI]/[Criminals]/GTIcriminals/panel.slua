@@ -1,0 +1,19 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Mar 2014
+-- Resource: GTIcriminals/reputation.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+function callPanelInfo()
+	local ranks = {}
+	ranks["level"] = getPlayerCriminalLevel(client)
+	ranks["rep"] = getPlayerCriminalRep(client)
+	ranks["repReqCur"] = getCriminalLevelRequirement(ranks["level"])
+	ranks["repReq"] = getCriminalLevelRequirement(ranks["level"]+1)
+
+	triggerClientEvent(client, "GTIcriminals.showPanel", client, ranks)
+end
+addEvent("GTIcriminals.callPanelInfo", true)
+addEventHandler("GTIcriminals.callPanelInfo", root, callPanelInfo)

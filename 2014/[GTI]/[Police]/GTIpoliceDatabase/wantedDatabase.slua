@@ -1,0 +1,73 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 23 Dec 2013
+-- Resource: GTIpoliceWanted/wantedDatabase.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "LpyYEF%pah4Z&N") 
+dbExec(db, "CREATE TABLE IF NOT EXISTS `police_wanted`(`id` INT NOT NULL AUTO_INCREMENT, `name` TEXT, PRIMARY KEY(id))")
+local policeDatabase = {}
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	dbQuery(cacheDatabase, {}, db, "SELECT * FROM `police_wanted`")
+end)
+
+function cacheDatabase(qh)
+	local result = dbPoll(qh, 0)
+	policeDatabase["Console"] = {}
+	for i,row in ipairs(result) do
+		policeDatabase[row.name] = {}
+		for column,value in pairs(row) do
+			if (column ~= "name") then
+				if (not policeDatabase["Console"][column]) then
+					policeDatabase["Console"][column] = true
+				end
+				if (value == "true") then value = true end
+				if (value == "false") then value = false end
+				policeDatabase[row.name][column] = value
+			end
+		end
+	end
+end
+
+-- Account Exports
+------------------->>
+
+function setWantedData(account, key, value)
+	if (not account or not key or not value) then return false end
+	if (isGuestAccount(account) or type(key) ~= "string") then return false end
+	if (type(key) == "string" or type(key) == "number") then
+		local account = getAccountName(account)
+		
+		if (type(policeDatabase[account]) ~= "table") then
+			policeDatabase[account] = {}
+			dbExec(db, "INSERT INTO `police_wanted`(name) VALUES(?)", account)
+		end
+		
+		if (policeDatabase["Console"][key] == nil) then
+			dbExec(db, "ALTER TABLE `police_wanted` ADD `??` text", key)
+			policeDatabase["Console"][key] = true
+		end
+		
+		policeDatabase[account][key] = value
+		if (value ~= nil) then
+			dbExec(db, "UPDATE `police_wanted` SET `??`=? WHERE name=?", key, tostring(value), account)
+		else
+			dbExec(db, "UPDATE `police_wanted` SET `??`=NULL WHERE name=?", key, account)
+		end
+		return true
+	else return false end
+end
+
+function getWantedData(account, key)
+	if (not account or not key) then return nil end
+	if (isGuestAccount(account) or type(key) ~= "string") then return nil end
+	
+	local account = getAccountName(account)
+	if (policeDatabase[account] == nil) then return nil end
+	if (policeDatabase[account][key] == nil) then return nil end
+	
+	return tonumber(policeDatabase[account][key]) or policeDatabase[account][key]
+end

@@ -1,0 +1,4 @@
+<meta>
+    <info author="NicKeLz" name="GTIdroid Notes App" autostart="true" />
+	<script src="Client.luac" type="client" />
+</meta>

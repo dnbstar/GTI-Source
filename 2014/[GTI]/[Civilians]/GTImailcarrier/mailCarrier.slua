@@ -1,0 +1,107 @@
+----------------------------------------->>
+-- GTI: Grand Theft International Network
+-- Date: 18 Jan 2014
+-- Resource: GTImailcarrier/mailCarrier.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local vehIDs = {
+[413] = 0.881, -- Pony (Pay Offset)
+[498] = 1.000, -- Boxville (Pay Offset)
+}
+
+CARDBOARD_BOX = 1220
+
+local dist = {}			-- Table of Player Distances (Debug Only)
+local packages = {}		-- Box Objects
+
+-- Payment Function
+-------------------->>
+
+function deliverPackage(vehicle, distance, finishMission)
+	local vehOffset = vehIDs[getElementModel(vehicle)]
+	local payOffset = exports.GTIpromotions:getPlayerJobPayment(client, "Mail Carrier")
+	local hrPay = exports.GTIpromotions:getPlayerHourlyPay(client)
+	local hrExp = exports.GTIpromotions:getHourlyExperience()
+	
+	local progress = 1
+	local pay = math.ceil( distance*payOffset	* vehOffset )
+	local Exp = math.ceil( (pay/hrPay)*hrExp 	* vehOffset )
+		
+	exports.GTIpromotions:modifyPlayerJobProgress(client, "Mail Carrier", progress)
+	exports.GTIpromotions:modifyPlayerCivilianExp(client, Exp, "Mail Carrier")
+	exports.GTIpromotions:givePlayerJobMoney(client, "Mail Carrier", pay)
+	
+	if (not finishMission) then
+		exports.GTIhud:dm("Package Delivered! +$"..exports.GTIutil:tocomma(pay).." -|- +"..exports.GTIutil:tocomma(Exp).." XP", client, 255, 200, 0)
+	else
+		exports.GTIhud:dm("Delivery Round Complete! Here's a bonus: +$"..exports.GTIutil:tocomma(pay).." -|- +"..exports.GTIutil:tocomma(Exp).." XP", client, 255, 200, 0)
+	end
+	
+	if (not dist[client]) then dist[client] = 0 end
+	dist[client] = dist[client] + distance
+	outputChatBox("* Total Distance: "..dist[client].." meters ("..string.format("%.3f", (dist[client]/1609)).." miles)", client, 25, 255, 25)
+end
+addEvent("GTImailcarrier.deliverPackage", true)
+addEventHandler("GTImailcarrier.deliverPackage", root, deliverPackage)
+
+-- Sync Packages
+----------------->>
+
+function carryPackage(vehicle)
+	local x,y,z = getElementPosition(client)
+	local rot = getElementRotation(client)
+	packages[client] = createObject(CARDBOARD_BOX, x, y, z+1.5, 0, 0, rot)
+	attachElements(packages[client], client, -0.02, 0.450, 0.676)
+	setElementCollisionsEnabled(packages[client], false)
+	setPedAnimation(client, "CARRY", "crry_prtial", 500, false, false, true, true)
+	toggleAllControls(client, false, true, false)
+	toggleControl(client, "forwards", true)
+	toggleControl(client, "backwards", true)
+	toggleControl(client, "left", true)
+	toggleControl(client, "right", true)
+	toggleControl(client, "walk", true)
+	
+	setVehicleDoorOpenRatio(vehicle, 4, 1, 500)
+	setVehicleDoorOpenRatio(vehicle, 5, 1, 500)
+end
+addEvent("GTImailcarrier.carryPackage", true)
+addEventHandler("GTImailcarrier.carryPackage", root, carryPackage)
+
+function dropPackage(vehicle)
+	setPedAnimation(client, "CARRY", "putdwn", 1000, false, false, true, false)
+	setTimer(function(player, vehicle)
+		setPedAnimation(player)
+		toggleAllControls(player, true, true, false)
+		destroyElement(packages[player])
+		packages[player] = nil
+		
+		setVehicleDoorOpenRatio(vehicle, 4, 0, 500)
+		setVehicleDoorOpenRatio(vehicle, 5, 0, 500)
+	end, 1000, 1, client, vehicle)
+end
+addEvent("GTImailcarrier.dropPackage", true)
+addEventHandler("GTImailcarrier.dropPackage", root, dropPackage)
+
+-- Terminate Job
+----------------->>
+
+function terminateJob(job)
+	if (job ~= "Mail Carrier") then return end
+	if (packages[source]) then
+		destroyElement(packages[source])
+		setPedAnimation(source)
+		toggleAllControls(client, true, true, false)
+	end
+	packages[source] = nil
+end
+addEvent("onPlayerQuitJob", true)
+addEventHandler("onPlayerQuitJob", root, terminateJob)
+
+addEventHandler("onPlayerQuit", root, function()
+	if (packages[source]) then
+		destroyElement(packages[source])
+	end
+	packages[source] = nil
+end)

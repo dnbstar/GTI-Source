@@ -1,0 +1,22 @@
+<meta>
+    <script src="arrest.lua" type="client" />
+    <script src="arrest.slua" type="server" />
+    <script src="police.lua" type="client" />
+    <script src="police.slua" type="server" />
+    <script src="wanted.lua" type="client" />
+    <script src="wanted.slua" type="server" />
+    <script src="crimes.lua" type="client" />
+    <script src="crimes.lua" type="server" />
+    <script src="policechief.slua" type="server" />
+    
+    <export function="isPlayerWanted" type="server" />
+    <export function="getPlayerPrisoner" type="server" />
+    <export function="getArrestCount" type="server" />
+    <export function="isPlayerArrested" type="server" />
+    <export function="setWantedLevel" type="server" />
+    <export function="addWantedLevel" type="server" />
+    <export function="getWantedLevel" type="server" />
+    <export function="isPlayerSacked" type="server" />
+    <export function="addCrimeToPlayer" type="server" />
+    <min_mta_version client="1.3.0-9.04555"></min_mta_version>
+</meta>

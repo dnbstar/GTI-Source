@@ -1,0 +1,97 @@
+-- Col chatzones
+local colLS = createColRectangle (-800.81671, -2990.10657, 5100, 3330)
+local colLV = createColRectangle (-810, 350, 5000, 3000)
+local colSF = createColRectangle (-4000, -3000, 3190, 6000)
+
+-- Set the blur level to 0
+function blurLevel()
+	for i, players in pairs(getElementsByType("player")) do
+		setPlayerBlurLevel(players, 0)
+	end
+end
+addEventHandler("onResourceStart", resourceRoot, blurLevel)
+
+-- isPlayerInTeams export, useful to check what team the player is in
+function isPlayerInTeams(player, ...)
+	if (not isElement(player)) then return end
+	local teams = {...}
+	if (#teams == 0) then return end
+	local playerTeam = getPlayerTeam(player)
+	if (playerTeam) then
+		for i, team in pairs(teams) do
+			if (getTeamName(playerTeam) == team) then
+				return true
+			end
+		end
+	end
+end
+
+function getPlayerCity2(player)
+	if (isElementWithinColShape(player, colLS)) then
+		result = "LS"
+	elseif (isElementWithinColShape(player, colLV)) then
+		result = "LV"
+	elseif (isElementWithinColShape(player, colSF)) then
+		result = "SF"	
+	else
+		result = "Unknwon"
+	end
+	return result
+end
+
+-- Get zone export
+function getPlayerCity(player)
+	if (isElement(player)) then
+		local zone = calculatePlayerZone(player)
+		if (zone) then
+			return tostring(zone)
+		else
+			return false
+		end
+	else
+		return false
+	end
+end
+
+-- Calculate player chatzones, by x, y, z
+function calculatePlayerZone(player)
+	local x, y, z = getElementPosition(player)
+	if x < -920 then
+		return "SF"
+	elseif y < 420 then
+		return "LS"
+	else
+		return "LV"
+	end
+end
+
+-- Find player export, useful for finding the player.
+function findPlayer(player)
+	if (player and type(player) == "string") then
+		local playerElement = getPlayerFromName(player)
+		if (playerElement) then return playerElement end
+		local playersCounted = 0
+		local player = string.lower(player)
+		local spl = split(player, string.byte("["))
+		if (spl) then
+			player = table.concat(spl, ";")
+		end
+		for k, v in pairs(getElementsByType("player")) do
+			local name = string.lower(getPlayerName(v))
+			local spl = split(name, string.byte("["))
+			if (spl) then
+				name = table.concat(spl, ";")
+			end
+			if (string.find(name, player)) then
+				playerElement = v
+				playersCounted = playersCounted + 1
+			end
+		end
+		if (playerElement and playersCounted == 1) then
+			return playerElement
+		end
+		return false
+	else
+		return false
+	end
+end

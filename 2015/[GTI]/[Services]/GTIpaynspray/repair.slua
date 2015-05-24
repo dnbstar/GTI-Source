@@ -1,0 +1,85 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn)
+-- Date: 05 Jun 2013
+-- Resource: GTIpaynspray/repair.slua
+-- Version: 1.0
+----------------------------------------->>
+
+local REPAIR_PREMIUM = 1.25 -- Percentage More to Repair
+
+local locations = {
+		-- Los Santos Vehicle Repairs
+	{2063.756, 	-1830.898, 	12.579, 8},		-- Idlewood
+	{1024.893, 	-1023.755, 	31.102, 11},	-- Temple
+	{487.884, 	-1739.575, 	10.173, 12},	-- Santa Maria Beach
+	{720.099, 	-455.197, 	15.370, 47},	-- Dillimore
+	{2414.073, 96.293, 24.512, 8}, -- Palomino
+	{211.329, 24.777, 1.571, 8}, -- Blueberry
+		-- San Fierro Vehicle Repairs
+	{-1904.306, 285.392, 	40.081, 19},	-- Doherty
+	{-1786.758, 1215.358, 	24.153, 24},	-- Downtown
+	{-2425.901, 1020.659, 	49.428, 27},	-- Juniper Hollow
+	{-2106.065,	-2242.464, 	29.662,	0},		-- Angel Pine
+		-- Las Venturas Vehicle Repairs
+	{-1420.836, 2583.315, 	54.872, 40},	-- El Quebrados
+	{-99.972, 	1119.257, 	18.773, 41},	-- Fort Carson
+	{1976.324, 	2162.446, 	10.101, 36},	-- Redsands East
+	{2393.914, 	1491.271, 	9.853, 	0},		-- The Camel's Toe
+	{2386.662, 1051.640, 9.820, 4},			-- Come'A'Lot
+		-- Airport Markers
+	{1999.705, 	-2539.229, 	12.547},
+	{-1657.041, -371.911, 	13.148},
+	{1325.233, 	1488.135, 	9.820},
+	{389.487, 	2536.321, 	15.539},
+}
+
+for i,v in ipairs(locations) do
+	local marker = createMarker(v[1], v[2], v[3], "cylinder", 5, 25, 200, 25, 5)
+	if (v[4]) then
+		setGarageOpen(v[4], true)
+	else
+		setElementAlpha(marker, 150)
+		setMarkerSize(marker, 8)
+	end
+end
+
+-- Repair Vehicles
+------------------->>
+
+addEventHandler("onMarkerHit", resourceRoot, function(player, dim)
+	if (getElementType(player) ~= "player" or not isPedInVehicle(player)) then return end
+	local vehicle = getPedOccupiedVehicle(player)
+	if (getVehicleOccupant(vehicle) ~= player) then return end
+	local col = getElementColShape(source)
+	if (not isElementWithinColShape(player, col)) then return end
+
+	local rep_cost = math.floor( ( exports.GTIvehicles:getVehicleRepairCost(vehicle) * (700-250)/700 ) * REPAIR_PREMIUM )
+	if (rep_cost == 0) then
+		exports.GTIhud:dm("Your vehicle does not need to be repaired.", player, 255, 100, 100)
+		return
+	end
+	if (getPlayerMoney(player) < rep_cost) then
+		exports.GTIhud:dm("You cannot afford to repair your vehicle ($"..exports.GTIutil:tocomma(getPlayerMoney(player) - rep_cost).." needed)", player, 255, 100, 100)
+		return
+	end
+
+	exports.GTIvehicles:repairVehicle(vehicle)
+	exports.GTIbank:TPM(player, rep_cost, "Pay 'n Spray: "..getVehicleName(vehicle).." repaired")
+	exports.GTIhud:dm("Your vehicle has been repaired (Cost: $"..exports.GTIutil:tocomma(rep_cost)..").", player, 255, 255, 255)
+
+	for k,v in ipairs({"accelerate","enter_exit","handbrake"}) do
+		toggleControl(player, v, false)
+	end
+	setControlState(player, "handbrake", true)
+	fadeCamera(player, false)
+
+	setTimer(playSoundFrontEnd, 1200, 1, player, 46)
+	setTimer(function(player)
+		for k,v in ipairs({"accelerate","enter_exit","handbrake"}) do
+			toggleControl(player, v, true)
+		end
+		setControlState(player, "handbrake", false)
+		fadeCamera(player, true)
+	end, 1000, 1, player)
+end)

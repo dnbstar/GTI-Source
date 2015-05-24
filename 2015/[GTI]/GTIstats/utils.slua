@@ -1,0 +1,15 @@
+-- Get Playtime
+
+function getPlayerPlaytime( thePlayer)
+	if isElement( thePlayer) then
+		local account = getPlayerAccount( thePlayer)
+		if account then
+			local theTime = getStatData(account, "playtime") or 0
+			return tonumber( theTime)
+		else
+			return false
+		end
+	else
+		return false
+	end
+end

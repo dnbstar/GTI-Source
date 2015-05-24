@@ -1,0 +1,75 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Apr 2014
+-- Resource: GTIgroups/group-panel/panel_members.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Member Tab Info
+------------------->>
+
+function getMembersTabInfo()
+	local groupID = getPlayerGroup(client)
+	local members = getGroupMembers(groupID)
+		-- Get Data for Labels
+	local member_count = #members
+	local account = getPlayerAccount(client)
+	local last_active = exports.GTIaccounts:GAD(account, "lastLogin")
+	local my_rank = getRankName( getGroupMemberData(account, "id_rank") )
+	
+		-- Get Data for Gridlist
+	local member_data = {}
+	for i,member in ipairs(members) do
+		local m_data = {}
+		local account = getAccount(member)
+			-- Get Member Account Name
+		m_data["account_name"] = member
+			-- Get Last Active
+		m_data["last_active"] = exports.GTIaccounts:GAD(account, "lastLogin")
+			-- Get Warning Level
+		m_data["warning"] = getGroupMemberData(account, "warn_level") or 0
+			-- Get Rank
+		local rankID = getGroupMemberData(account, "id_rank")
+		m_data["rank"] = getRankName(rankID)
+			-- Get Member Name & Country
+		local player = getAccountPlayer(account)
+		if (player) then
+			local IP = getPlayerIP(player)
+			m_data["country"] = exports.GTIutil:getIpCountry(IP)
+			m_data["name"] = getPlayerName(player)
+		else
+			local IP = exports.GTIaccounts:GAD(account, "lastip")
+			m_data["country"] = exports.GTIutil:getIpCountry(IP)
+			m_data["name"] = exports.GTIaccounts:GAD(account, "lastname")
+		end
+		table.insert(member_data, m_data)
+	end
+	
+		-- Get Permissions
+	local perm_data = {}
+	if (hasMemberPermissionTo(client, "add_member")) then
+		perm_data["add_member"] = true
+	end
+	if (hasMemberPermissionTo(client, "change_member_rank")) then
+		perm_data["change_member_rank"] = true
+	end
+	
+	triggerClientEvent(client, "GTIgroups.setMemberTabInfo", resourceRoot, member_count, last_active, my_rank, member_data, perm_data)
+end
+addEvent("GTIgroups.getMembersTabInfo", true)
+addEventHandler("GTIgroups.getMembersTabInfo", root, getMembersTabInfo)
+
+-- Invite Player
+----------------->>
+
+function invitePlayer(plrName)
+	local player = getPlayerFromName(plrName)
+	local groupID = getPlayerGroup(client)
+	invitePlayerToGroup(player, groupID)
+	
+	exports.GTIhud:dm("GROUP INVITE: You have been invited to join "..getGroupName(groupID)..". Press F2 to view group invites.", player, 255, 100, 100)
+	outputGroupChat(getPlayerName(client).." has invited "..plrName.." to the group.", groupID)
+end
+addEvent("GTIgroups.invitePlayer", true)
+addEventHandler("GTIgroups.invitePlayer", root, invitePlayer)

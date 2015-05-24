@@ -1,0 +1,113 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 29 Jan 2014
+-- Resource: GTIpoliceArrest/arrest.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+LAW_TEAMS = {["Law Enforcement"] = true}
+ARREST_TIMEOUT = 7500
+HITS_TO_ARREST = 2
+DISTANCE_FROM_PD_FOR_JAIL = 150
+DISTANCE_WATER_ARREST = 1.5
+SECONDS_PER_WP = 3
+
+criminals = {}			-- Storage of Hits for Arrests
+arrester = {}			-- Storage of Arrester by Criminal
+arrests = {}			-- Storage of Arrests by Cop
+numberOfArrests = {} 	-- Number of Arrests by Cop
+surrendered = {}		-- Players that have Surrendered
+
+-- Get Nearest Police Station
+------------------------------>>
+
+policeStations = {
+	{1564.620, 	-1694.241, 	4.891, 	{["Los Santos"] = true}}, 		-- Los Santos
+	{-1589.558, 712.194, 	-6.242, {["San Fierro"] = true, 
+		["Flint County"] = true, ["Whetstone"] = true}}, 			-- San Fierro
+	{2267.884, 	2443.085, 	2.273, 	{["Las Venturas"] = true}}, 	-- Las Venturas
+	{614.479, 	-588.599, 	16.233, {["Red County"] = true}}, 		-- Dillimore
+	{-1404.558, 2651.708, 	54.688, {["Tierra Robada"] = true}}, 	-- El Quebrados
+	{-222.686,	992.906, 	18.573, {["Bone County"] = true}}, 		-- Fort Carson
+}
+
+function getNearestPoliceStation(player)
+	if (not player or not isElement(player)) then return end
+	local x,y,z = getElementPosition(player)
+	local closestPD
+	local closestMtrs = 65535
+	for i,v in ipairs(policeStations) do
+		local zone = getZoneName(x,y,z,true)
+		if (v[4][zone]) then
+			return v[1], v[2], v[3]
+		end
+		local dist = getDistanceBetweenPoints3D(x, y, z, v[1], v[2], v[3])
+		if (closestMtrs > dist) then
+			closestMtrs = dist
+			closestPD = i
+		end
+	end
+	return policeStations[closestPD][1], policeStations[closestPD][2], policeStations[closestPD][3]
+end
+
+function getDistanceFromPoliceStation(player)
+	local x,y,z = getElementPosition(player)
+	local x2,y2,z2 = getNearestPoliceStation(player)
+	local dist = getDistanceBetweenPoints3D(x,y,z, x2,y2,z2)
+	return dist
+end
+
+-- Exports
+----------->>
+
+function isPlayerLaw(player)
+	if (not isElement(player) or getElementType(player) ~= "player") then return false end
+	local team = getPlayerTeam(player)
+	local team = getTeamName(team)
+	if (LAW_TEAMS[team]) then
+		return true
+	end
+	return false
+end
+
+function isPlayerArrested(player)
+	if (arrester[player]) then return true end
+	return false
+end
+
+function getPlayerArrester(player)
+	return arrester[player] or false
+end
+
+function getPlayerArrests(player)
+	return arrests[player] or false
+end
+
+function getPlayerTotalArrests(player)
+	return numberOfArrests[player] or 0
+end
+
+function didPlayerSurrender(player)
+	return surrendered[player] or false
+end
+
+function getPlayerFromNamePart(name, officer)
+	if (not arrests[officer]) then return false end
+    local name = name and name:gsub("#%x%x%x%x%x%x", ""):lower() or nil
+    if (not name) then return false end
+	local selectedPlayer, results = nil, 0
+	for player,_ in pairs(arrests[officer]) do
+		if (isElement(player)) then
+			local name_ = getPlayerName(player):gsub("#%x%x%x%x%x%x", ""):lower()
+			if name_:find(name, 1, true) then
+				selectedPlayer = player
+				results = results + 1
+			end
+		else
+			arrests[officer][player] = nil
+		end
+	end
+	if (results > 1) then return nil end
+	return selectedPlayer
+end

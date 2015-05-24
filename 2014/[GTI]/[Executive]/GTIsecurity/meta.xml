@@ -1,0 +1,8 @@
+<meta>
+	<script src="lockdown.slua" />
+	
+	<script src="mapSecurity.slua" />
+	<!--<script src="security.luac" type="client" />-->
+	
+	<export function="isMapBeingUsedOnGTI" type="client" />
+</meta>

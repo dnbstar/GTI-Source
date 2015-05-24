@@ -1,0 +1,75 @@
+﻿<acl>
+	<!--L0/Guest Commands-->
+	<command name="!pcount" level="0" echoChannelOnly="false" desc="Displays server player count." />
+	<command name="!uptime" level="0" echoChannelOnly="false" desc="Displays server uptime." />
+	<command name="!players" level="0" echoChannelOnly="true" desc="Displays a list of all players IG." />
+	<command name="!pm" level="0" echoChannelOnly="true" desc="Allows you to PM players who are IG." />
+	<command name="!commands" level="0" echoChannelOnly="false" desc="Gives you a list of all commands you can use." />
+	<command name="!cmds" level="0" echoChannelOnly="false" desc="Gives you a list of all commands you can use." />
+	<command name="!money" level="0" echoChannelOnly="true" desc="Allows you to check how much money a player has." />
+	<command name="!health" level="0" echoChannelOnly="true" desc="Allows you to check how much health a player has." />
+	<command name="!wantedlevel" level="0" echoChannelOnly="true" desc="Allows you to check how much WL a player has." />
+	<command name="!team" level="0" echoChannelOnly="true" desc="Allows you to check what team a player is in." />
+	<command name="!ping" level="0" echoChannelOnly="true" desc="Allows you to check what ping a player has." />
+	<command name="!map" level="0" echoChannelOnly="true" desc="Displays the map the server is running." />
+	<command name="!server" level="0" echoChannelOnly="false" desc="Displays the server name and port." />
+	<command name="!zone" level="0" echoChannelOnly="false" desc="Allows you to check the location of a player." />
+	<command name="!sup" level="0" echoChannelOnly="true" desc="Allows you to talk in the IG Support Chat from IRC." />
+	<command name="!support" level="0" echoChannelOnly="true" desc="Allows you to talk in the IG Support Chat from IRC." />
+	<!--L1 Commands-->
+	<command name="!say" level="1" echoChannelOnly="true" desc="Allows you to talk IG from IRC [Main Chat]." />
+	<command name="!s" level="1" echoChannelOnly="true" desc="Allows you to talk IG from IRC [Main Chat]." />
+	<command name="!m" level="1" echoChannelOnly="true" desc="Allows you to talk IG from IRC [Main Chat]." />
+	<command name="!ts" level="1" echoChannelOnly="true" desc="Allows you to talk IG from IRC [Team Chat]." />
+	<!--L2 Commands-->
+	<command name="!kick" level="2" echoChannelOnly="true" desc="Allows you to kick a player." />
+	<command name="!note" level="2" echoChannelOnly="true" desc="Allows you to say a note IG." />
+	<command name="!getip" level="2" echoChannelOnly="true" desc="Allows you to get the IP of a player." />
+	<command name="!getserial" level="2" echoChannelOnly="true" desc="Allows you to get the Serial of a player." />
+	<command name="!mute" level="2" echoChannelOnly="true" desc="Allows you to mute a player." />
+	<command name="!unmute" level="2" echoChannelOnly="true" desc="Allows you to unmute a player." />
+	<command name="!mutes" level="2" echoChannelOnly="true" desc="Allows you to check all mutes." />
+	<command name="!freeze" level="2" echoChannelOnly="true" desc="Allows you to freeze a player." />
+	<command name="!unfreeze" level="2" echoChannelOnly="true" desc="Allows you to unfreeze a player." />
+	<command name="!kill" level="2" echoChannelOnly="true" desc="Allows you to kill a player." />
+	<command name="!slap" level="2" echoChannelOnly="true" desc="Allows you to slap a player." />
+	<command name="!country" level="2" echoChannelOnly="false" desc="Allows you to check what country a player is from." />
+	<!--L3 Commands-->
+	<command name="!ircSay" level="5" echoChannelOnly="true" desc="Allows you to talk in channels as Kayla." />
+	<command name="!lua" level="3" echoChannelOnly="true" desc="Allows you to run functions." />
+	<command name="!run" level="3" echoChannelOnly="true" desc="Allows you to run functions [Server Side]." />
+	<command name="!crun" level="3" echoChannelOnly="true" desc="Allows you to run functions [Client Side]." />
+	<command name="!account" level="3" echoChannelOnly="true" desc="Allows you to get a players account name." />
+	<command name="!join" level="3" echoChannelOnly="true" desc="Allows you to make the bot join a channel." />
+	<command name="!leave" level="3" echoChannelOnly="true" desc="Allows you to make the bot leave a channel." />
+	<command name="!usage" level="3" echoChannelOnly="true" desc="Allows you to view resource usage" />
+	<command name="!status" level="3" echoChannelOnly="true" desc="Allows you to stop a resource." />
+	<command name="!imute" level="3" echoChannelOnly="false" desc="Displays server player count." />
+	<!--L4 Commands-->
+	<command name="!ban" level="4" echoChannelOnly="true" desc="Allows you to ban a player." />
+	<command name="!banip" level="4" echoChannelOnly="true" desc="Allows you to ban player by IP." />
+	<command name="!banserial" level="4" echoChannelOnly="true" desc="Allows you to ban a player by Serial." />
+	<command name="!banname" level="4" echoChannelOnly="true" desc="Allows you to ban a player by Name." />
+	<command name="!unbanip" level="4" echoChannelOnly="true" desc="Allows you to unban a IP." />
+	<command name="!unbanserial" level="4" echoChannelOnly="true" desc="Allows you to unban a Serial" />
+	<command name="!unban" level="4" echoChannelOnly="true" desc="Allows you to unban a entity." />
+	<command name="!bans" level="4" echoChannelOnly="true" desc="Displays a list of all bans." />
+
+	<command name="!refresh" level="4" echoChannelOnly="false" desc="Allows you to refresh the server for resources." />
+	<command name="!resources" level="4" echoChannelOnly="true" desc="Displays a list of all resources." />
+	<command name="!start" level="4" echoChannelOnly="true" desc="Allows you to start a resource." />
+	<command name="!restart" level="4" echoChannelOnly="true" desc="Allows you to restart a resource." />
+	<command name="!stop" level="4" echoChannelOnly="true" desc="Allows you to stop a resource." />
+	<!--L5 Commands-->
+	<command name="!modules" level="5" echoChannelOnly="true" desc="Allows you to check all the modules that are running." />
+	<command name="!newcmds" level="5" echoChannelOnly="true" desc="Displays a list of all commands with a description." />
+	<command name="!restartme" level="5" echoChannelOnly="true" desc="Allows you to restart the IRC bot." />
+	<command name="!shutdown" level="5" echoChannelOnly="true" desc="Allows you to shut down the server." />
+	<command name="!password" level="5" echoChannelOnly="true" desc="Allows you to view or set the server password." />
+	<command name="!refreshall" level="5" echoChannelOnly="false" desc="Allows you to refresh all things inside the server." />
+	<command name="!checkmap" level="5" echoChannelOnly="false" desc="Allows you to check a map files." />
+	<command name="!changemap" level="5" echoChannelOnly="true" desc="Allows you to change the server map." />
+	<command name="!gravity" level="5" echoChannelOnly="true" desc="Allows you to modify the gravity inside the server." />
+	<command name="!weather" level="5" echoChannelOnly="true" desc="Allows you to view the current weather or change the weather." />
+	<command name="!refundplayer" level="5" echoChannelOnly="true" desc="Allows you to refund a player." />
+</acl>

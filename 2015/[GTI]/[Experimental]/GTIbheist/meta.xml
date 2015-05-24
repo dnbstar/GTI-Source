@@ -1,0 +1,7 @@
+<meta>
+    <info author="LilDolla" name="Bank Heist (CnR)" autostart="false" />
+    
+    <script src="LilDollaBankHeist.luac" type="client"/>
+	<script src="tools_s.lua" type="server"/>
+	<script src="lockdown.lua" type="server"/>
+</meta>

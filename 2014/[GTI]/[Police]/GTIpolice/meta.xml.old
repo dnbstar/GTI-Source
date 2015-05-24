@@ -1,0 +1,7 @@
+<meta>
+	<script src="policeTable.slua" />
+	
+	<script src="policeGUI.luac" type="client" />
+	<script src="police.luac" type="client" />
+	<script src="police.slua" />
+</meta>

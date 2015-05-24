@@ -1,0 +1,4 @@
+<meta>
+	<script src="interiorsTable.slua" />
+	<export function="getInteriorsTable" type="server" />
+</meta>

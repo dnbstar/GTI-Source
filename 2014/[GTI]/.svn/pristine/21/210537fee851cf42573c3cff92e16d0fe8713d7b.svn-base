@@ -1,0 +1,10 @@
+<meta>
+    <script src="clothing/clothing_c.luac" type="client" />
+    <script src="clothing/clothing_s.lua" type="server" />
+    <script src="clothing/saving_s.lua" type="server" />
+    <--
+	<script src="skins/skins_c.luac" type="client"/>
+    <script src="skins/skins_s.lua" type="server" />&#x0A;--&gt;&#x0A;&#x09;
+    <script src="blips.lua" type="server" />
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

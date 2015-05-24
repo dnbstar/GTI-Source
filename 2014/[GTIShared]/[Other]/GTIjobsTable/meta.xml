@@ -1,0 +1,6 @@
+<meta>
+    <script src="JobsTable.slua" />
+	
+	<export function="getJobsTable" type="server" />
+	<export function="getJobsLocationTable" type="server" />
+</meta>

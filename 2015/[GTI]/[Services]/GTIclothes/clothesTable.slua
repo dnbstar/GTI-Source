@@ -1,0 +1,490 @@
+----------------------------------------->>
+-- GTI: Grand Theft International Network
+-- Date: 23 July 2013
+-- Resource: GTIclothing/clothesTable.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+--[[
+Levels:
+	- 0 = Special
+	- 1 = Binco; Poor
+	- 2 = SubUrban; Lower-Middle Class
+	- 3 = Pro-Laps; Sports
+	- 4 = Zip; Middle-Class
+	- 5 = Victim; Upper-Middle Class
+	- 6 = Didier Sachs; Upper Class
+	- 7 = Sex Shops; NSFW
+
+clothingSkins = { ID, Name, Price, Level },
+
+Prices:
+	- Binco: $300 - $750
+	- SubUrban: $750 - $1000
+	- ProLaps: $450 - $1000
+	- Zip: $900 - $2000
+	- Victim: $1250 - $3000
+	- Didier Sachs: $2750 to $7000
+]]--
+
+clothingSkins = {
+["Special"] = {
+{ 0, 	"CJ", 				750, 	1 },
+{ 1, 	"Truth", 			650, 	1 },
+{ 2, 	"Maccer", 			1650, 	4 },
+{ 269, 	"Big Smoke", 		775, 	1 },
+{ 270, 	"Sweet", 			750, 	1 },
+{ 271, 	"Ryder", 			725, 	1 },
+{ 272, 	"Forelli Guy", 		1350, 	4 },
+{ 290, 	"Rosenberg", 		2250, 	5 },
+{ 291, 	"Kent Paul", 		1200, 	4 },
+{ 292, 	"Cesar Vialpando", 	800, 	1 },
+{ 293, 	"OG Loc", 			875, 	1 },
+{ 294, 	"Wu Zi Mu", 		2750, 	5 },
+{ 295, 	"Mike Torino", 		3775, 	6 },
+{ 296, 	"Jizzy", 			1350, 	4 },
+{ 297, 	"Madd Dogg", 		1575, 	4 },
+{ 298, 	"Catalina", 		1250, 	4 },
+{ 299, 	"Claude", 			1350, 	4 },
+{ 302, 	"Emmet", 			625, 	1 },
+{ 303, 	"Andre", 			1125, 	4 },
+{ 304, 	"Kendl", 			700, 	1 },
+{ 306, 	"Zero", 			1650, 	4 },
+{ 307, 	"T-Bone Mendez", 	975, 	2 },
+{ 308, 	"Sindacco Guy", 	1450, 	4 },
+{ 309, 	"Janitor", 			875, 	2 },
+{ 310, 	"Big Bear", 		575, 	1 },
+{ 312, 	"Psycho", 			1000, 	0 },
+},
+
+["Beach"] = {
+{ 18, 	"Black Beach Guy", 	900, 	3 },
+{ 45, 	"Beach Mustache", 	800, 	3 },
+{ 92, 	"Roller Girl", 		1150, 	7 },
+{ 96, 	"Soccer Player", 	750, 	3 },
+{ 97, 	"Baywatch Dude", 	775, 	3 },
+{ 138, 	"Bikini Tattoo", 	950, 	7 },
+{ 139, 	"Yellow Bikini", 	925, 	7 },
+{ 140, 	"Buxom Bikini", 	1175, 	7 },
+{ 154, 	"Beach Blond", 		925, 	3 },
+{ 251, 	"Lifeguard", 		850, 	3 },
+{ 252, 	"Naked Freak", 		350, 	3 },
+},
+
+["Casual Generics"] = {
+{ 7, 	"Causal Jeanjacket",350, 	1 },
+{ 10, 	"Old Fat Lady", 	375, 	2 },
+{ 14, 	"Floral Shirt", 	450, 	1 },
+{ 15, 	"Plaid Baldy", 		475, 	2 },
+{ 20, 	"Fresh Prince", 	1250, 	5 },
+{ 23, 	"Skater Kid", 		750, 	4 },
+{ 32, 	"Eyepatch", 		350, 	1 },
+{ 39, 	"Old Maid", 		425, 	2 },
+{ 53, 	"Golf Lady", 		850, 	5 },
+{ 54, 	"Hispanic Woman", 	250, 	2 },
+{ 56, 	"Legwarmers 1", 	800, 	4 },
+{ 58, 	"Chinese Plaid", 	400, 	2 },
+{ 60, 	"Chinese Casual", 	1150, 	4 },
+{ 62, 	"Pajama Man 1", 	850, 	4 },
+{ 69, 	"Denim Girl", 		1250, 	4 },
+{ 72, 	"Bearded Hippie", 	800, 	2 },
+{ 88, 	"Casual Old Lady", 	1250, 	5 },
+{ 93, 	"Hoop Earrings 1", 	1450, 	5 },
+{ 101, 	"Jacket Hippee", 	500, 	2 },
+{ 136, 	"Old Rasta", 		425, 	1 },
+{ 142, 	"African 1", 		550, 	2 },
+{ 143, 	"Sam Jackson", 		1150, 	5 },
+{ 170, 	"PubeStach T-Shirt",1350, 	4 },
+{ 181, 	"Punk", 			425, 	1 },
+{ 182, 	"Pajama Man 2", 	675, 	2 },
+{ 184, 	"Neckbeard", 		950, 	4 },
+{ 188, 	"Green Shirt", 		1250, 	4 },
+{ 215, 	"Explorer", 		1350, 	4 },
+--{ 217, 	"Staff Guy", 		1000, 	4 },
+{ 218, 	"Old Woman", 		675, 	2 },
+{ 220, 	"African 2", 		600, 	2 },
+{ 221, 	"Beardo Casual", 	775, 	4 },
+{ 222, 	"Beardo Clubbing", 	850, 	4 },
+{ 224, 	"Elderly Asian 1", 	1100, 	4 },
+{ 225, 	"Elderly Asian 2", 	1075, 	4 },
+{ 226, 	"Legwarmers 2", 	850, 	4 },
+{ 229, 	"Asian Tourist", 	700, 	2 },
+{ 231, 	"Granny", 			750, 	2 },
+{ 232, 	"Grouchy Lady", 	575, 	2 },
+{ 233, 	"Hoop Earrings 2", 	1650, 	5 },
+{ 234, 	"Buzzcut", 			475, 	2 },
+{ 236, 	"Happy Old Man", 	900, 	2 },
+{ 250, 	"Green T-Shirt", 	1150, 	4 },
+{ 262, 	"Pajama Man 2b", 	700, 	2 },
+},
+
+["Celebrities"] = {
+{ 91, 	"Sharron Stone", 	3250, 	6 },
+{ 147, 	"Sigmund Freud", 	3900, 	6 },
+{ 240, 	"Hugh Grant", 		3000, 	6 },
+{ 258, 	"Joe Pesci", 		1650, 	5 },
+{ 259, 	"Chris Penn", 		1650, 	5 },
+},
+
+["Country"] = {
+{ 31, 	"Fat Cowgirl", 		350, 	1 },
+{ 33, 	"Bunty Hunter", 	325, 	1 },
+{ 34, 	"Marlboro Man", 	425, 	1 },
+{ 44, 	"Tattooed Plaid", 	500, 	1 },
+{ 128, 	"Native Rancher", 	750, 	2 },
+{ 129, 	"Native Librarian",	300, 	1 },
+{ 130, 	"Native Ugly", 		250, 	1 },
+{ 131, 	"Native Sexy", 		350, 	1 },
+{ 132, 	"Native Geezer", 	450, 	1 },
+{ 133, 	"Furys Trucker", 	500, 	2 },
+{ 151, 	"Melanie", 			625, 	2 },
+{ 157, 	"Farmer Girl", 		650, 	1 },
+{ 158, 	"Farmer", 			600, 	1 },
+{ 159, 	"Farmer Redneck", 	300, 	1 },
+{ 160, 	"Bald Redneck", 	275, 	1 },
+{ 161, 	"Smoking Redneck", 	450, 	1 },
+{ 162, 	"Inbred", 			300, 	1 },
+{ 196, 	"Aunt May", 		475, 	1 },
+{ 197, 	"Smoking Maid", 	450, 	1 },
+{ 198, 	"Ranch Cowgirl", 	500, 	1 },
+{ 199, 	"Heidi", 			350, 	1 },
+{ 200, 	"Hairy Redneck", 	325, 	1 },
+{ 201, 	"Trucker Girl", 	425, 	1 },
+{ 202, 	"Beer Trucker", 	400, 	1 },
+{ 206, 	"Money Trucker", 	475, 	1 },
+{ 261, 	"Southerner", 		450, 	1 },
+},
+
+["Emergency Workers"] = {
+{ 71, 	"Security Guard", 	1350, 	5 },
+{ 73, 	"Flag Bandanna", 	725, 	2 },
+{ 163, 	"Casino Bouncer 1", 4750, 	6 },
+{ 164, 	"Casino Bouncer 2", 4750, 	6 },
+{ 165, 	"Agent Kay", 		4200, 	6 },
+{ 166, 	"Agent Jay", 		4200, 	6 },
+{ 179, 	"War Vet", 			900, 	4 },
+},
+
+["Formal Generics"] = {
+{ 9, 	"Business Lady", 	3250, 	6 },
+{ 17, 	"Black Suit", 		3600, 	6 },
+{ 57, 	"Chinese Businessman",3750, 6 },
+{ 76, 	"Businesswoman 1", 	4250, 	6 },
+{ 141, 	"Librarian", 		3400, 	6 },
+{ 148, 	"Businesswoman 2", 	3450, 	6 },
+{ 150, 	"Businesswoman 3", 	4200, 	6 },
+{ 169, 	"Asian Escort", 	2675, 	5 },
+{ 186, 	"Teacher", 			3825, 	6 },
+{ 187, 	"Jap. Businessman", 4250, 	6 },
+{ 219, 	"Lady in Red", 		4025, 	6 },
+{ 227, 	"Jap. Businessman 2",3750, 	6 },
+{ 228, 	"Jap. Businessman 3",3400, 	6 },
+{ 263, 	"Asian Hostess", 	2250, 	5 },
+},
+
+["Fighters"] = {
+{ 49, 	"Ninja Sensei", 	850, 	3 },
+{ 80, 	"Red Boxer", 		700, 	3 },
+{ 81, 	"Blue Boxer", 		700, 	3 },
+{ 180, 	"B-ball Player", 	750, 	3 },
+{ 203, 	"Ninja 1", 			825, 	3 },
+{ 204, 	"Ninja 2", 			825, 	3 },
+},
+
+["Gangs"] = {
+{ 13, 	"Homegirl", 		325, 	1 },
+{ 100, 	"Biker Blackshirt", 350, 	1 },
+{ 102, 	"Baller Shirt", 	400, 	1 },
+{ 103, 	"Baller Jacket", 	425, 	1 },
+{ 104, 	"Baller Sweater", 	475, 	1 },
+{ 105, 	"Grove Sweater", 	475, 	1 },
+{ 106, 	"Grove Topbutton", 	500, 	1 },
+{ 107, 	"Grove Jersey", 	450, 	1 },
+{ 108, 	"Vagos Topless", 	425, 	1 },
+{ 109, 	"Vagos Pants", 		475, 	1 },
+{ 110, 	"Vagos Shorts", 	450, 	1 },
+{ 111, 	"Russian Muscle", 	1250, 	5 },
+{ 112, 	"Russian Hitman", 	1025, 	5 },
+{ 113, 	"Russian Boss", 	1375, 	5 },
+{ 114, 	"Aztecas Strips", 	400, 	1 },
+{ 115, 	"Aztecas Jacket", 	450, 	1 },
+{ 116, 	"Aztecas Shorts", 	500, 	1 },
+{ 117, 	"Triad 1", 			1850, 	5 },
+{ 118, 	"Triad 2", 			1850, 	5 },
+{ 120, 	"Sindacco Suit", 	2150, 	5 },
+{ 121, 	"Da Nang Army", 	750, 	4 },
+{ 122, 	"Da Nang Bandanna",	800, 	4 },
+{ 123, 	"Da Nang Shades", 	725, 	4 },
+{ 124, 	"Sindacco Muscle", 	1075, 	5 },
+{ 125, 	"Mafia Enforcer", 	800, 	4 },
+{ 126, 	"Mafia Wiseguy", 	875, 	4 },
+{ 127, 	"Mafia Hitman", 	850, 	4 },
+{ 173, 	"Rifa Hat", 		500, 	1 },
+{ 174, 	"Rifa Vest", 		475, 	1 },
+{ 175, 	"Rife Suspenders", 	525, 	1 },
+{ 207, 	"Grove Booty", 		525, 	2 },
+{ 247, 	"Biker Vest", 		375, 	1 },
+{ 248, 	"Biker Headband", 	350, 	1 },
+},
+
+["Gangstas"] = {
+{ 19, 	"Beach Gangsta", 	750, 	2 },
+{ 21, 	"Striped Gangsta", 	600, 	2 },
+{ 22, 	"Orange Sprotsman", 525, 	2 },
+{ 28, 	"Black Dealer", 	700, 	2 },
+{ 29, 	"White Dealer", 	675, 	2 },
+{ 30, 	"Religious Essay", 	625, 	2 },
+{ 47, 	"Top Button Essay", 850, 	4 },
+{ 67, 	"Red Bandanna", 	625, 	2 },
+{ 241, 	"Afro Brother", 	725, 	2 },
+{ 242, 	"Deadlock Brother", 725, 	2 },
+{ 243, 	"Ghetto Booty", 	600, 	2 },
+},
+
+["Girlfriends"] = {
+{ 190, 	"Barbara Schternvart",850,	5 },
+{ 191, 	"Helena Wankstein", 775, 	2 },
+{ 192, 	"Michelle Cannes", 	575, 	2 },
+{ 193, 	"Kate Zhan", 		950, 	4 },
+{ 194, 	"Millie Perkins", 	1400, 	5 },
+{ 195, 	"Denise Robinson", 	475, 	1 },
+},
+
+["Homeless"] = {
+{ 77, 	"Bag Lady", 		325, 	1 },
+{ 78, 	"Homeless Scarf", 	300, 	1 },
+{ 79, 	"Fat Homeless", 	400, 	1 },
+{ 95, 	"Poor Old Man", 	450, 	1 },
+{ 134, 	"Homeless Smoker", 	350, 	1 },
+{ 135, 	"Skullcap Hobo", 	300, 	1 },
+--{ 137, 	"Boxhead", 			275, 	1 },
+{ 212, 	"Tinfoil Hat", 		300, 	1 },
+{ 213, 	"Hobo Elvis", 		325, 	1 },
+--{ 230, 	"Hooded Hobo", 		300, 	1 },
+},
+
+["Nightclubbers"] = {
+{ 43, 	"Porn Producer", 	700, 	2 },
+{ 46, 	"Dark Romeo", 		975, 	4 },
+{ 59, 	"Chinese Romeo", 	1450, 	5 },
+{ 185, 	"Nervous Guy", 		1325, 	5 },
+{ 223, 	"Greasy Nightclubber",1025, 4 },
+},
+
+["Sex Industry"] = {
+{ 63, 	"Trashy Hooker", 	600, 	7 },
+{ 64, 	"Transvestite", 	575, 	7 },
+{ 75, 	"Skanky Hooker", 	500, 	7 },
+{ 85, 	"Furcoat Hooker", 	650, 	7 },
+{ 87, 	"Firecrotch", 		450, 	7 },
+{ 90, 	"Barely Covered", 	475, 	7 },
+{ 152, 	"Schoolgirl 1", 	550, 	7 },
+{ 178, 	"Masked Stripper", 	625, 	7 },
+{ 237, 	"Leopard Hooker", 	625, 	7 },
+{ 238, 	"Amazon", 			550, 	7 },
+{ 244, 	"Lace Stripper", 	475, 	7 },
+{ 245, 	"Ghetto Ho", 		425, 	7 },
+{ 246, 	"Cop Stripper", 	525, 	7 },
+{ 249, 	"Pimp", 			600, 	7 },
+{ 256, 	"Schoolgirl 2", 	450, 	7 },
+{ 257, 	"Bondage Girl", 	400, 	7 },
+},
+
+["Sports"] = {
+{ 24, 	"LS Coach", 		750, 	3 },
+{ 25, 	"Varsity Jacket", 	800, 	3 },
+{ 51, 	"Black Bicyclist", 	775, 	3 },
+{ 52, 	"White Bicyclist", 	775, 	3 },
+{ 66, 	"Varsity Bandits", 	800, 	3 },
+{ 94, 	"Andy Capp", 		750, 	3 },
+{ 99, 	"Rollerguy", 		900, 	3 },
+},
+
+["Tough Guys"] = {
+{ 33, 	"Bounty Hunter", 	850, 	2 },
+{ 183, 	"Klingon", 			700, 	2 },
+},
+
+["Tourists"] = {
+{ 26, 	"Hiker", 			1175, 	4 },
+{ 35, 	"Fisherman", 		975, 	4 },
+{ 37, 	"Baseball Dad", 	1200, 	4 },
+{ 38, 	"Old Golf Lady", 	1175, 	4 },
+{ 210, 	"Sloppy Tourist", 	1025, 	4 },
+{ 235, 	"Retired Tourist", 	1175, 	4 },
+},
+
+["Wealthy"] = {
+{ 12, 	"Classy Gold Hooker",2250, 	5 },
+{ 40, 	"Classy Dark Hooker",1875, 	5 },
+{ 41, 	"Tracksuit Girl", 	1450, 	5 },
+{ 55, 	"Rich Bitch", 		2775, 	5 },
+{ 216, 	"Turtleneck", 		2650, 	5 },
+},
+
+["Workers"] = {
+{ 11, 	"Card Dealer 1", 	1675, 	5 },
+{ 16, 	"Earmuff Worker", 	975, 	4 },
+{ 27, 	"Construction 1", 	950, 	4 },
+{ 36, 	"Mailman", 			825, 	4 },
+{ 68, 	"Priest", 			1275, 	4 },
+{ 70, 	"Scientist", 		1350, 	5 },
+{ 82, 	"Fatty Elvis", 		1700, 	5 },
+{ 83, 	"Whitesuit Elvis", 	1875, 	5 },
+{ 84, 	"Bluesuit Elvis", 	1875, 	5 },
+{ 144, 	"Drug Worker 1", 	975, 	4 },
+{ 145, 	"Drug Worker 2", 	825, 	7 },
+{ 146, 	"Drug Worker 3", 	975, 	4 },
+{ 153, 	"Foreman", 			2350, 	5 },
+{ 155, 	"Pizza Guy", 		925, 	4 },
+{ 156, 	"Old Reece", 		975, 	4 },
+{ 167, 	"Chicken", 			875, 	4 },
+{ 168, 	"Hotdog Vender", 	600, 	2 },
+{ 176, 	"Style Barber", 	1050, 	4 },
+{ 177, 	"Vanilla Ice Barber",1050, 	4 },
+{ 171, 	"Card Dealer 2", 	1725, 	5 },
+{ 172, 	"Card Dealer 3", 	1675, 	5 },
+{ 189, 	"Valet", 			1575, 	5 },
+{ 205, 	"Burger Girl", 		875, 	4 },
+{ 209, 	"Noodle Vender", 	575, 	2 },
+{ 214, 	"Caligula Waitress",1950, 	5 },
+{ 260, 	"Construction 2", 	950, 	4 },
+{ 264, 	"Whoopee the Clown",950, 	4 },
+},
+}
+
+cameraAngles = {
+{ loc="Wardrobe", 		cMartix={255.656, -42.263, 1002.721, 256.089, -41.855, 1002.642}, 	},
+{ loc="Binco", 			cMartix={215.065, -100.301, 1005.827, 215.507, -99.900, 1005.764}, 	},
+{ loc="Sub Urban", 		cMartix={212.149, -43.240, 1002.683, 212.426, -42.955, 1002.636}, 	},
+{ loc="ProLaps", 		cMartix={199.870, -133.792, 1003.931, 200.140, -133.499, 1003.900}, },
+{ loc="Zip", 			cMartix={179.124, -89.623, 1002.525, 179.378, -89.315, 1002.498}, 	},
+{ loc="Victim", 		cMartix={206.723, -6.379, 1001.777, 206.986, -6.081, 1001.732}, 	},
+{ loc="Didier Sachs",	cMartix={213.491, -157.345, 1001.080, 213.784, -157.074, 1001.042}, },
+{ loc="Sex Shop", 		cMartix={-111.294, -10.339, 1001.729, -111.574, -10.615, 1001.653}, },
+	-- LS Interiors
+{ loc="Binco", 			cMartix={2233.856, -1676.770, 15.783, 2233.674, -1676.852, 15.771}, },
+{ loc="Sub Urban", 		cMartix={2120.385, -1202.253, 24.604, 2120.908, -1201.963, 24.554}, },
+{ loc="Zip", 			cMartix={1464.428, -1119.730, 24.330, 1464.493, -1119.134, 24.318}, },
+{ loc="ProLaps", 		cMartix={499.582, -1378.473, 16.454, 498.858, -1378.815, 16.450}, 	},
+{ loc="Victim", 		cMartix={440.182, -1502.524, 18.721, 440.450, -1501.988, 18.706}, 	},
+{ loc="Didier Sachs",	cMartix={469.030, -1482.532, 31.097, 469.725, -1482.927, 31.064}, },
+}
+
+skinPos = {
+{ loc="Wardrobe", 		sPos={258.138, -39.929, 1002.023, 135}, 	int=14, dim={150}, },
+{ loc="Binco", 			sPos={217.349, -98.132, 1005.257, 135}, 	int=15, dim={151,152,153,154}, },
+{ loc="Sub Urban", 		sPos={214.624, -40.811, 1002.023, 135}, 	int=1, 	dim={155,156,157}, },
+{ loc="ProLaps", 		sPos={201.984, -131.119, 1003.507, 135}, 	int=3, 	dim={158,159}, },
+{ loc="Zip", 			sPos={181.414, -86.860, 1002.023, 135}, 	int=18, dim={160,161,162,163}, },
+{ loc="Victim", 		sPos={208.871, -3.884, 1001.217, 135}, 		int=5, 	dim={164,165,166}, },
+{ loc="Didier Sachs", 	sPos={215.956, -155.026, 1000.523, 135}, 	int=14, dim={167}, },
+{ loc="Sex Shop", 		sPos={-113.918, -13.029, 1000.718, 315}, 	int=3, 	dim={168}, },
+	-- LS Interiors
+{ loc="Binco", 			sPos={2230.796, -1677.911, 15.479, 275}, 	int=0, dim={0}, },
+{ loc="Sub Urban", 		sPos={2123.415, -1200.550, 24.207, 135}, 	int=0, dim={0}, },
+{ loc="Zip", 			sPos={1464.766, -1116.224, 24.152, 180}, 	int=0, dim={0}, },
+{ loc="ProLaps", 		sPos={496.295, -1379.939, 16.392, 270}, 	int=0, 	dim={0}, },
+{ loc="Victim", 		sPos={441.714, -1499.489, 18.465, 135}, 	int=0, 	dim={0}, },
+{ loc="Didier Sachs", 	sPos={471.830, -1484.090, 30.860, 45}, 	int=0, dim={0}, },
+}
+
+skin_order = {
+	"Special", "Beach", "Casual Generics", "Celebrities", "Country", "Emergency Workers", "Formal Generics", "Fighters", "Gangs", "Gangstas",
+	"Girlfriends", "Homeless", "Nightclubbers", "Sex Industry", "Sports", "Tough Guys", "Tourists", "Wealthy", "Workers",
+}
+
+-- Sort Skins By Store
+----------------------->>
+
+CS = {
+["Binco"] = {}, ["Sub Urban"] = {}, ["ProLaps"] = {}, ["Zip"] = {}, ["Victim"] = {}, ["Didier Sachs"] = {}, ["Sex Shop"] = {},
+}
+
+for k,v1 in pairs(clothingSkins) do
+	for i,v2 in ipairs(clothingSkins[k]) do
+		if (v2[4] == 1) then
+			if not CS["Binco"][k] then CS["Binco"][k] = {} end
+			table.insert(CS["Binco"][k],v2)
+		elseif (v2[4] == 2) then
+			if not CS["Sub Urban"][k] then CS["Sub Urban"][k] = {} end
+			table.insert(CS["Sub Urban"][k],v2)
+		elseif (v2[4] == 3) then
+			if not CS["ProLaps"][k] then CS["ProLaps"][k] = {} end
+				table.insert(CS["ProLaps"][k],v2)
+		elseif (v2[4] == 4) then
+			if not CS["Zip"][k] then CS["Zip"][k] = {} end
+			table.insert(CS["Zip"][k],v2)
+		elseif (v2[4] == 5) then
+			if not CS["Victim"][k] then CS["Victim"][k] = {} end
+			table.insert(CS["Victim"][k],v2)
+		elseif (v2[4] == 6) then
+			if not CS["Didier Sachs"][k] then CS["Didier Sachs"][k] = {} end
+			table.insert(CS["Didier Sachs"][k],v2)
+		elseif (v2[4] == 7) then
+			if not CS["Sex Shop"][k] then CS["Sex Shop"][k] = {} end
+			table.insert(CS["Sex Shop"][k],v2)
+		end
+	end
+end
+
+-- Create Col Shapes
+--------------------->>
+
+local cols = {
+-- Binco
+{ pos={206.383, -100.488, 1004.258}, 	int=15, index=2,	dim={151,154} },
+{ pos={208.913, -100.335, 1004.258}, 	int=15, index=2,	dim={151,154} },
+	-- Ganton
+	{ pos={2242.030, -1678.196, 14.479}, 	index=9 },
+	{ pos={2239.392, -1677.527, 14.479}, 	index=9 },
+-- Sub Urban
+{ pos={203.313, -43.263, 1000.805}, 	int=1, 	index=3,	dim={155,157} },
+{ pos={201.038, -40.082, 1000.805}, 	int=1, 	index=3,	dim={155,157} },
+{ pos={206.543, -41.232, 1000.805}, 	int=1, 	index=3,	dim={155,157} },
+	-- Idlewood
+	{ pos={2115.345, -1200.754, 22.988}, 	index=10,	},
+	{ pos={2111.955, -1203.097, 22.988}, 	index=10,	},
+	{ pos={2110.010, -1199.759, 22.988}, 	index=10,	},
+-- ProLaps
+{ pos={207.755, -129.320, 1002.508},	int=3, 	index=4,	dim={158,159} },
+{ pos={206.332, -129.444, 1002.508}, 	int=3, 	index=4,	dim={158,159} },
+	-- Market
+	{ pos={490.926, -1379.815, 15.392},		index=12,	},
+-- Zip
+{ pos={159.931, -83.266, 1000.805}, 	int=18, index=5,	dim={160,163} },
+{ pos={162.893, -83.251, 1000.805}, 	int=18, index=5,	dim={160,163} },
+	-- Downtown Los Santos
+	{ pos={1448.020, -1125.528, 22.933}, 	index=11,	},
+	{ pos={1446.244, -1127.017, 22.933}, 	index=11,	},
+-- Victim
+{ pos={206.374, -8.339, 1000.211}, 		int=5, 	index=6,	dim={164,166} },
+	-- Rodeo
+	{ pos={439.944, -1504.222, 17.459}, 	index=13, },
+-- Didier Sachs
+--{ pos={204.218, -159.352, 999.523}, 	int=14, index=7,	dim={167,167} },
+	-- Rodeo
+	{ pos={463.996, -1474.541, 29.860}, 	index=14, },
+-- Sex Shop
+{ pos={-103.949, -22.609, 999.719}, 	int=3, 	index=8,	dim={168,168} },
+}
+
+for i,v in ipairs(cols) do
+	if (v.dim) then
+		for dim=v.dim[1],v.dim[2] do
+			local marker = createMarker(v.pos[1], v.pos[2], v.pos[3], "cylinder", 0.75, 255, 255, 255, 175)
+			setElementInterior(marker, v.int)
+			setElementDimension(marker, dim)
+
+			local col = createColTube(v.pos[1], v.pos[2], v.pos[3], 0.75, 2)
+			setElementInterior(col, v.int)
+			setElementDimension(col, dim)
+			setElementData(col, "index", v.index, false)
+		end
+	else
+		createMarker(v.pos[1], v.pos[2], v.pos[3], "cylinder", 0.75, 255, 255, 255, 175)
+		local col = createColTube(v.pos[1], v.pos[2], v.pos[3], 0.75, 2)
+		setElementData(col, "index", v.index, false)
+	end
+end

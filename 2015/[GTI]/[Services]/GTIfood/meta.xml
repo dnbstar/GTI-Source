@@ -1,0 +1,29 @@
+<meta>
+    <info author="LilDolla" description="Food Stores V2" type="script" version="1.0" name="Fast Food Restaurants" autostart="true" />
+    <script src="dx_c.luac" type="client" />
+	<script src="functions.luac" type="client" />
+	<script src="tables.luac" type="client" />
+	<script src="utils.luac" type="client" />
+	
+	<script src="functions_s.lua" type="server" />
+
+	<script src="guide/guide.luac" type="client" />
+	
+	<file src="guide/l_mouse.png"/>
+	<file src="guide/r_mouse.png"/>
+	<file src="guide/m_mouse.png"/>
+	
+	<file src="puke.dff" />
+	
+    <file src="images/logo.png" />
+	<file src="images/logo2.png" />
+	<file src="images/logo3.png" />
+	<file src="images/logo4.png" />
+    <file src="images/d.png" />
+    <file src="images/u.png" />
+    <file src="images/ttile.png" />
+	<file src="images/ttile2.png" />
+	<file src="images/ttile3.png" />
+	<file src="images/ttile4.png" />
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

@@ -1,0 +1,55 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 13 Mar 2013
+-- Resource: GTIdroid/banking.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local HOURLY_WITHDRAWAL_LIMIT = 2500	-- Mobile Banking Withdrawal Limit
+local hourlyLimits = {}					-- Storage of Mobile Banking Withdrawal Limits
+
+-- Utilities
+------------->>
+
+function sendMoneyToPlayer(sender, toPlayer, amount)
+	if (not sender or not toPlayer or not amount or type(amount) ~= "number") then return false end
+	if (not isElement(sender) and not isElement(toPlayer)) then return false end
+	if (getElementType(sender) ~= "player" or getElementType(toPlayer) ~= "player") then return false end
+		-- Sender Cash Check
+	local cashOnHand = getPlayerMoney(sender)
+	if (cashOnHand < amount) then
+		exports.GTIhud:dm("You do not have enough money to make this transaction ($"..exports.GTIutil:tocomma(amount - cashOnHand).." needed)", sender, 255, 125, 0)
+		return false 
+	end
+		-- Make Transaction
+	exports.GTIbank:TPM(sender, amount, "GTIdroidApps: Banking App Transaction to "..getPlayerName(toPlayer))
+	exports.GTIbank:GPM(toPlayer, amount, "GTIdroidApps: Banking App Transaction from "..getPlayerName(sender))
+	return true
+end
+
+function makeCashWitdrawal(player, pin, amount)
+	local account = getPlayerAccount(player)
+	local bankPin = exports.GTIbank:getBankData(account, "pin")
+	if (bankPin and bankPin ~= pin) then
+		exports.GTIhud:dm("Invalid Pin Number Provided", player, 255, 25, 25)
+		return
+	end
+	local balance = exports.GTIbank:getBankData(account, "balance") or 0
+	if (balance < amount) then
+		exports.GTIhud:dm("You do not have enough money to withdraw this amount ($"..exports.GTIutil:tocomma(amount-balance).." needed)", player, 255, 125, 0)
+		return
+	end
+	local limit = hourlyLimits[account]
+	if (not limit) then limit = 0 hourlyLimits[account] = 0 end
+	if (limit+amount > HOURLY_WITHDRAWAL_LIMIT) then
+		exports.GTIhud:dm("This amount is above your hourly withdrawal limit. Go to the bank to withdraw more cash.", player, 255, 125, 0)
+		return
+	end
+	exports.GTIbank:setBankData(account, "balance", balance-amount)
+	exports.GTIlogs:outputLog(getPlayerName(player).." withdrew $"..amount.." from ATM (Balance: $"..balance-amount..")", "bank", player)
+	GPM(player, amount, "BANK: ATM Withdrawal")
+	hourlyLimits[account] = hourlyLimits[account] + amount
+	exports.GTIhud:dm("Account Withdrawal Successful. Amount: $"..exports.GTIutil:tocomma(amount)..".", player, 75, 200, 75)
+	triggerClientEvent(player, "GTIbank.updateATMCash", player, balance - amount, HOURLY_WITHDRAWAL_LIMIT - hourlyLimits[account])
+end

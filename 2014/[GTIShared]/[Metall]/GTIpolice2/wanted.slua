@@ -1,0 +1,124 @@
+local last = {}
+local count = {}
+local crimeCount = {}
+local antiSpam = {}
+
+function playerMurder(ammo, killer)
+	if (killer and getElementType(killer) == "player") then
+		-- later: SWAT, AF/MF, and staff
+		if (exports.GTIpolice:isPlayerWanted(source) and exports.metall:isPlayerInTeams(killer, "Police") then return end
+		triggerEvent("addCrime", killer, 1)
+	elseif (isElement(killer) and getElementType(killer) == "vehicle") then
+		local nKiller = getVehicleController(killer)
+		if (isElement(nKiller)) then
+			-- later: SWAT, AF/MF, and staff
+			if (exports.GTIpolice:isPlayerWanted(source) and exports.metall:isPlayerInTeams(nKiller, "Police") then return end
+			triggerEvent("addCrime", nKiller, 1)
+		end
+	end
+end
+
+function attemptToMurder(attacker, weapon, part, loss)
+	if (attacker and attacker == source) then return end
+	if (attacker and getElementType(attacker) == "player") then
+		if (exports.metall:getPlayerCity2(attacker) == "LV") then return end
+		-- later: SWAT, AF/MF, and staff
+		if (exports.DEGpolice:isPlayerWanted(source) and exports.metall:isPlayerInTeams(attacker, "Police")) then
+		if (exports.metall:getLastAttacker(source) == attacker and getPlayerWantedLevel(source) <= 0) then
+		local health = getElementHealth(source)
+		if (health <= 20 or part == 9) then
+			local currentCount = count[attacker] or 0
+			count[attacker] = currentCount + 1
+			if (count[attacker] and count[attacker] > 3) then
+				if (loss >= 70) then return end
+				last[attacker] = source
+				triggerEvent("addCrime", attacker, 2)
+			end
+		elseif (loss >= 70) then
+			if (last[attacker] == source) then return end
+			last[attacker] = source
+			setTimer(removeLast, 5000, 1, attacker)
+			triggerEvent("addCrime", attacker, 6)
+		else
+			local currentCount = count[attacker] or 0
+			count[attacker] = currentCount + 1
+			if (count[attacker] and count[attacker] > 3) then
+				last[attacker] = source
+				triggerEvent("addCrime", attacker, 8)
+			end
+		end
+		setTimer(removeLast, 6000, 1, attacker)
+	end
+end
+addEventHandler("onPlayerDamage", root, attemptToMurder)
+
+function addCrimeToPlayer(player, id)
+	if (player and id) then
+		triggerEvent("addCrime", player, id)
+	end
+end
+
+function addCrime(crime)
+	if (exports.metall:isPlayerInTeams(source, "Staff")) then return end
+	local tick = getTickCount()
+	if (tonumber(crime) ~= 1 and antiSpam[source] and tick - antiSpam[source] < 1500) then return end
+	local crime = tonumber(crime)
+	if (crimeCount[source] and crimeCount[source][crime]) then
+		current = crimeCount[source][crime]
+	else
+		crimeCount[source] = {}
+		current = 0
+	end
+	crimeCount[source][crime] = current + 1
+	setTimer(resetCount, 10000, 1, source)
+	antiSpam[source] = getTickCount()
+	if (crime == 1) then
+		addWantedLevel(source, 50)
+	elseif (crime == 2) then
+		addWantedLevel(source, 25) -- Attempt to murder (1.5 WL)
+	elseif (crime == 3) then
+		addWantedLevel(source, 10) -- Carjack (1 WL)
+	elseif (crime == 4) then
+		addWantedLevel(source, 5) -- Attempt to carjack (1 WL)
+	elseif (crime == 5) then
+		addWantedLevel(source, 10) -- Drunk driving (1 WL)
+	elseif (crime == 6) then
+		addWantedLevel(source, 15) -- Assault with deadly weapon (1.5 WL)
+	elseif (crime == 7) then
+		addwantedLevel(source, 10) -- Drunk driving (1 WL)
+	elseif (crime == 8) then
+		if (crimeCount[source] and crimeCount[source][8] >= 2) then return end
+		addWantedLevel(source, 10) -- Assault (1 WL)
+	elseif (crime == 9) then
+		addWantedLevel(source, 10) -- Illegal explosives (1 WL)
+	elseif (crime == 10) then
+		addWantedLevel(source, 35) -- Burglary (3.5 WL)
+	elseif (crime == 11) then
+		addWantedLevel(source, 25) -- Hit and run (2.5 WL)
+	elseif (crime == 12) then
+		addWantedLevel(source, 50) -- Grand Theft (5.5 WL)
+	elseif (crime == 13) then
+		addWantedLevel(source, 10) -- Pretty Theft (1 WL)
+	elseif (crime == 14) then
+		addWantedLevel(source, 2) -- Battery (2 WL)
+	elseif (crime == 15) then
+		addWantedLevel(source, 10) -- Damage to a vehicle (1 WL)
+	end
+end
+addEvent("addCrime", true)
+addEventHandler("addCrime", root, addCrime)
+
+function removeLast(player)
+	if (isElement(player)) then
+		last[player] = false
+		if (count[player]) then
+			count[player] = 0
+		end
+	end
+end
+
+function resetCount(player)
+	if (isElement(player)) then
+		crimeCount[player] = nil
+	end
+end

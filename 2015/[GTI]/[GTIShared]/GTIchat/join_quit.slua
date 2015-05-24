@@ -1,0 +1,79 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn)
+-- Date: 03 Jun 2014
+-- Resource: GTIchat/join_quit.slua
+-- Version: 1.0
+----------------------------------------->>
+local antispam = {}
+function removeHex()
+	local name_ = getPlayerName(source)
+	local name = name_
+	repeat name = name:gsub("#%x%x%x%x%x%x", "") until not name:find("#%x%x%x%x%x%x")
+	if (name ~= name_) then
+		setPlayerName(source, name)
+		outputChatBox("* Hex Color in names are not allowed.", source, 255, 25, 25)
+	end
+end
+addEventHandler("onPlayerJoin", root, removeHex)
+
+function removeHexOnChange(_, newnick)
+	local name = newnick
+	repeat name = name:gsub("#%x%x%x%x%x%x", "") until not name:find("#%x%x%x%x%x%x")
+	if (name ~= newnick) then
+		cancelEvent()
+		setPlayerName(source, name)
+		outputChatBox("* Hex Color in names are not allowed.", source, 255, 25, 25)
+	end
+end
+addEventHandler("onPlayerChangeNick", root, removeHexOnChange)
+
+-- Announce Join
+----------------->>
+
+
+addEventHandler("onPlayerLogin", root, function()
+    outputConsole("* "..getPlayerName(source).." is now online [Logged in]")
+    exports.killmessages:outputMessage( "* "..getPlayerName(source).." is now online [Logged in]", root, 255, 100, 100)
+    if (getResourceFromName("GTIirc") and getResourceState(getResourceFromName("GTIirc")) == "running") then
+		exports.GTIirc:outputIRC("3* "..(no_highlight[getPlayerName(source)] or getPlayerName(source)).." is now online [Logged In]")
+    end
+	triggerClientEvent("GTIchat.addChatRow", root, "Joinquit", "* "..getPlayerName(source).." is now online [Logged in]")
+end)
+
+addEventHandler("onPlayerQuit", root, function(reason)
+    outputConsole("* "..getPlayerName(source).." is now offline ["..reason.."]")
+    exports.killmessages:outputMessage( "* "..getPlayerName(source).." is now offline ["..reason.."]", root, 255, 100, 100)
+    if (getResourceFromName("GTIirc") and getResourceState(getResourceFromName("GTIirc")) == "running") then
+		exports.GTIirc:outputIRC("3* "..(no_highlight[getPlayerName(source)] or getPlayerName(source)).." is now offline ["..reason.."]")
+    end
+	triggerClientEvent("GTIchat.addChatRow", root, "Joinquit", "* "..getPlayerName(source).." is now offline ["..reason.."]")
+end)
+
+addEventHandler("onPlayerChangeNick", root, function(oldNick, newNick)
+	if (string.find(oldNick, "#%x%x%x%x%x%x") or string.find(newNick, "#%x%x%x%x%x%x")) then return end
+	
+	if (exports.GTIgovt:isPlayerMuted(source)) then
+		outputChatBox("You cannot change your name while muted.", source, 255, 125, 25)
+		cancelEvent()
+		return
+	end
+	
+    local tick = getTickCount()
+    if (antispam[source] and tick - antispam[source] < 5000) then
+		cancelEvent()
+        outputChatBox("You can only change your name once every 5 seconds", source, 255, 0, 0)
+        return
+    end
+    if (not antispam[source]) then
+        antispam[source] = {}
+    end
+    antispam[source] = getTickCount()
+	
+	outputConsole("* "..oldNick.." is now known as "..newNick)
+	exports.killmessages:outputMessage( "* "..oldNick.." is now known as "..newNick, root, 255, 100, 100)
+	if (getResourceFromName("GTIirc") and getResourceState(getResourceFromName("GTIirc")) == "running") then
+		exports.GTIirc:outputIRC("3* "..oldNick.." is now known as "..newNick)
+	end
+	triggerClientEvent("GTIchat.addChatRow", root, "Joinquit", "* "..oldNick.." is now known as "..newNick)
+end)

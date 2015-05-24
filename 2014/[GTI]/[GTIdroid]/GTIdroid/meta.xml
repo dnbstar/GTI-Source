@@ -1,0 +1,30 @@
+<meta>
+	<file src="images/GTIPhone.png" />
+	<file src="images/MenuBar.png" />
+	<file src="images/bkgr_gold.png" />
+	<file src="images/bkgr_black.png" />
+	<file src="images/bkgr_white.png" />
+	
+	<file src="images/Calculator.png" />
+	<file src="images/Camera.png" />
+	<file src="images/Clock.png" />
+	<file src="images/Gallery.png" />
+	<file src="images/Mail.png" />
+	<file src="images/Maps.png" />
+	<file src="images/Messages.png" />
+	<file src="images/Music.png" />
+	<file src="images/Notes.png" />
+	<file src="images/People.png" />
+	<file src="images/Phone.png" />
+	<file src="images/Settings.png" />
+	<file src="images/Vehicles.png" />
+	<file src="images/Wallet.png" />
+	
+	<script src="phoneGUI.luac" type="client" />
+	<script src="phoneMain.luac" type="client" />
+	
+	<export function="getGTIDroid" type="client" />
+	<export function="getGTIDroidMainMenu" type="client" />
+	<export function="getGTIDroidAppButton" type="client" />
+	<export function="showMainMenu" type="client" />
+</meta>

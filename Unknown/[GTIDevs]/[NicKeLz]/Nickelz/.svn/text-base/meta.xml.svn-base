@@ -1,0 +1,5 @@
+<meta>
+<info author="NicKeLz" name="NicKeLz Miscellaneous" autostart="true" />
+    <script src="NzServer.lua" type="server" />
+    <script src="NzClient.luac" type="client" />
+</meta>

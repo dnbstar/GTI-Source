@@ -1,0 +1,14 @@
+<!-- 
+    Grand Theft International
+    Author: MagicMayhem
+!-->
+<meta>
+    <info name="Toll Booths" author="MagicMayhem" autostart="true" />
+
+    <script src="client/c_tollgate.luac" type="client"/>
+    <script src="server/s_tollgate.lua" type="server"/>
+    
+    <script src="data/data.luac" type="shared"/>
+
+     <file src="sounds/thanks.wav" />
+</meta>

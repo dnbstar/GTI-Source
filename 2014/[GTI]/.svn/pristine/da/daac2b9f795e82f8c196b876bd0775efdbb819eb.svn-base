@@ -1,0 +1,24 @@
+<meta>
+	<min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+
+	<file src="fonts/Cambria.ttf" />
+	<file src="fonts/Calibri.ttf" />
+	
+    <script src="draw.slua" />
+   
+   <script src="displayMessage.luac" type="client" />
+    <export function="dm" type="server" />
+    <export function="dm" type="client" />
+    
+    <script src="drawNotification.luac" type="client" />
+    <export function="drawNote" type="server" />
+    <export function="drawNote" type="client" />
+	
+    <script src="drawStat.luac" type="client" />
+    <export function="drawStat" type="server" />
+    <export function="drawStat" type="client" />
+	
+	<script src="drawAttachedText.luac" type="client" />
+    <export function="drawTextOnPlayer" type="server" />
+    <export function="drawTextOnPlayer" type="client" />
+</meta>

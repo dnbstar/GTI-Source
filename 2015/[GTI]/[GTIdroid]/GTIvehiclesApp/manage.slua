@@ -1,0 +1,136 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 28 Dec 2013
+-- Resource: GTIvehiclesApp/manage.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Spawn Vehicle
+----------------->>
+
+local spawnVehRunning = {}
+function spawnPlayerVehicle(slot, row)
+	if (exports.GTIprison:isPlayerInJail(client)) then
+		exports.GTIhud:dm("You cannot spawn your vehicle while in jail", client, 255, 25, 25)
+		return
+	end
+	if (spawnVehRunning[client]) then return end
+	exports.GTIvehicles:spawnPlayerVehicle(client, slot)
+	spawnVehRunning[client] = true
+	triggerClientEvent(client, "GTIvehiclesApp.returnVehicleThatIsSpawned", client, row, 2)
+	spawnVehRunning[client] = nil
+end
+addEvent("GTIvehiclesApp.spawnPlayerVehicle", true)
+addEventHandler("GTIvehiclesApp.spawnPlayerVehicle", root, spawnPlayerVehicle)
+
+-- Hide Vehicle
+---------------->>
+
+function hideVehicle(slot, row)
+	if (exports.GTIpoliceArrest:isPlayerInPoliceCustody(client)) then
+		exports.GTIhud:dm("You cannot hide your vehicle while in police custody.", client, 255, 25, 25)
+		return
+	end
+	exports.GTIvehicles:hidePlayerVehicle(client, slot)
+	triggerClientEvent(client, "GTIvehiclesApp.returnVehicleThatIsHidden", client, row, 2)
+end
+addEvent("GTIvehiclesApp.hideVehicle", true)
+addEventHandler("GTIvehiclesApp.hideVehicle", root, hideVehicle)
+
+function hideAllVehiclesOnCommand(player)
+	if (exports.GTIpoliceArrest:isPlayerInPoliceCustody(player)) then
+		exports.GTIhud:dm("You cannot hide your vehicle while in police custody.", player, 255, 25, 25)
+		return
+	end
+	exports.GTIvehicles:hideAllPlayerVehicles(player)
+	triggerClientEvent(player, "GTIvehiclesApp.resetSpawnedVehicles", resourceRoot)
+end
+addCommandHandler("hide", hideAllVehiclesOnCommand)
+
+addEvent("onPlayerJailed", true)
+addEventHandler("onPlayerJailed", root, function()
+	exports.GTIvehicles:hideAllPlayerVehicles(source)
+end)
+
+-- Blip Vehicle
+---------------->>
+
+function blipVehicle(slot)
+	if (exports.GTIprison:isPlayerInJail(client)) then
+		exports.GTIhud:dm("You cannot blip your vehicle while in jail", client, 255, 25, 25)
+		return
+	end
+	local vehID = exports.GTIvehicles:getVehicleIDFromSlot(client, slot)
+	if (not exports.GTIvehicles:isVehicleSpawned(vehID)) then return end
+	local isBlipped = exports.GTIvehicles:togglePlayerVehicleBlip(client, slot)
+	if (not isBlipped) then
+		exports.GTIhud:dm("* Vehicle marker removed.", client, 200, 0, 255)
+		triggerClientEvent(client, "GTIvehiclesApp.returnVehicleThatIsBlipped", client, false)
+	else
+		exports.GTIhud:dm("* A blip has been attached to your vehicle.", client, 200, 0, 255)
+		triggerClientEvent(client, "GTIvehiclesApp.returnVehicleThatIsBlipped", client, true)
+	end
+end
+addEvent("GTIvehiclesApp.blipVehicle", true)
+addEventHandler("GTIvehiclesApp.blipVehicle", root, blipVehicle)
+
+-- Recover Vehicle
+------------------->>
+
+function recoverVehicle(slot)
+	exports.GTIvehicles:recoverPlayerVehicle(client, slot)
+end
+addEvent("GTIvehiclesApp.recoverVehicle", true)
+addEventHandler("GTIvehiclesApp.recoverVehicle", root, recoverVehicle)
+
+-- Vehicle Stats Panel
+----------------------->>
+
+function callAdvancedVehicleStats(vehID)
+	local vehID = exports.GTIvehicles:getVehicleIDFromSlot(client, vehID)
+	if (not vehID) then return end
+	
+	local vehInfo = {}
+	local vehicle = exports.GTIvehicles:getVehicleByID(vehID)
+	if (not vehicle) then
+			-- Name
+		vehInfo["name"] = exports.GTIvehicles:getVehicleData(vehID, "vehicleID")
+		vehInfo["name"] = getVehicleNameFromModel(tonumber(vehInfo["name"]))
+			-- Location
+		local pos = exports.GTIvehicles:getVehicleData(vehID, "position")
+		pos = split(pos, ",")
+		pos[1], pos[2], pos[3] = tonumber(pos[1]), tonumber(pos[2]), tonumber(pos[3])
+		local district, city = getZoneName(pos[1], pos[2], pos[3]), getZoneName(pos[1], pos[2], pos[3], true)
+		if (district == "Unknown") then district = "San Andreas" end
+		if (city == "Unknown") then city = "San Andreas" end
+		vehInfo["zone"] = district..", "..city
+			-- Health
+		vehInfo["health"] = exports.GTIvehicles:getVehicleData(vehID, "health")
+			-- Mileage
+		vehInfo["mileage"] = exports.GTIvehicles:getVehicleData(vehID, "mileage")
+	else
+			-- Name
+		vehInfo["name"] = getVehicleName(vehicle)
+			-- Location
+		local x,y,z = getElementPosition(vehicle)
+		local district, city = getZoneName(x, y, z), getZoneName(x, y, z, true)
+		if (district == "Unknown") then district = "San Andreas" end
+		if (city == "Unknown") then city = "San Andreas" end
+		vehInfo["zone"] = district..", "..city
+			-- Health
+		vehInfo["health"] = getElementHealth(vehicle)
+			-- Mileage
+		vehInfo["mileage"] = getElementData(vehicle, "mileage") or exports.GTIvehicles:getVehicleData(vehID, "mileage")
+	end
+		-- Fuel
+	vehInfo["fuel"] = exports.GTIvehicles:getVehicleData(vehID, "fuel")
+		-- Value
+	vehInfo["value"] = exports.GTIvehicles:getVehicleValue(vehID)
+		-- Date
+	vehInfo["purchase"] = exports.GTIvehicles:getVehicleData(vehID, "purchaseDate") or getRealTime().timestamp
+	
+	triggerClientEvent(client, "GTIvehiclesApp.showAdvancedVehicleStats", client, vehInfo)
+end
+addEvent("GTIvehiclesApp.callAdvancedVehicleStats", true)
+addEventHandler("GTIvehiclesApp.callAdvancedVehicleStats", root, callAdvancedVehicleStats)

@@ -1,0 +1,82 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 27 Dec 2013
+-- Resource: GTIvehicles/dealerLocations.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Buy Car Dealerships
+----------------------->>
+
+dealerLocations = {
+-- Wang Cars, SF
+{pos={-1956.439, 257.567, 34.469+0.75}, categories={"2-Door and Compact Cars", "4 Door and Luxury Cars", "Civil Servant", "Lowriders", "Muscle Cars", "SUVs and Wagons"},
+	friendlyName="Car\nDealership", camMatrix={-1954.022, 265.046, 37.087+1, -1954.735, 265.703, 36.844+1}, spawnPoint={-1960.922, 271.462, 33.907},
+	buySpawnPoint={-1984.546, 303.867, 34.172, 270},},
+{pos={-1950.466, 257.567, 34.469+0.75}, categories={"Street Racers"},
+	friendlyName="Sports Car\nDealership", camMatrix={-1964.237, 293.552, 37.353+1, -1963.658, 294.050, 37.115+1}, spawnPoint={-1956.6523, 300.0966, 33.712},
+	buySpawnPoint={-1984.546, 303.867, 34.172, 270},},
+{pos={-1961.186, 289.912, 34.469+0.75}, categories={"Heavy and Utility Trucks", "Light Trucks and Vans", "Recreational"},
+	friendlyName="Industrial\nDealership", camMatrix={-1959.674, 277.048, 42.341+1, -1958.725, 276.051, 42.088+1}, spawnPoint={-1950.8896, 265.4863, 39.047},
+	buySpawnPoint={-1980.371, 260.024, 34.172, 0},},
+{pos={-1961.165, 280.890, 34.474+0.75}, categories={"Bikes"},
+	friendlyName="Bike Shop", camMatrix={-1962.859, 300.039, 42.588+1, -1962.190, 300.409, 42.350+1}, spawnPoint={-1955.003, 304.736, 39.620},
+	buySpawnPoint={-1984.546, 303.867, 34.172, 270},},
+{pos={-1960.067, 285.297, 34.469+0.75}, categories={"Helicopters"},
+	friendlyName="Helicopter\nDealership", camMatrix={-1965.765, 307.830, 54.362+1, -1965.102, 307.147, 54.057+1}, spawnPoint={-1952.400, 294.8271, 45.017},
+	buySpawnPoint={-1953.886, 267.357, 46.703, 90},},
+-- Grotti, LS
+{pos= {543.914, -1296.219, 16.219+0.75}, categories={"Street Racers"},
+	friendlyName="Sports Car\nDealership", camMatrix={538.265, -1285.538, 21.386, 540.414, -1282.555, 19.686}, spawnPoint={544.120, -1277.122, 15.660},
+	buySpawnPoint={547.396, -1267.450, 16.242, 305},},
+
+}
+
+dealerPoints = {}
+addEventHandler("onResourceStart", resourceRoot, function()
+	for i,v in ipairs(dealerLocations) do
+		local pickup = createPickup(v.pos[1], v.pos[2], v.pos[3], 3, 1274, 0)
+		addEventHandler("onPickupHit", pickup, bindKeyOnPickupHit)
+		dealerPoints[pickup] = i
+	end
+end)
+
+-- Sell Car Dealerships
+------------------------>>
+
+dealerSellers = {
+-- Wang Cars, SF
+{pos={-1946.833, 263.195, 34.469+0.75}, categories={"2-Door and Compact Cars", "4 Door and Luxury Cars", "Civil Servant", "Lowriders", "Muscle Cars", 
+	"SUVs and Wagons", "Street Racers", "Bikes"},
+	camMatrix={-1954.153, 268.551, 37.193+1, -1953.165, 269.137, 36.847+1}, spawnPoint={-1946.059, 273.233, 33.712},},
+}
+
+dealerSellPoints = {}
+addEventHandler("onResourceStart", resourceRoot, function()
+	for i,v in ipairs(dealerSellers) do
+		local pickup = createPickup(v.pos[1], v.pos[2], v.pos[3], 3, 1274, 0)
+		addEventHandler("onPickupHit", pickup, bindSellKeyOnPickupHit)
+		dealerSellPoints[pickup] = i
+	end
+end)
+
+-- Render Text Above Marker
+---------------------------->>
+
+function callPickupInfo()
+	local dealerNames = {}
+	for i,v in ipairs(dealerLocations) do
+		dealerNames[i] = {}
+		dealerNames[i]["pos"] = v.pos
+		dealerNames[i]["friendlyName"] = v.friendlyName
+	end
+	for i,v in ipairs(dealerSellers) do
+		dealerNames[i] = {}
+		dealerNames[i]["pos"] = v.pos
+		dealerNames[i]["friendlyName"] = "Sell\nVehicle"
+	end
+	triggerClientEvent(client, "GTIvehicles.setPickupInfoTable", client, dealerNames)
+end
+addEvent("GTIvehicles.callPickupInfo", true )
+addEventHandler("GTIvehicles.callPickupInfo", root, callPickupInfo)

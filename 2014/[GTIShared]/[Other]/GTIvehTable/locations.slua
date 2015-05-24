@@ -1,0 +1,102 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 17 Mar 2014
+-- Resource: GTIvehTable/locations.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+vehicleTable = {
+{
+	name="Easter Bay Airport\nPilot Job\nVehicle Rental",	pos={-1247.505, 14.553, 13.148},	colorText={255,200,0},
+	restrictions={"Pilot"},
+	vehicles={
+		{593, "small"}, -- Dodo
+		{511, "small", {"Pilot;1"}}, -- Beagle
+		{513, "small", {"Pilot;2"}}, -- Stuntplane
+
+		{519, "small", {"Pilot;3"}}, -- Shamal
+		{553, "small", {"Pilot;3"}}, -- Nevada
+
+		{592, "small", {"Pilot;5"}}, -- Andromada
+		{577, "small", {"Pilot;5"}}, -- AT-400
+
+		{417, "small", {"Pilot;4"}}, -- Leviathan
+		{487, "small", {"Pilot;4"}}, -- Maverick
+		{563, "small", {"Pilot;4"}}, -- Raindance
+		{469, "small", {"Pilot;4"}}, -- Sparrow
+	},
+	coords={
+		["small"] = {
+			{-1244.113, -94.158, 13.181, 135},
+			{-1204.776, -143.771, 13.193, 135},
+			{-1271.763, -625.632, 13.191, 0},
+			{-1334.110, -623.596, 13.163, 0},
+			{-1397.394, -623.561, 13.192, 0},
+			{-1460.110, -624.472, 13.174, 0},
+		},
+	},
+},
+{
+	name="Jefferson\nParamedic Job\nVehicle Rental",	pos={2040.422, -1413.957, 16.170},	colorText={0,200,255},
+	restrictions={"Paramedic"},
+	vehicles={
+		{416, "small", {"Paramedic;1"}}, -- Paramedic
+	},
+	coords={
+		["small"] = {
+			{2001.0166, -1402.753, 17.698, 180},
+			{2019.352, -1446.382, 15.534, 90},
+		},
+	},
+},
+{
+	name="Market\nParamedic Job\nVehicle Rental",	pos={1162.607, -1326.248, 14.385},	colorText={0,200,255},
+	restrictions={"Paramedic"},
+	vehicles={
+		{416, "ground", {"Paramedic;1"}}, -- Paramedic
+		{487, "air", {"Paramedic;4"}}, -- Paramedic
+		{563, "air", {"Paramedic;6"}}, -- Paramedic
+	},
+	coords={
+		["ground"] = {
+			--Front
+			{1176.646, -1338.699, 13.965, 270},
+			{1176.646, -1308.476, 13.965, 270},
+			--Back
+			{1124.017, -1325.632, 13.522, 360},
+			{1110.763, -1325.632, 13.522, 360},
+			{1097.646, -1325.632, 13.378, 360},
+		},
+		["air"] = {
+			{1161.944, -1315.295, 31.493, 266},
+			{1161.944, -1297.035, 31.493, 265},
+		},
+	},
+},
+
+{
+	name="The Farm\nFarmer Job\nVehicle Rental",	pos={-1059.697, -1208.913, 128.218},	colorText={255,200,0},
+	restrictions={"Farmer"},
+	vehicles={
+		{531, "utility", {"Farmer;0"}}, -- Tractor
+		{532, "utility", {"Farmer;0"}}, -- Combine Harvestor
+		{478, "delivery", {"Farmer;0"}}, -- Paramedic
+	},
+	coords={
+		["utility"] = {
+			--Lawn 1
+			{-1039.0576, -1278.723, 129.105, 90},
+			--Lawn 2
+			{-1087.554, -1213.937, 129.218, 90},
+		},
+		["delivery"] = {
+			{-1040.785, -1224.516, 129.140, 180},
+		},
+	},
+},
+}
+
+function getVehicleTable()
+	return vehicleTable
+end

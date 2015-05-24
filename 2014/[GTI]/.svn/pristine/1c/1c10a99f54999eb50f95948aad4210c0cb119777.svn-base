@@ -1,0 +1,32 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 28 Mar 2014
+-- Resource: GTIgroups/g_create.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Show Group Panel
+-------------------->>
+
+function showGroupCreatePanel()
+	if (isPlayerInGroup(client)) then return end
+	local vgt = getValidGroupTypes()
+	triggerClientEvent(client, "GTIgroups.showGroupCreatePanel", resourceRoot, vgt)
+end
+addEvent("GTIgroups.showGroupCreatePanel", true)
+addEventHandler("GTIgroups.showGroupCreatePanel", root, showGroupCreatePanel)
+
+-- Create Group
+---------------->>
+
+function groupCreate(group_name, password, group_type)
+	local isCreated = createGroup(group_name, password, client, group_type)
+	if (not isCreated) then
+		exports.GTIhelp:dm("Your group '"..group_name.."' could not be created. Try picking another group name.", client, 255, 100, 100)
+	return end
+	exports.GTIhelp:dm("Your group '"..group_name.."' has been successfully created! Press F2 to begin managing your group.", client, 255, 100, 100)
+	showGroupPanelHome(client)
+end
+addEvent("GTIgroups.groupCreate", true)
+addEventHandler("GTIgroups.groupCreate", root, groupCreate)

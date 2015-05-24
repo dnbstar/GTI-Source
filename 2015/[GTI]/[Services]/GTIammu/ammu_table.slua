@@ -1,0 +1,87 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Author: JT Pennington (JTPenn)
+-- Date: 21 Nov 2014
+-- Resource: GTIammu/ammu_table.slua
+-- Version: 1.0
+----------------------------------------->>
+
+-- Weapon Data
+--------------->>
+
+weapon_cat = {"Pistols", "Shotguns", "Sub-Machine Guns", "Assault Rifles", "Rifles", "Heavy Weapons", "Projectiles", "Armor"}
+
+weapon_list = {
+	{	-- Pistols
+		{name = "Pistol",			id = 22,	model = 346,	weapon_cost = 0,		ammo_cost = 2,		ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+		{name = "Silenced 9mm",		id = 23,	model = 347,	weapon_cost = 4250,		ammo_cost = 3.25,	ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+		{name = "Desert Eagle",		id = 24,	model = 348,	weapon_cost = 6000,		ammo_cost = 11.5,	ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+	},
+	{	-- Shotguns
+		{name = "Shotgun",			id = 25,	model = 349,	weapon_cost = 2500,		ammo_cost = 5,		ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+		{name = "Sawn-off Shotgun",	id = 26,	model = 350,	weapon_cost = 6000,		ammo_cost = 6,		ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+		{name = "Combat Shotgun",	id = 27,	model = 351,	weapon_cost = 12950,	ammo_cost = 25,		ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+	},
+	{	-- Sub-Machine Guns
+		{name = "Micro Uzi",		id = 28,	model = 352,	weapon_cost = 9250,		ammo_cost = 1.65,	ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+		{name = "Tec-9",			id = 32,	model = 372,	weapon_cost = 8500,		ammo_cost = 1.65,	ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+		{name = "MP5",				id = 29,	model = 353,	weapon_cost = 13000,	ammo_cost = 2,		ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+	},
+	{	-- Assault Rifles
+		{name = "AK-47",			id = 30,	model = 355,	weapon_cost = 14000,	ammo_cost = 2.4,	ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+		{name = "M4",				id = 31,	model = 356,	weapon_cost = 35000,	ammo_cost = 2.4,	ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+	},
+	{	-- Rifles
+		{name = "Country Rifle",	id = 33,	model = 357,	weapon_cost = 50000,	ammo_cost = 60,		ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+		{name = "Sniper Rifle",		id = 34,	model = 358,	weapon_cost = 95000,	ammo_cost = 95,		ammo_name = "Bullets",	for_sale = true,	rural_only = false},
+	},
+	{	-- Heavy Weapons
+		{name = "Flamethrower",		id = 37,	model = 361,	weapon_cost = 375000,	ammo_cost = 85,		ammo_name = "Canisters",for_sale = true,	rural_only = true},
+		{name = "Rocket Launcher",	id = 35,	model = 359,	weapon_cost = 650000,	ammo_cost = 6500,	ammo_name = "Rockets",	for_sale = true,	rural_only = true},
+		{name = "Heat-Seeking RPG",	id = 36,	model = 360,	weapon_cost = 875000,	ammo_cost = 8750,	ammo_name = "Rockets",	for_sale = true,	rural_only = true},
+		{name = "Minigun",			id = 38,	model = 362,	weapon_cost = 1500000,	ammo_cost = 15,		ammo_name = "Bullets",	for_sale = true,	rural_only = true},
+	},
+	{	-- Explosives
+		{name = "Molotov Cocktail",	id = 18,	model = 344,	weapon_cost = 0,		ammo_cost = 1250,	ammo_name = "Cocktails",for_sale = true,	rural_only = true},
+		{name = "Grenade",			id = 16,	model = 342,	weapon_cost = 0,		ammo_cost = 1500,	ammo_name = "Grenades",	for_sale = true,	rural_only = true},
+		{name = "Satchel Charges",	id = 39,	model = 363,	weapon_cost = 0,		ammo_cost = 4000,	ammo_name = "Charges",	for_sale = true,	rural_only = true},
+		{name = "Tear Gas",			id = 17,	model = 343,	weapon_cost = 0,		ammo_cost = 1500,	ammo_name = "Grenades",	for_sale = true,	rural_only = true},
+	},
+	{	-- Armor
+		{name = "25% Armor",		id = 0,		model = 0,		weapon_cost = 750,		ammo_cost = 25,		ammo_name = "HP",		for_sale = true,	rural_only = false},
+		{name = "50% Armor",		id = 0,		model = 0,		weapon_cost = 1500,		ammo_cost = 50,		ammo_name = "HP",		for_sale = true,	rural_only = false},
+		{name = "100% Armor",		id = 0,		model = 0,		weapon_cost = 2500,		ammo_cost = 100,	ammo_name = "HP",		for_sale = true,	rural_only = false},
+	},
+}
+
+-- Weapon Store Locs
+--------------------->>
+
+weapon_stores = {
+	--{x, y, z, int, dim, urban?},
+	{1373.465, -1290.544, 12.550, 0, 0, true},		-- Market, LS 1
+	{1373.465, -1288.615, 12.550, 0, 0, true},		-- Market, LS 2
+	{2397.096, -1989.668, 12.546, 0, 0, true},		-- Willowfield, LS
+	{2322.047, 57.608, 19.874, 0, 0, false},		-- Palomino Creek, RC
+	--{295.589, -80.731, 1000.516, 4, 109, false},	-- Blueberry, RC
+	{234.576, -165.530, -4.744, 0, 0, false},	-- Blueberry, RC
+	--{290.204, -109.550, 1000.516, 6, 103, false}, 	-- Angel Pine, WS
+	{-2099.238, -2469.672, 29.625, 0, 0, false},	-- Angel Pine, WS
+	{295.798, -38.278, 1000.516, 1, 101, true},		-- Ocean Flats, SF
+	{312.574, -165.828, 998.601, 6, 104, false}, 	-- El Quebrados, TR
+	{290.204, -109.550, 1000.516, 6, 105, false}, 	-- Fort Carson, BC
+	{290.204, -109.550, 1000.516, 6, 106, false}, 	-- East Bone County, BC
+	--{295.589, -80.731, 1000.516, 4, 107, true},		-- Come-a-Lot, LV
+	{2172.224, 934.881, 10.096, 0, 0, true},		-- Come-a-Lot, LV
+	{295.589, -80.731, 1000.516, 4, 108, true},		-- Old Venturas Strip, LV
+}
+
+for i,v in ipairs(weapon_stores) do
+	local marker = createMarker(v[1], v[2], v[3], "cylinder", 1, 255, 255, 255, 50)
+	setElementInterior(marker, v[4] or 0)
+	setElementDimension(marker, v[5] or 0)
+	local col = createColTube(v[1], v[2], v[3], 0.5, 2)
+	setElementInterior(col, v[4] or 0)
+	setElementDimension(col, v[5] or 0)
+	setElementData(col, "table", i)
+end

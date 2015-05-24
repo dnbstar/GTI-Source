@@ -1,0 +1,5 @@
+<meta>
+	<info name="Police: Correction Division" author="Nerox" autostart="false" />
+	<script src="correctional_c.lua" type="client" cache="false"/>
+	<min_mta_version client="1.3.0-9.04185" />
+</meta>

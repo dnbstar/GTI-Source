@@ -1,0 +1,14 @@
+<meta>
+    <info author="LilDolla" name="Global Positioning System" />
+    
+    <script src="vehiclenodes.lua" type="client" />
+    <script src="util.luac" type="client" />
+    <script src="client.luac" type="client" />
+    <script src="linedrawer.luac" type="client" />
+    
+    <file src="overlay.fx" />
+    
+    <script src="vehiclenodes.lua" type="server" />
+    <script src="MinHeap.lua" type="server" />
+    <script src="gps.lua" type="server" />
+</meta>

@@ -1,0 +1,120 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 18 Mar 2014
+-- Resource: GTIrentVehicle/rentPanel.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local pickupTable = {}		-- Vehicle Rental Information
+
+local PICKUP_ICON = 1277	-- Pickup Icon
+local Z_OFFSET = 1			-- Z-Offset
+
+-- Locations
+------------->>
+
+function createVehicleRentalLocations()
+	local VT = exports.GTIvehTable:getVehicleTable()
+	for i,v in ipairs(VT) do
+		local pickup = createPickup(v.pos[1], v.pos[2], v.pos[3]+Z_OFFSET, 3, PICKUP_ICON, 0)
+		setElementData(pickup, "name", v.name)
+		local color = table.concat(v.colorText, ",")
+		setElementData(pickup, "color", color)
+		pickupTable[pickup] = v
+	end
+end
+addEventHandler("onResourceStart", resourceRoot, createVehicleRentalLocations)
+
+-- Display Vehicle Panel
+------------------------->>
+
+function displayRentPanel(player)
+	local p = pickupTable[source]
+		-- Check for Global Restrictions
+	if (p.restrictions) then
+		local passed
+		for i,rest in ipairs(p.restrictions) do
+			-- Job Based Restrictions
+			if (exports.GTIjobs:getPlayerJob(player, true) == rest) then
+				passed = true
+				break
+			end
+			
+			-- Team Based Restrictions
+			if (exports.GTIutil:isPlayerInTeam(player, rest)) then
+				passed = true
+				break
+			end
+		end
+		
+		if (not passed) then 
+			exports.GTIhud:dm("This vehicle rental disk is restricted.", player, 255, 125, 0)
+			return 
+		end
+	end
+	
+	local vehs = {}
+	for i,v in ipairs(p.vehicles) do
+		local vT = {}
+		vT[1] = v[1]
+		-- Check for Local Restrictions
+		vT[2] = true
+		vT[3] = v[3]
+		if (v[3]) then
+			for i,rstn in ipairs(v[3]) do
+				local rstns = split(rstn, ";")
+				-- Job Based Restrictions
+				if (exports.GTIpromotions:getPlayerJobLevel(player, rstns[1]) < tonumber(rstns[2])) then 
+					vT[2] = false
+				end
+			end
+		end
+		table.insert(vehs, vT)
+	end
+	triggerClientEvent(player, "GTIrentVehicle.displayRentPanel", player, vehs, source)
+end
+addEventHandler("onPickupHit", resourceRoot, displayRentPanel)
+
+-- Rent Vehicle
+---------------->>
+
+function rentVehicleToPlayer(vehicleID, pickup)
+	local VT = pickupTable[pickup]
+	if (not VT) then
+		exports.GTIhud:dm("Something went wrong. Your vehicle could not be spawned.", client, 255, 125, 0)
+		return
+	end
+	
+	-- Check for Local Restrictions
+	for i,v in ipairs(VT.vehicles) do
+		if (v[1] == vehicleID and v[3]) then
+			for i,rstn in ipairs(v[3]) do
+				local rstns = split(rstn, ";")
+				-- Job Based Restrictions
+				if (exports.GTIpromotions:getPlayerJobLevel(client, rstns[1]) < tonumber(rstns[2])) then 
+					exports.GTIhud:dm("You must be an L"..rstns[2].." "..rstns[1].." in order to spawn this vehicle.", client, 255, 125, 0)
+					return
+				end
+			end
+		end
+	end
+	
+	-- Get Vehicle Data
+	local coordLoc
+	for i,v in ipairs(VT.vehicles) do
+		if (v[1] == vehicleID) then
+			coordLoc = v[2]
+			break
+		end
+	end
+	
+	-- Get Random Spawn Point
+	local coords = VT.coords[coordLoc]
+	local loc = math.random(#coords)
+	local x,y,z,rot,int,dim = coords[loc][1], coords[loc][2], coords[loc][3], coords[loc][4], (coords[loc][5] or 0), (coords[loc][6] or 0)
+	local color = VT.color
+	rentVehicle(client, vehicleID, x, y, z, rot, int, dim, color, cost)
+end
+addEvent("GTIrentVehicle.rentVehicleToPlayer", true)
+addEventHandler("GTIrentVehicle.rentVehicleToPlayer", root, rentVehicleToPlayer)

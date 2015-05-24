@@ -1,0 +1,9 @@
+<meta>
+	<info author="Jack" version="0.1" name="AntiCheat" description="A firewall against hackers!" type="script"/>
+	<script src="client.lua" type="client"/>
+	<script src="server.lua" type="server"/>
+	
+	<export function="pushToMonitor" type="server"/>
+	
+	<min_mta_version client="1.3.0-9.04570" server="1.3.0-9.04570"/>
+</meta>

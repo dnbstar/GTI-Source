@@ -1,0 +1,661 @@
+--[[
+local theDB = "social.db"
+local socialTable = "messages"
+local chatTable = "main"
+local actionTable = "actions"
+local teamTable = "team"
+local briefTable = "briefing"
+--local miscTable = "misc"
+local localTable = "localchat"
+local globalTable = "allLogs"
+--]]
+local acls = { ['Admin']=true, ['dev']=true}
+--[[
+
+dbc = dbConnect( "mysql", "dbname=gtishared;host=127.0.0.1", "GTIShared", "8tEMgtFKJS3Epy")
+dbExec ( dbc, "CREATE TABLE IF NOT EXISTS "..socialTable.." ( db TEXT, time TEXT, name TEXT, account TEXT, serial TEXT, cerial TEXT, message TEXT, messageType TEXT)" )
+dbExec ( dbc, "CREATE TABLE IF NOT EXISTS "..chatTable.." ( db TEXT, time TEXT, name TEXT, account TEXT, serial TEXT, cerial TEXT, message TEXT, messageType TEXT)" )
+dbExec ( dbc, "CREATE TABLE IF NOT EXISTS "..actionTable.." ( db TEXT, time TEXT, name TEXT, account TEXT, serial TEXT, cerial TEXT, message TEXT, messageType TEXT)" )
+dbExec ( dbc, "CREATE TABLE IF NOT EXISTS "..teamTable.." ( db TEXT, time TEXT, name TEXT, account TEXT, serial TEXT, cerial TEXT, message TEXT, messageType TEXT)" )
+dbExec ( dbc, "CREATE TABLE IF NOT EXISTS "..briefTable.." ( db TEXT, time TEXT, name TEXT, account TEXT, serial TEXT, cerial TEXT, message TEXT, messageType TEXT)" )
+--dbExec ( dbc, "CREATE TABLE IF NOT EXISTS "..miscTable.." ( db TEXT, time TEXT, name TEXT, account TEXT, serial TEXT, cerial TEXT, message TEXT, messageType TEXT)" )
+dbExec ( dbc, "CREATE TABLE IF NOT EXISTS "..localTable.." ( db TEXT, time TEXT, name TEXT, account TEXT, serial TEXT, cerial TEXT, message TEXT, messageType TEXT)" )
+dbExec ( dbc, "CREATE TABLE IF NOT EXISTS "..globalTable.." ( db TEXT, time TEXT, name TEXT, account TEXT, serial TEXT, cerial TEXT, message TEXT, messageType TEXT)" )
+--]]
+
+playerLogData = {}
+totalRows = 250
+--[[
+addEventHandler ( "onResourceStart", resourceRoot,
+	function()
+		dbQuery( placeAllLogs, {}, dbc, "SELECT * FROM "..globalTable)
+	end
+)
+--]]
+
+--columnNames = { ['db']=true, ['time']=true, ['name']=true, ['account']=true, ['serial']=true, ['cerial']=true, ['message']=true , ['messageType']=true}
+
+--[[
+function placeAllLogs(qh)
+	local result = dbPoll(qh, 0)
+	for id,res in pairs (result) do
+		playerLogData[res.account] = {}
+		for column,value in pairs (res) do
+			playerLogData[res.account][column] = value
+		end
+	end
+end
+--]]
+
+function placeAllLogs(qh)
+	local result = dbPoll(qh, 0)
+	for id,res in pairs (result) do
+		playerLogData[id] = {}
+		totalRows = tonumber(id)
+		for column,value in pairs (res) do
+			playerLogData[id][column] = value
+		end
+	end
+end
+
+AllAccessSerials = {
+	--['AccountName'] = 'Serial'
+	['LilBNorway'] = '53499895B4B1D572190456BC4B91A753', --LilBNorway
+	['David'] = '871C8CF5C77687CCA0320B58FAF23E44', --David
+	['XxheromicexX1'] = 'E97D0A12EAED843E355B8CFD9DD0D152', --Eric
+	['Angel'] = 'C9684209813CB23C62027F7522290B52', --Angel
+	--Test Accounts
+	['LilDolla'] = 'C415567E269AA0950329BF7118162752' and '321F315D9BA5AECE6AACD6987E0615E3',
+}
+
+function getAllLogs( chanName, editSearch)
+	if isElement( source) then
+		local acc = getPlayerAccount( source)
+		if acc then
+			local accName = getAccountName( acc)
+			if accName then
+				if isObjectInACLGroup("user."..accName, aclGetGroup("Admin")) then
+					sendLogData( source, "all", chanName, "blue", true)
+				elseif isObjectInACLGroup("user."..accName, aclGetGroup("Dev")) then
+					sendLogData( source, "all", chanName, "red", true)
+				else
+					local ser = AllAccessSerials[getAccountName(acc)]
+					if ser then
+						if ser == getPlayerSerial( source) then
+							sendLogData( source, "limited", chanName, "purple", false)
+						else
+							sendLogData( source, "player", chanName, "green", false)
+						end
+					else
+						sendLogData( source, "player", chanName, "green", false)
+					end
+				end
+			end
+		end
+	end
+end
+addEvent( "queryHistoryLogs", true)
+addEventHandler( "queryHistoryLogs", root, getAllLogs)
+
+local hiddenHistory = { ['Briefing']=true, ['Social Club CMD']=true, ['Social Message']=true}
+local shownHistory = { ['Misc']=true}
+
+function sendLogData( player, type, chanName, color, toggle, select)
+	if isElement( player) then
+		local acc = getPlayerAccount( player)
+		local serial = getPlayerSerial( player)
+		if acc then
+			local accName = getAccountName( acc)
+			if accName then
+				if type == "player" then
+					--[[
+					local logTime = playerLogData[accName]['time']
+					local playerName = playerLogData[accName]['name']
+					local accountName = playerLogData[accName]['account']
+					local serial = playerLogData[accName]['serial']
+					local cerial = playerLogData[accName]['cerial']
+					local msg = playerLogData[accName]['message']
+					local msgType = playerLogData[accName]['messageType']
+					--]]
+					for i=1, totalRows do
+						local logTime = playerLogData[i]['time']
+						local playerName = playerLogData[i]['name']
+						local accountName = playerLogData[i]['account']
+						local serial = playerLogData[i]['serial']
+						local cerial = playerLogData[i]['cerial']
+						local msg = playerLogData[i]['message']
+						local msgType = playerLogData[i]['messageType']
+						--
+						if msgType == "Main Chat" then
+							local messageType = 0
+						elseif msgType == "Action" then
+							local messageType = 1
+						elseif msgType == "Team Chat" then
+							local messageType = 2
+						elseif msgType == "Social Club CMD" then
+							local messageType = 3
+						elseif msgType == "Social Message" then
+							local messageType = 3
+						elseif msgType == "Briefing" then
+							local messageType = 4
+						elseif msgType == "Misc" then
+							local messageType = 5
+						elseif msgType == "Local Chat" then
+							local messageType = 6
+						else
+							messageType = 5
+						end
+						--name, acc, time, text, type, msgType, chanName
+						if accountName == accName then
+							if not hiddenHistory[msgType] then
+								triggerClientEvent( player,"outputGlobalHistory", player, toggle, playerName, accountName, logTime, msg, messageType, msgType, chanName, color)
+							end
+						end
+					end
+				elseif type == "all" then
+					local accs = getAccounts()
+					for i, v in pairs (accs) do
+						for n=1, totalRows do
+							local accsName = getAccountName( v)
+							local logTime = playerLogData[n]['time'] or "-"
+							local playerName = playerLogData[n]['name'] or "-"
+							local accountName = playerLogData[n]['account'] or "-"
+							local serial = playerLogData[n]['serial'] or "-"
+							local cerial = playerLogData[n]['cerial'] or "-"
+							local msg = playerLogData[n]['message'] or "No Logged Msg"
+							local msgType = playerLogData[n]['messageType'] or "Misc"
+							--
+							if msgType == "Main Chat" then
+								local messageType = 0
+							elseif msgType == "Action" then
+								local messageType = 1
+							elseif msgType == "Team Chat" then
+								local messageType = 2
+							elseif msgType == "Social Club CMD" then
+								local messageType = 3
+							elseif msgType == "Social Message" then
+								local messageType = 3
+							elseif msgType == "Briefing" then
+								local messageType = 4
+							elseif msgType == "Misc" then
+								local messageType = 5
+							elseif msgType == "Local Chat" then
+								local messageType = 6
+							else
+								messageType = 5
+							end
+							--name, acc, time, text, type, msgType, chanName
+							if not hiddenHistory[msgType] then
+								if select then
+									local plr = getPlayerFromName( select)
+									if isElement( plr) then
+										local plrAcc = getPlayerAccount( plr)
+										if plrAcc then
+											local plrAccName = getAccountName( plrAcc)
+											if plrAccName then
+												if plrAccName == accountName then
+													triggerClientEvent( player,"outputGlobalHistory", player, toggle, playerName, accountName, logTime, msg, messageType, msgType, chanName, color)
+												else
+													triggerClientEvent( player,"outputGlobalHistory", player, toggle, playerName, accountName, logTime, msg, messageType, msgType, chanName, color)
+												end
+											else
+												triggerClientEvent( player,"outputGlobalHistory", player, toggle, playerName, accountName, logTime, msg, messageType, msgType, chanName, color)
+											end
+										elseif select == playerName then
+											triggerClientEvent( player,"outputGlobalHistory", player, toggle, playerName, accountName, logTime, msg, messageType, msgType, chanName, color)
+										else
+											triggerClientEvent( player,"outputGlobalHistory", player, toggle, playerName, accountName, logTime, msg, messageType, msgType, chanName, color)
+										end
+									end
+								else
+									triggerClientEvent( player,"outputGlobalHistory", player, toggle, playerName, accountName, logTime, msg, messageType, msgType, chanName, color)
+								end
+							end
+						end
+					end
+				elseif type == "limited" then
+					local accs = getAccounts()
+					for i, v in ipairs (accs) do
+						for n=1, totalRows do
+							local accsName = getAccountName( v)
+							local logTime = playerLogData[n]['time'] or "-"
+							local playerName = playerLogData[n]['name'] or "-"
+							local accountName = playerLogData[n]['account'] or "-"
+							local serial = playerLogData[n]['serial'] or "-"
+							local cerial = playerLogData[n]['cerial'] or "-"
+							local msg = playerLogData[n]['message'] or "No Logged Msg"
+							local msgType = playerLogData[n]['messageType'] or "Misc"
+							--
+							if accsName == accountName then
+								if msgType == "Main Chat" then
+									local messageType = 0
+								elseif msgType == "Action" then
+									local messageType = 1
+								elseif msgType == "Team Chat" then
+									local messageType = 2
+								elseif msgType == "Social Club CMD" then
+									local messageType = 3
+								elseif msgType == "Social Message" then
+									local messageType = 3
+								elseif msgType == "Briefing" then
+									local messageType = 4
+								elseif msgType == "Misc" then
+									local messageType = 5
+								elseif msgType == "Local Chat" then
+									local messageType = 6
+								else
+									messageType = 5
+								end
+								--name, acc, time, text, type, msgType, chanName
+								if not hiddenHistory[msgType] then
+									triggerClientEvent( player,"outputGlobalHistory", player, toggle, playerName, "Hidden", logTime, msg, messageType, msgType, chanName, color)
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+function getDate()
+	local time = getRealTime()
+	local second, minute, hour, day, month, year = time.seconds, time.minute, time.hour, time.monthday, time.month + 1, time.year +1900
+	if hour <= 0 then x = "AM" else x = "PM" end
+	hour = math.floor(hour / 12) - 1
+	if hour == 0 then hour = "12" end
+	local date = day.."/"..month.."/"..year.." - "..math.floor(math.abs(hour))..":"..minute.." "..tostring(x)
+	local date = string.gsub( date, "-", "")
+	--
+	return date
+	--
+end
+
+function getClock()
+	local time = getRealTime()
+	local second, minute, hour, day, month, year = time.seconds, time.minute, time.hour, time.monthday, time.month + 1, time.year +1900
+	if hour <= 0 then x = "AM" else x = "PM" end
+	hour = math.floor(hour / 12) - 1
+	if hour == 0 then hour = "12" end
+	--local date = day.."/"..month.."/"..year.." - "..math.floor(math.abs(hour))..":"..minute.." "..tostring(x)
+	if minute <= 9 then minute = "0"..minute end
+	local time = math.floor(hour)..":"..minute.." "..tostring(x)
+	local time = string.gsub( time, "-", "")
+	--
+	return time
+	--
+end
+
+--[[Logging Types:
+	World Log
+	Player Log
+]]
+
+restrictedChans = { ['History']=true, ['Staff']=true}
+
+function logSocialMessage( name, text, logType, messageType, channelName, reason, type, color)
+	if isElement( getPlayerFromName(name)) then
+		local player = getPlayerFromName( name)
+		local account = getPlayerAccount( player)
+		local accName = getAccountName( account)
+		local cerial = exports.GTIserial:getPlayerCerial( player)
+		local serial = getPlayerSerial( player)
+		--
+		local time = getClock()
+		--
+		if text then
+			--if dbc then
+				if logType then
+					if logType == "MainChat" then
+						logTable = "main"
+					elseif logType == "SocialClub" then
+						logTable = "messages"
+					elseif logType == "team" then
+						logTable = "team"
+					elseif logType == "action" then
+						logTable = "actions"
+						text = name.." "..text
+					elseif logType == "brief" then
+						logTable = "briefing"
+					elseif logType == "misc" then
+						logTable = "misc"
+						text = name.." "..text
+					elseif logType == "misc" then
+						logTable = "localchat"
+					else
+						logTable = "misc"
+					end
+				else
+					logTable = "messages"
+				end
+				if color then
+					if color == "red" then
+						rgb = "red"
+					elseif color == "green" then
+						rgb = "green"
+					elseif color == "yellow" then
+						rgb = "yellow"
+					elseif color == "purple" then
+						rgb = "purple"
+					else
+						rgb = "yellow"
+					end
+				else
+					rgb = "yellow"
+				end
+				if type then
+					if type == "world" then
+						gridEntry = root
+					elseif type == "player" then
+						gridEntry = player
+					else
+						gridEntry = player
+					end
+				else
+					gridEntry = player
+				end
+				if messageType == 0 then
+					msgType = "Normal"
+				elseif messageType == 1 then
+					msgType = "Action"
+				elseif messageType == 2 then
+					msgType = "Team"
+				elseif messageType == 3 then
+					msgType = "Social Club CMD"
+				elseif messageType == 4 then
+					msgType = "Briefing"
+				elseif messageType == 5 then
+					msgType = "Misc"
+				elseif messageType == 6 then
+					msgType = "local"
+				end
+				if reason then
+					if isObjectInACLGroup("user."..accName, aclGetGroup("Admin")) then
+						if logTable ~= "misc" then
+							--dbExec( dbc, "INSERT INTO "..logTable.."( db, time, name, account, serial, cerial, message, messageType) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)", theDB, time, name, accName, serial, cerial, text, reason)
+						end
+						triggerClientEvent( gridEntry,"outputSocialClubMessage", gridEntry,name,time,text, "Staff", messageType, channelName, rgb)
+					elseif isObjectInACLGroup("user."..accName, aclGetGroup("Dev")) then
+						if logTable ~= "misc" then
+							--dbExec( dbc, "INSERT INTO "..logTable.."( db, time, name, account, serial, cerial, message, messageType) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)", theDB, time, name, accName, serial, cerial, text, reason)
+						end
+						triggerClientEvent( gridEntry,"outputSocialClubMessage", gridEntry,name,time,text, "Dev", messageType, channelName, rgb)
+					else
+						if not restrictedChans[channelName] then
+							if logTable ~= "misc" then
+								--dbExec( dbc, "INSERT INTO "..logTable.."( db, time, name, account, serial, cerial, message, messageType) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)", theDB, time, name, accName, serial, cerial, text, reason)
+							end
+							triggerClientEvent( gridEntry,"outputSocialClubMessage", gridEntry,name,time,text, "Default", messageType, channelName, rgb)
+						else
+							outputMessage( player, "This channel is restricted to admins and developers only.", "red", "limited")
+						end
+					end
+					if globalTable == "misc" then return end
+					--dbExec( dbc, "INSERT INTO "..globalTable.."( db, time, name, account, serial, cerial, message, messageType) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)", theDB, time, name, accName, serial, cerial, text, reason)
+				else
+					if isObjectInACLGroup("user."..accName, aclGetGroup("Admin")) then
+						if logTable ~= "misc" then
+							--dbExec( dbc, "INSERT INTO "..logTable.."( db, time, name, account, serial, cerial, message, messageType) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)", theDB, time, name, accName, serial, cerial, text, reason)
+						end
+						triggerClientEvent( gridEntry,"outputSocialClubMessage", gridEntry,name,time,text, "Staff", messageType, channelName, rgb)
+					elseif isObjectInACLGroup("user."..accName, aclGetGroup("Dev")) then
+						if logTable ~= "misc" then
+							--dbExec( dbc, "INSERT INTO "..logTable.."( db, time, name, account, serial, cerial, message, messageType) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)", theDB, time, name, accName, serial, cerial, text, reason)
+						end
+						triggerClientEvent( gridEntry,"outputSocialClubMessage", gridEntry,name,time,text, "Dev", messageType, channelName, rgb)
+					else
+						if not restrictedChans[channelName] then
+							if logTable ~= "misc" then
+								--dbExec( dbc, "INSERT INTO "..logTable.."( db, time, name, account, serial, cerial, message, messageType) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)", theDB, time, name, accName, serial, cerial, text, reason)
+							end
+							triggerClientEvent( gridEntry,"outputSocialClubMessage", gridEntry,name,time,text, "Default", messageType, channelName, rgb)
+						else
+							outputMessage( player, "This channel is restricted to admins and developers only.", "red", "limited")
+						end
+					end
+					if globalTable == "misc" then return end
+					--dbExec( dbc, "INSERT INTO "..globalTable.."( db, time, name, account, serial, cerial, message, messageType) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)", theDB, time, name, accName, serial, cerial, text, reason)
+				end
+			--end
+		end
+	else
+		local time = getClock()
+		--dbExec( dbc, "INSERT INTO misc( db, time, name, account, serial, cerial, message, messageType) VALUES( ?, ?, ?, ?, ?, ?, ?, ?)", theDB, time, name, "Console", "None", "None", text, msgType)
+		triggerClientEvent( root,"outputSocialClubMessage", root,"Console",time,text, "Default", messageType, channelName)
+	end
+end
+addEvent( "logSocialClubMessage", true)
+addEventHandler( "logSocialClubMessage", root, logSocialMessage)
+
+teams = { ["Government"]=true, ["Civilians"]=true, ["Off-Duty"]=true, ["Unemployed"]=true}
+
+addEventHandler( "onPlayerChat", root,
+	function( message, messageType)
+		local name = getPlayerName( source)
+		if messageType == 1 then
+			logSocialMessage( name, message, "action", messageType, "Interactions", "RP Chat", "player")
+		elseif messageType == 2 then
+			local team = getPlayerTeam( source)
+			local tname = getTeamName( team)
+			logSocialMessage( name, message, "team", messageType, "Team", "Team Chat", "world")
+		end
+	end
+)
+
+hiddenCMDS = { ["nick"]=true, ["restart"]=true, ["refresh"]=true, ["start"]=true, ["stop"]=true, ["refreshall"]=true, ["gti"]=true, ["admin"]=true, ["debugscript"]=true}
+noshowCMDS = { ["toggle"]=true, ["Toggle"]=true}
+chatCMDS = { ["say"]=true, ["teamsay"]=true, ["local"]=true, ["me"]=true}
+devCMDS = { ["restart"]=true, ["refresh"]=true, ["refreshall"]=true, ["start"]=true, ["stop"]=true, ["debugscript"]=true}
+adminCMDS = { ["chgpass"]=true, ["admin"]=true, ["ban"]=true, ["slap"]=true, ["mute"]=true, ["kick"]=true, ["freeze"]=true}
+gunCMDS = { ["Previous"]=true, ["Next"]=true, ["Reload"]=true}
+glueCMD = { ["glue"]=true}
+
+cancelledCMD = { ['getpos']=true}
+
+addEventHandler( "onPlayerCommand", root,
+	function( command)
+		if cancelledCMD[command] then
+			cancelEvent()
+		end
+		local name = getPlayerName( source)
+		if hiddenCMDS[command] then
+			if devCMDS[command] then
+				logSocialMessage( name, "executed a developer command", "misc", 5, "Misc", "RP Chat", "world", "green")
+			elseif adminCMDS[command] then
+				logSocialMessage( name, "executed an administrative command", "misc", 5, "Misc", "Command", "world", "purple")
+			else
+				logSocialMessage( name, "executed a restricted command", "misc", 5, "Misc", "Command", "world", "red", "purple")
+			end
+		elseif noshowCMDS[command] then
+		else
+			if glueCMD[command] then
+				logSocialMessage( name, "glued onto a vehicle/item", "misc", 5, "Misc", "Command", "world")
+			elseif gunCMDS[command] then
+				logSocialMessage( name, "executed a gun command", "misc", 5, "Misc", "Command", "world")
+			elseif chatCMDS[command] then
+				logSocialMessage( name, "executed the chat command '"..command.."'", "misc", 5, "Misc", "Command", "world")
+			elseif adminCMDS[command] then
+				local acc = getPlayerAccount( source)
+				local accName = getAccountName( acc)
+				if not isObjectInACLGroup("user."..accName, aclGetGroup("Admin")) then
+					logSocialMessage( name, "tried using an administrative command", "misc", 5, "Misc", "Command", "world", "red")
+				elseif not isObjectInACLGroup("user."..accName, aclGetGroup("Dev")) then
+					logSocialMessage( name, "tried using an administrative command", "misc", 5, "Misc", "Command", "world", "red")
+				end
+			else
+				logSocialMessage( name, "executed command '"..command.."'", "misc", 5, "Misc", "Command", "world", "purple")
+			end
+		end
+	end
+)
+
+addEventHandler( "onPlayerGetJob", root,
+	function( jobName, newJob)
+		if jobName then
+			local name = getPlayerName( source)
+			if newJob then
+				logSocialMessage( name, "You are now employed as a "..jobName, "brief", 4, "Briefing", "Job Join", "player")
+			else
+				logSocialMessage( name, "You have successfully changed your "..jobName.." job skin.", "brief", 4, "Briefing", "Job Skin Change", "player")
+			end
+		end
+	end
+)
+
+addEventHandler( "onPlayerQuitJob", root,
+	function( jobName, resignJob)
+		if jobName then
+			local name = getPlayerName( source)
+			if resignJob then
+				logSocialMessage( name, "You have resigned from your job as a "..jobName, "brief", 4, "Briefing", "Job Quit", "player")
+			else
+				logSocialMessage( name, "You have ended your shift as a "..jobName, "brief", 4, "Briefing", "Job End Shift", "player")
+			end
+		end
+	end
+)
+
+addEventHandler( "onPlayerJoin", root,
+	function()
+		local name = getPlayerName( source)
+		logSocialMessage( name, "joined.", "misc", 5, "Misc", "Join", "Player Joined", "world")
+	end
+)
+
+addEventHandler( "onPlayerLogin", root,
+	function( thePreviousAccount, theCurrentAccount, autoLogin)
+		local name = getPlayerName( source)
+		logSocialMessage( name, "logged in.", "misc", 5, "Misc", "Login", "Player Login", "world")
+	end
+)
+
+addEventHandler( "onPlayerQuit", root,
+	function( quitType, reason, responsibleElement)
+		local name = getPlayerName( source)
+		logSocialMessage( name, "quit. ("..quitType..")", "misc", 5, "Misc", "Quit", "Player Quit", "world", "red")
+	end
+)
+
+addEventHandler( "onResourceStart", root,
+	function( resource)
+		if resource then
+			local name = getResourceName(resource)
+			if name then
+				if name ~= "GTIsocial" then
+					logSocialMessage( "Console", "Console started the resource '"..name.."'", "misc", 5, "Misc", "Resource Start", "world")
+				end
+			end
+		end
+	end
+)
+
+addEventHandler( "onResourceStop", root,
+	function( resource)
+		if resource then
+			local name = getResourceName(resource)
+			if name then
+				if name ~= "GTIsocial" then
+					logSocialMessage( "Console", "Console stopped the resource '"..name.."'", "misc", 5, "Misc", "Resource Stop", "world")
+				end
+			end
+		end
+	end
+)
+
+addEventHandler( "onPlayerDamage", root,
+	function( attacker, attackerWeapon, bodypart, loss)
+		for i, v in pairs ( getElementsByType( "player")) do
+			if v == source then
+				local name = getPlayerName( source)
+				local wpName = getWeaponNameFromID( attackerWeapon)
+				local dmg = math.floor( loss)
+				if isElement( attacker) then
+					local attk = getPlayerName( attacker)
+					if attk then
+						logSocialMessage( name, attk.." took "..dmg.." HP away from you.("..wpName..")", "brief", 4, "Briefing", "Player Movement", "player")
+					else
+						logSocialMessage( name, "You lost "..dmg.." HP.("..wpName..")", "brief", 4, "Briefing", "Player Movement", "player")
+					end
+				else
+					logSocialMessage( name, "You lost "..dmg.." HP.(No Attacker)", "brief", 4, "Briefing", "Player Movement", "player")
+				end
+			end
+		end
+	end
+)
+
+addEventHandler( "onPlayerChangeNick", root,
+	function( oldNick, newNick)
+		logSocialMessage( oldNick, "is now known as "..newNick, "misc", 5, "Misc", "Nick Change", "player")
+	end
+)
+
+function socialChat( source, command, ...)
+	if ... then
+		local text = table.concat( {...}, " " )
+		--string.sub( text, 3, 90)
+		local name = getPlayerName( source)
+		logSocialMessage( name, text, "SocialClub", 3, "Social Club", "Social Message", "world")
+		outputMessage( source, text, "yellow")
+	end
+end
+addCommandHandler( "scm", socialChat)
+
+function outputMessage( player, text, color)
+	if not player then return end
+	if not text then return end
+	if isElement( player) then
+		local name = getPlayerName( player)
+		if color == "red" then
+			outputChatBox( "(Social Club) "..name..": "..text, player, 143, 0, 36)
+		elseif color == "green" then
+			outputChatBox( "(Social Club) "..name..": "..text, player, 36, 143, 0)
+		elseif color == "blue" then
+			outputChatBox( "(Social Club) "..name..": "..text, player, 0, 107, 143)
+		elseif color == "yellow" then
+			outputChatBox( "(Social Club) "..name..": "..text, player, 143, 107, 0)
+		end
+	end
+end
+
+function callPlayer( target, caller)
+	if isElement( getPlayerFromName(target)) then
+		local sender = getPlayerFromName( caller)
+		local reciever = getPlayerFromName( target)
+		outputMessage( reciever, caller.." is trying to call you.", "green")
+		outputMessage( sender, "You're trying to call "..target..".", "blue")
+		triggerClientEvent( reciever,"callPlayerSound", reciever, caller)
+		triggerClientEvent( sender,"prepCallPlayerSound", sender, target)
+	end
+end
+addEvent( "callRecipient", true)
+addEventHandler( "callRecipient", root, callPlayer)
+
+function decideCallFate( caller, target, decision)
+	local sender = getPlayerFromName( caller)
+	local reciever = getPlayerFromName( target)
+	if decision == "yes" then
+		outputMessage( reciever, "You answered "..caller.."'s call.", "blue")
+		outputMessage( sender, target.." answered your call.", "green")
+		triggerClientEvent( reciever, "stopRCallSound", reciever)
+		triggerClientEvent( sender, "stopSCallSound", sender)
+	elseif decision == "no" then
+		outputMessage( reciever, "You declined "..caller.."'s call.", "red")
+		outputMessage( sender, target.." declined your call.", "red")
+		triggerClientEvent( reciever, "stopRCallSound", reciever)
+		triggerClientEvent( sender, "stopSCallSound", sender)
+	end
+end
+addEvent( "callDecision", true)
+addEventHandler( "callDecision", root, decideCallFate)
+
+function callFailed( caller, target)
+	local sender = getPlayerFromName( caller)
+	local reciever = getPlayerFromName( target)
+	triggerClientEvent( sender, "hideOptionWindow", sender)
+	outputMessage( sender, "You missed a call from "..target..".", "red")
+	outputMessage( reciever, caller.." didn't answer your call.", "yellow")
+end
+addEvent( "hideOWindow", true)
+addEventHandler( "hideOWindow", root, callFailed)

@@ -1,0 +1,5 @@
+<meta>
+	<file src="courier.ttf"		/>
+	<script src="rules.luac"	type="client" />
+	<script src="rules.slua"	/>
+</meta>

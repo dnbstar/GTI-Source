@@ -1,0 +1,21 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 05 Feb 2013
+-- Resource: GTIpolice/police.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+MARKER_ALPHA = 175
+BLIP_DISTANCE = 400
+
+policeLocations = {
+{ pos={246.640, 118.450, 1002.219}, int=10, dim=0, col={30,155,255}, blip={-1605.304, 711.629}, blipID=30},	-- San Fierro PD
+}
+
+policeDivisions = {
+["Police Officer"] = {desc="Police Officers patrol the streets, enforcing the laws of the city and protecting the community.", nameCol={30,155,255},
+	skinID={{280,"Cop 1"}, {281,"Cop 2"}, {282,"Cop 3"}, {265,"Tenpenny"}, {266,"Pulaski"}, {267,"Hernandez"}}},
+["Detective"] = {desc="Detectives investigate crimes and assist other police officers in searching for and arresting those responsible for crimes.", nameCol={30,155,255},
+	skinID={{165,"Agent Kay"}, {166,"Agent Jay"}}},
+}

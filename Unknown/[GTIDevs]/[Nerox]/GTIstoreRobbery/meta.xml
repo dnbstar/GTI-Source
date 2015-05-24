@@ -1,0 +1,5 @@
+<meta>
+	<info author="Nerox" name="Store Robbery" autostart="false" />
+    <script src="sr_client.lua" type="client" cache="false"/>
+    <script src="sr_server.lua" type="server"/>
+</meta>

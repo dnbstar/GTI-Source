@@ -1,0 +1,10 @@
+<meta>
+	<info name="Barriers System" author="Ares" autostart="false" />
+	<!-- Core -->
+		<script src="core/barrierCore_c.luac" type="client"/>
+		<script src="core/barrierManage_s.lua" type="server"/>
+	<!-- Draw -->
+		<script src="draw/barrierDraw_c.luac" type="client"/>
+	<!-- Fonts -->
+		<file src="font/radio.ttf"/>
+</meta>

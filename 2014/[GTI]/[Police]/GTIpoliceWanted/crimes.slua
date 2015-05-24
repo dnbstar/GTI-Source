@@ -1,0 +1,109 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 24 Dec 2013
+-- Resource: GTIpoliceWanted/crimes.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local vehTheft = {}
+local recentKills = {}
+
+local TIME_BTWN_JACKED_CHARGES = 60000*5
+
+-- Vehicle Theft Crimes
+------------------------>>
+
+function chargePlayerForVehicleTheft(player, seat, jacked)
+	if (not isElement(player) or seat ~= 0 or not isElement(jacked)) then return end
+		-- Ignore if Cop
+	local team = getTeamName(getPlayerTeam(player))
+	if (team == "Law Enforcement") then return end
+	
+	if (getVehicleType(source) == "BMX") then	-- Petty Vehicle Theft
+		crimeID = 5
+	elseif (getVehicleType(source) == "Plane" or getVehicleType(source) == "Helicopter") then	-- Theft of an Aircraft
+		crimeID = 6
+	elseif (getVehicleType(source) == "Boat") then	-- Theft of a Boat
+		crimeID = 7
+	else	-- Grand Theft Auto
+		crimeID = 4
+	end
+	if (not vehTheft[player]) then vehTheft[player] = {} end
+	vehTheft[player][jacked] = true
+	
+	chargePlayer(player, crimeID)
+end
+addEventHandler("onVehicleEnter", root, chargePlayerForVehicleTheft)
+
+-- Killing Crimes
+------------------>>
+
+function chargePlayerForKilling(ammoVictim, killer, killerWeapon, victimBodyPart)
+	if (not isElement(killer) or killer == source) then return end
+	
+	if not (recentKills[killer]) then recentKills[killer] = {} end
+	recentKills[source] = {}
+	recentKills[source][killer] = true
+	if (getElementType(killer) == "player") then
+			-- Ignore if Cop
+		local team = getTeamName(getPlayerTeam(killer))
+		if (team == "Law Enforcement") then return end
+	
+		-- First Degree Murder
+		if (recentKills[killer][source]) then
+			chargePlayer(killer, 20)
+			return
+		end
+		-- Second Degree Murder
+		local team = getPlayerTeam(source)
+		local team = getTeamName(team)
+		if (policeTeams[team]) then
+			chargePlayer(killer, 19)
+			recentKills[killer][source] = true
+			return
+		end
+		-- Manslaughter
+		if (killerWeapon and killerWeapon <= 15) then
+			chargePlayer(killer, 13)
+		else -- Murder
+			chargePlayer(killer, 14)
+		end
+		recentKills[killer][source] = true
+	-- Vehicular Homicide
+	elseif (getElementType(killer) == "vehicle") then
+		local owner = getVehicleOccupant(killer) or getElementData(killer, "owner")
+		if (not owner) then return end
+			-- Ignore if Cop
+		local team = getTeamName(getPlayerTeam(owner))
+		if (team == "Law Enforcement") then return end
+	
+		recentKills[owner][source] = true
+		chargePlayer(owner, 15)
+	end
+end
+addEventHandler("onPlayerWasted", root, chargePlayerForKilling)
+
+-- Clear Cache
+--------------->>
+
+function clearCache()
+	if (vehTheft[source]) then
+		vehTheft[source] = nil
+	end
+	for k,v in pairs(vehTheft) do
+		for k2,v2 in pairs(vehTheft[k]) do
+			if (k2 == source) then
+				vehTheft[k][k2] = nil
+			end
+		end
+	end
+end
+addEventHandler("onPlayerSpawn", root, clearCache)
+addEventHandler("onPlayerQuit", root, clearCache)
+
+addEventHandler("onPlayerQuit", root, function()
+	if (recentKills[source]) then
+		recentKills[source] = nil
+	end
+end)

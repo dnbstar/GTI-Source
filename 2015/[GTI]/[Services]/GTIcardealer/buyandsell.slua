@@ -1,0 +1,72 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 27 Dec 2013
+-- Resource: GTIcardealer/buyandsell.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local purchasePending = {}	-- Records if a current purchase is in progress (to guard against vehicle flooding)
+local sellPending = {}		-- Records if a current sale is in progress (to guard against vehicle flooding)
+
+-- Purchase Vehicle
+-------------------->>
+
+function purchaseVehicle(ID, color, variant, zoff)
+	if (purchasePending[client]) then return end
+	if (not activeCarDealer[client]) then return end
+	
+	purchasePending[client] = true
+		-- Check if the Player can Afford it
+	local playerMoney = getPlayerMoney(client)
+	local vehCost = exports.GTIvehicles:getVehicleCost(ID)
+	if (playerMoney < vehCost) then
+		exports.GTIhud:dm("* You cannot afford this vehicle. You need $"..exports.GTIutil:tocomma(vehCost-playerMoney).." more in order to buy it.", client, 255, 125, 0)
+		purchasePending[client] = nil
+		return
+	end
+	
+	local account = getPlayerAccount(client)
+		-- Check if the player owns a vehicle of this ID
+	if (exports.GTIvehicles:doesPlayerOwnVehicleModel(client)) then 
+		exports.GTIhud:dm("* You already own a "..getVehicleNameFromID(ID)..". You can only own one of each vehicle.", client, 255, 125, 0)
+		purchasePending[client] = nil
+		return 
+	end
+	
+	exports.GTIbank:TPM(client, vehCost, "Vehicles: Bought a "..getVehicleNameFromModel(ID))
+	
+	local int = activeCarDealer[client][1]
+	local dealerTable = dealerLocations[int]
+	local x,y,z = dealerTable.buySpawnPoint[1], dealerTable.buySpawnPoint[2], dealerTable.buySpawnPoint[3]+zoff+0.75
+	local rot = dealerTable.buySpawnPoint[4]
+	exports.GTIvehicles:addPlayerVehicle(client, ID, x, y, z, rot, color, variant, vehCost, true)
+		
+	exports.GTIhud:dm("You have successfully purchased a "..getVehicleNameFromModel(ID).." for $"..exports.GTIutil:tocomma(vehCost), client, 200, 0, 255)
+	triggerClientEvent(client, "GTIcardealer.hideCarDealershipPanel", client, "right", "up")
+	activeCarDealer[client] = nil
+	purchasePending[client] = nil
+end
+addEvent("GTIcardealer.purchaseVehicle", true)
+addEventHandler("GTIcardealer.purchaseVehicle", root, purchaseVehicle)
+
+-- Sell Vehicle
+---------------->>
+
+function sellVehicle(vehID)
+	if (sellPending[client]) then return end
+	sellPending[client] = true
+	
+	local slot = exports.GTIvehicles:getVehicleSlotFromID(getPlayerAccount(client), vehID)
+	local model = exports.GTIvehicles:getVehicleData(vehID, "vehicleID")
+	exports.GTIvehicles:deleteVehicle(vehID)
+	
+	local value = exports.GTIvehicles:getVehicleSaleValue(vehID)
+	exports.GTIbank:GPM(client, value, "Vehicles: Sold "..getVehicleNameFromModel(model).." (ID: "..vehID..", Slot: "..slot..")")
+	exports.GTIhud:dm("You have sold your "..getVehicleNameFromModel(model).." for $"..exports.GTIutil:tocomma(value), client, 200, 0, 255)
+	triggerClientEvent(client, "GTIcardealer.hideCarDealershipSalePanel", client, "left", "up")
+	activeCarSeller[client] = nil
+	sellPending[client] = nil
+end
+addEvent("GTIcardealer.sellVehicle", true)
+addEventHandler("GTIcardealer.sellVehicle", root, sellVehicle)

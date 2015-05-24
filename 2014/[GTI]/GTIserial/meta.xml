@@ -1,0 +1,17 @@
+<meta>
+    <info author="LilDolla" version="2.0" name="Serial System" description="Cerial System" type="script" />
+    <script src="serial_s.lua" type="server" />
+    <script src="serial_c.luac" type="client" />
+    
+    <export function="createPlayerCerial" type="server" />
+    <export function="getPlayerCerial" type="server" />
+    <export function="outputCerial" type="server" />
+    
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+    
+    <!--
+	Exports:
+	createPlayerCerial( player serialPlayer, bool Message = true)
+	getPlayerCerial( player serialPlayer) - table { thereSerial, serverSerial}
+	-->
+</meta>

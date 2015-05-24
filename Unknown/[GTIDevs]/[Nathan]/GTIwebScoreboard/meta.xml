@@ -1,0 +1,6 @@
+<meta>
+    <info author="Nathan" description="test" name="Web Scoreboard" autostart="true" />
+    <export function="WEBgetOnlinePlayers" http="true" />
+    <export function="getPlayerData" http="true" />
+    <script src="script.lua" type="server" />
+</meta>

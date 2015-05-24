@@ -1,0 +1,13 @@
+<meta>
+    <info author="LilDolla" name="Tattoo Stores" autostart="false"></info>
+    
+	<script src="functions.luac" type="client" />
+    <script src="dx_c.luac" type="client" />
+	<script src="utils.luac" type="client" />
+	<script src="tables.luac" type="client" />
+	
+	<file src="images/ttile.png"/>
+	<file src="images/t2ile.png"/>
+	<file src="images/u.png"/>
+	<file src="images/d.png"/>
+</meta>

@@ -1,0 +1,60 @@
+local hospital = {}
+local hospitals = {
+	-- mx, my, mz, tarx, tary, tarz, x, y, z, rot, name
+	[1] = {1218, -1322, 15, 1217, -1322, 15, 1173, -1323, 15, 270, "All Saints Hospital"}, -- All Saints
+	[2] = {2033, -1439, 19, 2033, -1438, 18, 2038, -1411, 17, 130, "Jefferson Hospital."}, --Jefferson
+	[3] = {1254, 352, 21, 1254, 351, 21, 1242, 327, 19, 340, "Red County Hospital."}, -- Red County
+	[4] = {1590, 1862, 12, 1590, 1861, 12, 1609, 1816, 12, 360, "Las Venturas Hospital."}, -- Las Venturas
+	[5] = {-2660, 580, 16, -2660, 581, 16, -2655, 635, 14, 180, "San Fierro Hospital."}, -- San Fierro
+	[6] = {-2181, -2289, 32, -2181, -2290, 32, -2200, -2311, 30, 320, "Angel Pine Hospital."} -- Angel Pine
+}
+
+function viewTheHospital()
+	local table = findHospital(source)
+--	setCameraMatrix(source, table[1], table[2], table[3], table[4], table[5], table[6])
+	showPlayerHudComponent(source, "all", false)
+	setTimer(respawnPed, 4500, 1, source, getElementModel(source), table[7], table[8], table[9], table[10])
+end
+addEventHandler("onPlayerWasted", root, viewTheHospital)
+
+function respawnPed(player, model, x, y, z, rotation)
+	if (isElement(player)) then
+		fadeCamera(player, false, 0)
+		setTimer(fadeCamera, 1000, 1, player, true)
+		setCameraTarget(player, player)
+		showPlayerHudComponent(player, "radar", true)
+		spawnPlayer(player, x, y, z, rotation, model, 0, 0)
+		hospital[player] = nil
+	end
+end
+
+function findHospital(plr)
+	if (isElement(plr)) then
+		local theHospital = nil
+		local miniumDistance = 2000
+		for index, pos in pairs(hospitals) do
+			local px, py, pz = getElementPosition(plr)
+			local x, y = pos[7], pos[8]
+			local distance = getDistanceBetweenPoints2D(px, py, x, y)
+			if (distance < miniumDistance) then
+				theHospital = pos
+				miniumDistance = distance
+			end
+		end
+		hospital[plr] = theHospital
+		return hospital[plr]
+	end
+end
+
+function suicide(plr)
+	setTimer(killPlaye, 5000, 1, plr)
+	setElementFrozen(plr, true)
+	outputChatBox("In 2 seconds you will be killed!", plr, 255, 0, 0)
+end
+addCommandHandler("kill", suicide)
+
+function killPlaye(plr)
+	if (plr and isElement(plr)) then
+		killPed(plr)
+	end
+end

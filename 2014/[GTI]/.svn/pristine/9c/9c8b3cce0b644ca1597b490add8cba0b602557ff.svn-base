@@ -1,0 +1,148 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 29 Jan 2014
+-- Resource: GTIprison/prison.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local prisonSpawnPoints = {
+	{3152.152, 823.520, 1654.256+1},
+	{3150.929, 822.256, 1654.256+1},
+	{3151.071, 825.905, 1654.256+1},
+	{3149.610, 824.719, 1654.256+1},
+}
+
+local releasePoints = {
+	{1802.230, -1583.193, 12.468+1},
+	{1799.425, -1585.670, 12.497+1},
+	{1796.658, -1588.116, 12.499+1},
+	{1793.187, -1591.235, 12.505+1},
+	{1790.098, -1593.889, 12.508+1},
+}
+
+local jailedPlayers = {}
+local remainingTime = {}
+
+local PRISON_INT = 0
+local PRISON_DIM = 0
+local RELEASE_INT = 0
+local RELEASE_DIM = 0
+
+local TIME_PER_WP = 3
+
+addEvent("onPlayerJailed", true)
+
+-- Throw Player In Jail
+------------------------>>
+
+function jailPlayer(player, jailer, jailTime)
+	if (not isElement(player) or not jailTime) then return false end
+	
+	if (isPedInVehicle(player)) then
+		removePedFromVehicle(player)
+	end
+	
+	jailTime = math.ceil(jailTime)
+	toggleControl(player, "next_weapon", false)
+	toggleControl(player, "previous_weapon", false)
+	toggleControl(player, "enter_exit", false)
+	jailedPlayers[player] = true
+	setElementData(player, "jailed", true)
+	
+	local loc = math.random(#prisonSpawnPoints)
+	local x,y,z = prisonSpawnPoints[loc][1], prisonSpawnPoints[loc][2], prisonSpawnPoints[loc][3]
+	if (not isPedDead(player)) then
+		setElementInterior(player, PRISON_INT)
+		setElementDimension(player, PRISON_DIM)
+		setElementPosition(player, x, y, z)
+	else
+		local model = getElementModel(player)
+		local rot = getElementRotation(player)
+		local team = getPlayerTeam(player)
+		spawnPlayer(player, x, y, z, rot, model, PRISON_INT, PRISON_DIM, team)
+	end
+	setElementFrozen(player, true)
+	
+	triggerEvent("onPlayerJailed", player, jailer, jailTime)
+	triggerClientEvent("onClientPlayerJailed", player, jailer, jailTime)
+	
+	jailTime = jailTime*1000
+	remainingTime[player] = setTimer(releasePlayer, jailTime, 1, player)
+	triggerClientEvent(player, "GTIprison.jailPlayer", player, jailTime, getTickCount())
+	
+	local account = getPlayerAccount(player)
+	exports.GTIaccounts:SAD(account, "inJail", 1)
+	exports.GTIaccounts:SAD(account, "jailtime", remainingTime[player])
+	
+	local wl = exports.GTIpoliceWanted:getWantedLevel(player, true)
+	if (wl and jailer) then
+		exports.GTIhud:dm("You have been sentenced by "..getPlayerName(jailer).." for "..math.floor(jailTime/1000).." seconds with "..wl.." wanted points", player, 30, 150, 255)
+	elseif (jailer) then
+		exports.GTIhud:dm("You have been sentenced by "..getPlayerName(jailer).." for "..TIME_PER_WP*jailTime.." seconds", player, 30, 150, 255)
+	else
+		exports.GTIhud:dm("You have been sentenced for "..TIME_PER_WP*jailTime.." seconds", player, 30, 150, 255)
+	end
+	exports.GTIpoliceWanted:clearWantedLevel(player)
+	return true
+end
+
+-- Release Player
+------------------>>
+
+function releasePlayer(player)
+	if (not isElement(player)) then return end
+	
+	toggleControl(player, "next_weapon", true)
+	toggleControl(player, "previous_weapon", true)
+	toggleControl(player, "enter_exit", true)
+	removeElementData(player, "jailed")
+	
+	local loc = math.random(#releasePoints)
+	local x,y,z = releasePoints[loc][1], releasePoints[loc][2], releasePoints[loc][3]
+	setElementInterior(player, RELEASE_INT)
+	setElementDimension(player, RELEASE_DIM)
+	setElementPosition(player, x, y, z)
+	
+	jailedPlayers[player] = nil
+	remainingTime[player] = nil
+	
+	local account = getPlayerAccount(player)
+	exports.GTIaccounts:SAD(account, "inJail", 0)
+	exports.GTIaccounts:SAD(account, "jailtime", nil)
+	
+	exports.GTIhud:dm("You have been released from prison", player, 30, 150, 255)
+	return true
+end
+
+-- Save Prison State
+--------------------->>
+
+function savePrisonState()
+	if (not remainingTime[source]) then return end
+	local account = getPlayerAccount(source)
+	if (isGuestAccount(account)) then return end
+	
+	exports.GTIaccounts:SAD(account, "jailtime", remainingTime[source])
+	killTimer(remainingTime[source])
+	remainingTime[source] = nil
+	exports.GTIaccounts:SAD(account, "inJail", 1)
+end
+addEventHandler("onPlayerQuit", root, savePrisonState)
+
+function loadPrisonState(_, account)
+	if (isGuestAccount(account)) then return end
+	local inJail = exports.GTIaccounts:GAD(account, "inJail") or 0
+	if (inJail == 1) then
+		local jailtime = exports.GTIaccounts:GAD(account, "jailtime")
+		jailPlayer(source, nil, jailTime)
+	end
+end
+addEventHandler("onPlayerLogin", root, loadPrisonState)
+
+-- Exports
+----------->>
+
+function isPlayerInJail(player)
+	return jailedPlayers[player] or false
+end

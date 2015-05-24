@@ -1,0 +1,71 @@
+<meta>
+	<!--Root-->
+	<script src="database.slua" 	/>
+	<script src="groups.slua" 		/>
+	<script src="members.slua" 		/>
+	<script src="permissions.slua" 	/>
+	<script src="ranks.slua" 		/>
+	
+	<!--GUIs-->
+	<script src="create/create_gui.luac"		type="client" />
+	<script src="group-panel/panel_gui.luac"		type="client" />
+	<script src="members/m_invites_gui.luac"	type="client" />
+	<script src="members/m_change_rank_gui.luac"	type="client" />
+	
+	<!--Group Creation-->
+	<script src="create/g_create.luac" 		type="client" />
+	<script src="create/g_create.slua" 		/>
+	
+	<!--Group Management Panel-->
+	<script src="group-panel/panel_home.luac"		type="client" />
+	<script src="group-panel/panel_home.slua"		/>
+	<script src="group-panel/panel_members.luac"	type="client" />
+	<script src="group-panel/panel_members.slua"	/>
+	
+	<!--Group Members Panel-->
+	<script src="members/m_invites.luac"		type="client" />
+	<script src="members/m_invites.slua" 		/>
+	<script src="members/m_change_rank.luac"		type="client" />
+	<script src="members/m_change_rank.slua" 		/>
+	
+	<!-- Database -->
+	<export function="setGroupData" 			type="server" />
+	<export function="getGroupData" 			type="server" />
+	<export function="setGroupMemberData" 		type="server" />
+	<export function="getGroupMemberData" 		type="server" />
+	<export function="dropGroupMemberData" 		type="server" />
+	<export function="setGroupRankData" 		type="server" />
+	<export function="getGroupRankData" 		type="server" />
+	<export function="getNextGroupSlot" 		type="server" />
+	<export function="getNextGroupRankSlot" 	type="server" />
+	
+	<!-- Groups -->
+	<export function="createGroup" 					type="server" />
+	<export function="getGroupAccountName" 			type="server" />
+	<export function="createGroupAccount" 			type="server" />
+	<export function="modifyGroupInformation" 		type="server" />
+	<export function="modifyGroupApplicationFormat" type="server" />
+	
+	<!-- Members -->
+	<export function="addMember" 		type="server" />
+	<export function="deleteMember" 	type="server" />
+	<export function="getGroupMembers" 	type="server" />
+	<export function="getPlayerGroup" 	type="server" />
+	<export function="isPlayerInGroup" 	type="server" />
+	
+	<!-- Permissions -->
+	<export function="hasMemberPermissionTo" 	type="server" />
+	<export function="hasGroupPermissionTo" 	type="server" />
+	<export function="getAllRankPermissions" 	type="server" />
+	<export function="getAllGroupPermissions" 	type="server" />
+	<export function="setAllRankPermissions" 	type="server" />
+	<export function="setAllGroupPermissions" 	type="server" />
+	
+	<!-- Ranks -->
+	<export function="addGroupRank" 		type="server" />
+	<export function="getGroupRanks" 		type="server" />
+	<export function="getGroupRankIDByName" type="server" />
+	<export function="getDefaultRank" 		type="server" />
+	<export function="getPlayerGroupRank" 	type="server" />
+	<export function="setPlayerGroupRank" 	type="server" />
+</meta>

@@ -1,0 +1,6 @@
+<meta>
+	<script src="logsDatabase.slua" />
+	<script src="logging.slua" />
+	
+	<export function="outputLog" type="server" />
+</meta>

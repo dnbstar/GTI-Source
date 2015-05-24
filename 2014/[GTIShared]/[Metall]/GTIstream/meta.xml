@@ -1,0 +1,4 @@
+<meta>
+	<script src="stream.lua" type="client"/>
+	<script src="stream.slua" type="server"/>
+</meta>

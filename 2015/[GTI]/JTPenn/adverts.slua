@@ -1,0 +1,34 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn)
+-- Date: 22 Dec 2014
+-- Resource: JTPenn/adverts.slua
+-- Version: 1.0
+----------------------------------------->>
+
+local messages = {
+	"Get involved in our democratic community | Visit gtirpg.net",
+	"Become a Police Officer at any major police department.",	
+	"Visit Ammu-Nation for a free Pistol!",
+	"Need some cash? Visit the bank! All new accounts get some money to start out with.",
+	"Like what you see? Spread the word! Tell your friends about GTI.",
+	"GTI is being updated every day! Use /updates or visit gtirpg.net/updates.php to stay informed on progress.",
+	"You can buy a car at one of our car dealerships spread around San Andreas.",
+	"Press B to use the GTIdroid. The GTIdroid contains many features that you should explore.",
+	"Buy a new skin at one of our clothing stores.",
+	"Use /criminal to become a criminal.",
+	"Earn quick cash in one of our CnR event robberies. Use /cnrtime to see when the next one is.",
+	"Most server information can be found by pressing F9",
+	"Forum: gtirpg.net | IRC: irc.gtirpg.net | TS3: ts3.gtirpg.net",
+	"Donate to help keep this server alive and kicking! Go to gtirpg.net/donate",
+}
+
+local msg = messages[math.random(#messages)]
+local last_msg = msg
+outputChatBox("> "..msg, root, 25, 255, 25)
+	
+setTimer(function()
+	repeat msg = messages[math.random(#messages)] until msg ~= last_msg
+	outputChatBox("> "..msg, root, 25, 255, 25)
+	last_msg = msg
+end, 60000*5, 0)

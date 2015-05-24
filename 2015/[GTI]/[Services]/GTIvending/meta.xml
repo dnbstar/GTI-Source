@@ -1,0 +1,4 @@
+<meta>
+	<info author="JTPenn"	name="Vending Machines"	autostart="true" />
+	<script src="vending.slua" type="server" />
+</meta>

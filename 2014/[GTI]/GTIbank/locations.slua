@@ -1,0 +1,95 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 09 Jan 2014
+-- Resource: GTIbank/locations.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local dimLocations = {[1] = "Bank of San Fierro", [2] = "Bank of Los Santos", [3] = "Bank of Las Venturas" }
+
+-- Blips
+--------->>
+
+local blips = {
+{-2055.835, 455.381, 34.172},
+}
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	for i,v in ipairs(blips) do
+		createBlip(v[1], v[2], v[3], 52, 0, 0, 0, 0, 0, 0, 450)
+	end
+end)
+
+-- Counter Pickups
+------------------->>
+
+local bankCounters = {
+{358.678, 162.317, 1007.383},
+{358.678, 164.527, 1007.383},
+{358.678, 166.675, 1007.383},
+{358.678, 169.021, 1007.383},
+{358.678, 178.125, 1007.383},
+{358.678, 180.357, 1007.383},
+{358.678, 182.537, 1007.383},
+{358.678, 184.822, 1007.383},
+}
+
+bDimensions = {[143] = true, [150] = true, [151] = true}
+
+local pickupBank = {}
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	for i,v in ipairs(bankCounters) do
+		for dim in pairs(bDimensions) do
+			local pickup = createPickup(v[1], v[2], v[3]+0.75, 3, 1274, 0)
+			setElementInterior(pickup, 3)
+			setElementDimension(pickup, dim)
+			addEventHandler("onPickupHit", pickup, showBankAccountLogin)
+			table.insert(pickupBank, pickup)
+		end
+	end
+end)
+
+-- Bank ATMs
+------------->>
+
+local bankATMs = {
+-- SF Bank
+{379.873, 170.735, 1007.383, int=3, dim=143},
+{381.627, 170.788, 1007.383, int=3, dim=143},
+{383.097, 170.814, 1007.383, int=3, dim=143},
+{383.290, 176.960, 1007.383, int=3, dim=143},
+{381.574, 176.896, 1007.383, int=3, dim=143},
+{379.926, 176.875, 1007.383, int=3, dim=143},
+-- LS Bank
+{379.873, 170.735, 1007.383, int=3, dim=150},
+{381.627, 170.788, 1007.383, int=3, dim=150},
+{383.097, 170.814, 1007.383, int=3, dim=150},
+{383.290, 176.960, 1007.383, int=3, dim=150},
+{381.574, 176.896, 1007.383, int=3, dim=150},
+{379.926, 176.875, 1007.383, int=3, dim=150},
+-- LV Bank
+{379.873, 170.735, 1007.383, int=3, dim=151},
+{381.627, 170.788, 1007.383, int=3, dim=151},
+{383.097, 170.814, 1007.383, int=3, dim=151},
+{383.290, 176.960, 1007.383, int=3, dim=151},
+{381.574, 176.896, 1007.383, int=3, dim=151},
+{379.926, 176.875, 1007.383, int=3, dim=151},
+}
+
+local pickupATM = {}
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	for i,v in ipairs(bankATMs) do
+		local pickup = createPickup(v[1], v[2], v[3]+0.75, 3, 1274, 0)
+		if (v.int) then
+			setElementInterior(pickup, v.int)
+		end
+		if (v.dim) then
+			setElementDimension(pickup, v.dim)
+		end
+		addEventHandler("onPickupHit", pickup, showATM)
+		table.insert(pickupATM, pickup)
+	end
+end)

@@ -1,0 +1,35 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 07 Jan 2014
+-- Resource: GTIweapons/weapons.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Set Headshots Enabled
+------------------------->>
+
+local headshotWeaps = {[33] = true, [34] = true}
+function setHeadshotsEnabled(attacker, weapon, bodypart)
+	if (not headshotWeaps[weapon]) then return end
+	
+	local x1,y1 = getElementPosition(source)
+	local x2,y2 = getElementPosition(attacker)
+	local distance = getDistanceBetweenPoints2D(x1,y1, x2,y2)
+	if (distance < 15) then return end
+	
+	if (bodypart == 9) then
+		killPed(source, attacker, weapon, bodypart)
+		setPedHeadless(source, true)
+	end
+end
+addEventHandler("onPlayerDamage", root, setHeadshotsEnabled)
+
+function returnHeadOnSpawn()
+	setPedHeadless(source, false)
+end
+addEventHandler("onPlayerSpawn", root, returnHeadOnSpawn)
+
+setWeaponProperty("minigun", "poor", "damage", 20)
+setWeaponProperty("minigun", "std", "damage", 20)
+setWeaponProperty("minigun", "pro", "damage", 20)

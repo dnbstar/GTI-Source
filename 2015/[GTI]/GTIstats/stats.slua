@@ -1,0 +1,322 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn), LilDolla
+-- Date: 24 Jul 2014
+-- Resource: GTIstats/stats.slua
+-- Version: 1.0
+----------------------------------------->>
+
+local DEFAULT_GROUP = "None"	-- Group Name that appears if group DNE
+local playtime = {}				-- Playtime Cache
+local playtime_join = {}		-- Playtime on Join
+local TOTAL_IDLE_TIME = 300000
+
+-- Kills/Deaths
+---------------->>
+
+addEventHandler("onPlayerWasted", root,
+	function(totalAmmo, killer, killerWeapon, bodypart, stealth)
+		if (killer and getElementType(killer) ~= "player") then return end	-- Avoid Vehicle Killers
+
+		if (isElement(killer) and killer ~= source) then
+			-- Add Death Stat
+			local v_account = getPlayerAccount(source)
+			local v_deaths = getStatData(v_account, "deaths") or 0
+			setStatData(v_account, "deaths", v_deaths+1)
+
+			-- Add Kill Stat
+			if (getElementType(killer) ~= "player") then return end
+			local k_account = getPlayerAccount(killer)
+			local k_kills = getStatData(k_account, "kills") or 0
+			setStatData(k_account, "kills", k_kills+1)
+		else
+			-- Else add Suicide
+			local v_account = getPlayerAccount(source)
+			local v_suicides = getStatData(v_account, "suicides") or 0
+			setStatData(v_account, "suicides", v_suicides+1)
+		end
+	end
+)
+
+-- Total Logins
+---------------->>
+
+addEventHandler("onPlayerLogin", root,
+	function(pAcc, account)
+		local logins = getStatData(account, "totalLogins") or 0
+		setStatData(account, "totalLogins", logins+1)
+	end
+)
+
+-- Last Location
+----------------->>
+
+addEventHandler("onPlayerQuit", root,
+	function()
+		local account = getPlayerAccount(source)
+		local x, y, z = getElementPosition(source)
+		local name, city = getZoneName(x, y, z), getZoneName(x, y, z, true)
+		setStatData(account, "last_location", name..", "..city)
+	end
+)
+
+-- Group Name
+-------------->>
+
+addEventHandler("onPlayerLogin", root,
+	function(pAcc, account)
+		local groupID = exports.GTIgroups:getPlayerGroup(source)
+		if groupID then
+			local groupName = exports.GTIgroups:getGroupName(groupID)
+			setStatData(account, "group", tostring(groupName))
+		else
+			setStatData(account, "group", DEFAULT_GROUP)
+		end
+	end
+)
+
+addEventHandler("onPlayerQuit", root,
+	function()
+		local account = getPlayerAccount(source)
+		local groupID = exports.GTIgroups:getPlayerGroup(source)
+		if groupID then
+			local groupName = exports.GTIgroups:getGroupName(groupID)
+			setStatData(account, "group", tostring(groupName))
+		else
+			setStatData(account, "group", DEFAULT_GROUP)
+		end
+	end
+)
+
+--Enter Interiors
+------------>>
+
+addEvent( "onInteriorEnter")
+addEventHandler("onInteriorEnter", root,
+	function( player)
+		local account = getPlayerAccount(player)
+		local enter = getStatData( account, "enterInt") or false
+		if not enter then
+			setStatData( account, "enterInt", 0)
+			enter = 0
+		end
+		local nenter = enter+1
+		setStatData( account, "enterInt", nenter)
+	end
+)
+
+-- Criminal Stats
+------------>>
+
+addEvent( "onPlayerFined")
+addEventHandler("onPlayerFined", root,
+	function()
+		local account = getPlayerAccount(source)
+		local fines = getStatData( account, "timesFined")
+		if not fines then
+			setStatData( account, "timesFined", 0)
+			fines = 0
+		end
+		setStatData( account, "timesFined", fines+1)
+	end
+)
+
+addEvent( "onPlayerCommitCrime")
+addEventHandler("onPlayerCommitCrime ", root,
+	function()
+		local account = getPlayerAccount(source)
+		local ccommit = getStatData( account, "crimesCommitted")
+		if not ccommit then
+			setStatData( account, "crimesCommitted", 0)
+			ccommit = 0
+		end
+		setStatData( account, "crimesCommitted", ccommit+1)
+	end
+)
+
+-- Playtime
+------------>>
+
+-- Increase Playtime by Minute
+setTimer(function()
+	for player in pairs(playtime) do
+		--if (getPlayerIdleTime(player) > TOTAL_IDLE_TIME) then return false end
+		--lol...
+		if (getPlayerIdleTime(player) <= TOTAL_IDLE_TIME) then
+			playtime[player] = playtime[player] + 1
+			updateElementData(player)
+		end
+	end
+end, 60000, 0)
+
+function updateElementData(player)
+	local eleData
+	if (playtime[player] > 60) then
+		eleData = math.floor(playtime[player]/60).." hours"
+		if (math.floor(playtime[player]/60) == 1) then
+			eleData = string.sub(eleData, 1, -2)
+		end
+	else
+		eleData = playtime[player].." minutes"
+		if (playtime[player] == 1) then
+			eleData = string.sub(eleData, 1, -2)
+		end
+	end
+	setElementData(player, "playtime", eleData)
+end
+
+-- Cache Playtime on Login
+addEventHandler("onPlayerLogin", root, function(_, account)
+	playtime[source] = getStatData(account, "playtime") or 0
+	playtime_join[source] = getStatData(account, "playtime") or 0
+	updateElementData(source)
+end)
+
+-- Store Playtime on Quit
+addEventHandler("onPlayerQuit", root, function()
+	if (not playtime[source]) then return end
+
+	local groupID = exports.GTIgroups:getPlayerGroup(source)
+	if (groupID) then
+		local playtime = playtime[source] - playtime_join[source]
+		exports.GTIgroups:modifyGroupStat(groupID, "playtime", playtime)
+	end
+
+	local account = getPlayerAccount(source)
+	setStatData(account, "playtime", playtime[source])
+	playtime[source] = nil
+	playtime_join[source] = nil
+end)
+
+-- Load on Start
+addEventHandler("onDatabaseLoad", resourceRoot, function(database)
+	if (database ~= "stats") then return end
+	for i,player in ipairs(getElementsByType("player")) do
+		if (not exports.GTIutil:isPlayerLoggedIn(player)) then return end
+		local account = getPlayerAccount(player)
+		playtime[player] = getStatData(account, "playtime") or 0
+		playtime_join[player] = getStatData(account, "playtime") or 0
+		updateElementData(player)
+	end
+end)
+
+-- Save on Stop
+addEventHandler("onResourceStop", resourceRoot, function()
+	for i,player in ipairs(getElementsByType("player")) do
+		if (not exports.GTIutil:isPlayerLoggedIn(player) or not playtime[player]) then return end
+		local account = getPlayerAccount(player)
+		setStatData(account, "playtime", playtime[player])
+
+		local groupID = exports.GTIgroups:getPlayerGroup(player)
+		if (groupID) then
+			local playtime = playtime[player] - playtime_join[player]
+			exports.GTIgroups:modifyGroupStat(groupID, "playtime", playtime)
+		end
+	end
+end)
+
+-- Online Status
+----------------->>
+
+addEventHandler("onPlayerLogin", root,
+	function(pacc, acc)
+		local status = exports.GTIaccounts:GAD(acc, "onlinestatus")
+		if status ~= true then
+			exports.GTIaccounts:SAD(acc, "onlinestatus", true)
+		end
+	end
+)
+
+addEventHandler("onPlayerQuit", root,
+	function()
+		local acc = getPlayerAccount(source)
+		local status = exports.GTIaccounts:GAD(acc, "onlinestatus")
+		if status == true then
+			exports.GTIaccounts:SAD(acc, "onlinestatus", false)
+		end
+	end
+)
+
+--[[
+--->> Vehicle Stat Tracking
+
+----->> Meters Driven in Vehicle
+metersDriven = 0
+local oldX, oldY, oldZ = 0, 0, 0
+local statblocks = {
+	["Automobile"] = "drivencar",
+	["Plane"] = "flown",
+	["Bike"] = "biked",
+	["Helicopter"] = "flown",
+	["Boat"] = "drivenboat",
+	["Train"] = "drivencar",
+	["BMX"] = "biked",
+	["Monster Truck"] = "drivencar",
+	["Quad"] = "biked",
+}
+
+local function calculateMeters(vehicle, element)
+	local x, y, z = getElementPosition(vehicle)
+	local type = getVehicleType(vehicle)
+	local saveblock = statblocks[type]
+	if not isElement(vehicle) then
+		return initializeCounter(element, false)
+	end
+	if (math.ceil(getDistanceBetweenPoints2D(oldX, oldY, x, y))-1 >= 1) then
+		local k_account = getPlayerAccount(element)
+		--local meterStat = getStatData(k_account, "meters_cars") or 0
+		metersDriven = metersDriven+math.ceil(getDistanceBetweenPoints2D(oldX, oldY, x, y))-1
+		oldX, oldY = x, y
+		setStatData(k_account, saveblock, metersDriven)
+	end
+end
+
+local function initializeCounter(player, bActivate)
+	if (bActivate == true) then
+		local vehicle = getPedOccupiedVehicle(player)
+
+		if (not vehicle) or ((vehicle) and ((getVehicleController(vehicle) ~= player))) then return end
+		local x, y, z = getElementPosition(vehicle)
+
+		oldX, oldY, oldZ = x, y, z
+		meterCounter = setTimer(calculateMeters, 15000, 0, vehicle, player)
+	elseif (bActivate == false) then
+		if (isTimer(meterCounter)) then killTimer(meterCounter) end
+		metersDriven = 0
+	end
+end
+
+addEventHandler("onVehicleEnter", root,
+	function(player, seat)
+		local type = getVehicleType(source)
+		local account = getPlayerAccount(player)
+		if (seat == 0) then
+			local saveblock = statblocks[type]
+			local statvalue = getStatData(account, saveblock) or 0
+			metersDriven = statvalue
+			initializeCounter(player, true)
+		end
+	end
+)
+
+addEventHandler("onElementModelChange", root,
+	function()
+		if getElementType(source) == "vehicle" then
+			local player = getVehicleController(source)
+			local account = getPlayerAccount(player)
+			local type = getVehicleType(source)
+			local saveblock = statblocks[type]
+			local statvalue = getStatData(account, saveblock) or 0
+			metersDriven = statvalue
+		end
+	end
+)
+
+addEventHandler("onVehicleExit", root,
+	function(player, seat)
+		if (seat == 0) then
+			initializeCounter(player, false)
+		end
+	end
+)
+--]]

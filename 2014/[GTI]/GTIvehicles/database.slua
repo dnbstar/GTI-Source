@@ -1,0 +1,185 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 25 Dec 2013
+-- Resource: GTIvehicles/vehicleDatabase.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+function saveDataOnResourceStop()
+	for i,vehicle in ipairs(getElementsByType("vehicle", resourceRoot)) do
+		destroyElement(vehicle)
+	end
+end
+addEventHandler("onResourceStop", resourceRoot, saveDataOnResourceStop)
+
+-- Database Start
+------------------>>
+
+db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "LpyYEF%pah4Z&N") 
+dbExec(db, "CREATE TABLE IF NOT EXISTS `vehicles`(`ID` INT)") -- Auto Increment
+dbExec(db, "CREATE TABLE IF NOT EXISTS `vehicleOwners`(`name` TEXT)")
+
+local BACKUP_INTERVAL = 60 -- Backup Interval (Minutes)
+
+vehicleData = {}
+vehicleOwnerData = {}
+vehicles = {}
+activeVehicleIDs = {}
+
+if (BACKUP_INTERVAL) then
+
+function hourlyBackup()
+	destroyElement(db)
+	db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "LpyYEF%pah4Z&N")
+end
+setTimer(hourlyBackup, 60000*BACKUP_INTERVAL, 1)
+
+end
+
+maxVehicleID = 0
+MAX_ALLOWED_VEHICLES = 2 -- Maximum Number of Vehicles a Player Can Have Spawned
+
+-- Vehicle Data Cache
+---------------------->>
+
+function cacheVehicleDatabase()
+	dbQuery(cacheVehicleDatabase2, {}, db, "SELECT * FROM `vehicles`")
+end
+addEventHandler("onResourceStart", resourceRoot, cacheVehicleDatabase)
+
+function cacheVehicleDatabase2(qh)
+	local vehData = dbPoll(qh, 0)
+	vehicleData[0] = {}
+	for i,row in ipairs(vehData) do
+		vehicleData[row.ID] = {}
+		for column,value in pairs(row) do
+			if (column ~= "ID") then
+				if (value == nil) then value = "nil" end
+				vehicleData[0][column] = true
+				vehicleData[row.ID][column] = value
+				if (maxVehicleID < row.ID) then
+					maxVehicleID = row.ID
+				end
+			end
+		end
+	end
+end
+
+-- Vehicle Owner Data Cache
+---------------------------->>
+
+function cacheVehicleOwnerDatabase()
+	dbQuery(cacheVehicleOwnerDatabase2, {}, db, "SELECT * FROM `vehicleOwners`")
+end
+addEventHandler("onResourceStart", resourceRoot, cacheVehicleOwnerDatabase)
+
+function cacheVehicleOwnerDatabase2(qh)
+	local vehData = dbPoll(qh, 0)
+	vehicleOwnerData["Console"] = {}
+	for i,row in ipairs(vehData) do
+		vehicleOwnerData[row.name] = {}
+		for column,value in pairs(row) do
+			if (column ~= "name") then
+				if (value == nil) then value = "nil" end
+				vehicleOwnerData["Console"][column] = true
+				vehicleOwnerData[row.name][column] = value
+			end
+		end
+	end
+end
+
+-- Vehicle Data Exports
+------------------------>>
+
+function setVehicleData(ID, key, value)
+	if (not ID or not key or not value) then return false end
+	if (type(ID) ~= "number" or type(key) ~= "string") then return false end
+	if (type(key) == "string" or type(key) == "number") then
+		if (type(vehicleData[ID]) ~= "table") then
+			vehicleData[ID] = {}
+			dbExec(db, "INSERT INTO `vehicles`(ID) VALUES(?)", ID)
+		end
+		
+		if (vehicleData[0][key] == nil) then
+			dbExec(db, "ALTER TABLE `vehicles` ADD `??` text", key)
+			vehicleData[0][key] = true
+		end
+		
+		vehicleData[ID][key] = value
+		dbExec(db, "UPDATE `vehicles` SET `??`=? WHERE ID=?", key, tostring(value), ID)
+		if (maxVehicleID < ID) then maxVehicleID = ID end
+		return true
+	else return false end
+end
+
+function getVehicleData(ID, key)
+	if (not ID or not key) then return nil end
+	if (type(ID) ~= "number" or type(key) ~= "string") then return nil end
+	
+	if (vehicleData[ID] == nil) then return nil end
+	if (vehicleData[ID][key] == nil or vehicleData[ID][key] == "nil") then return nil end
+	
+	return tonumber(vehicleData[ID][key]) or vehicleData[ID][key]
+end
+
+-- Vehicle Owner Data Exports
+------------------------------>>
+
+function setVehicleOwnerData(account, key, value)
+	if (not account or not key or not value) then return false end
+	if (isGuestAccount(account) or type(key) ~= "string") then return false end
+	if (type(key) == "string" or type(key) == "number") then
+		local account = getAccountName( account )
+		
+		if (type(vehicleOwnerData[account]) ~= "table") then
+			vehicleOwnerData[account] = {}
+			dbExec(db, "INSERT INTO `vehicleOwners`(name) VALUES(?)", account)
+		end
+		
+		if (vehicleOwnerData["Console"][key] == nil) then
+			dbExec(db, "ALTER TABLE `vehicleOwners` ADD `??` text", key)
+			vehicleOwnerData["Console"][key] = true
+		end
+		
+		vehicleOwnerData[account][key] = value
+		dbExec(db, "UPDATE `vehicleOwners` SET `??`=? WHERE name=?", key, tostring(value), account)
+		return true
+	else return false end
+end
+
+function getVehicleOwnerData(account, key)
+	if (not account or not key) then return nil end
+	if (isGuestAccount(account) or type(key) ~= "string") then return nil end
+	
+	local account = getAccountName(account)
+	if (vehicleOwnerData[account] == nil) then return nil end
+	if (vehicleOwnerData[account][key] == nil or vehicleOwnerData[account][key] == "nil") then return nil end
+	
+	return tonumber(vehicleOwnerData[account][key]) or vehicleOwnerData[account][key]
+end
+
+function deleteVehicleOwnerData(account, key)
+	if (not account or not key) then return false end
+	if (isGuestAccount(account) or type(key) ~= "string") then return false end
+	
+	local account = getAccountName(account)
+	if (vehicleOwnerData[account] == nil) then return false end
+	if (vehicleOwnerData[account][key] == nil or vehicleOwnerData[account][key] == "nil") then return false end
+	
+	dbExec(db, "UPDATE `vehicleOwners` SET `??`=NULL WHERE name=?", key, account)
+	vehicleOwnerData[account][key] = "nil"
+end
+
+function getAllVehicleOwnerData(account)
+	if (not account or isGuestAccount(account)) then return false end
+	local account = getAccountName(account)
+	if (vehicleOwnerData[account] == nil) then return nil end
+	local vehTable = {}
+	for i,v in pairs(vehicleOwnerData[account]) do
+		if (v and v ~= "nil") then
+			vehTable[i] = v
+		end
+	end
+	return vehTable
+end

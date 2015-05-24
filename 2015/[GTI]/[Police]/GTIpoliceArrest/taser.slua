@@ -1,0 +1,104 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn)
+-- Date: 16 May 2014
+-- Resource: GTIpoliceArrest/taser.slua
+-- Version: 1.0
+----------------------------------------->>
+
+addEvent("onPlayerStartTase", true)	-- Triggered on Tase
+addEvent("onPlayerEndTase", true)	-- Triggered at end of Tase anims
+
+local TASE_INTERVAL = 10000		-- Time between Player Tases (ms)
+
+tased = {}		-- Table of Tased Players
+tasedTime = {}	-- Timestamp of Last Tase
+
+local taser_charge = {		-- Taser Recharge Time (secs)
+	[0] = 8.0,	[1] = 8.0,	[2] = 8.0,	[3] = 7.8,	[4] = 7.6,	[5] = 7.3,	[6] = 7.0,	
+	[7] = 6.5,	[8] = 6.0,	[9] = 5.4,	[10] = 4.7,	[11] = 4,	[12] = 3.1,
+}
+
+-- Taser Function
+------------------>>
+
+function tasePlayer(player)
+	if (not isElement(player) or not canPlayerBeTased(player)) then return false end
+	if (isPedInVehicle(player)) then return false end
+	if (isPlayerInPoliceCustody(player)) then return end
+		
+	tased[player] = true
+	tasedTime[player] = getTickCount() + 5000 + TASE_INTERVAL
+	
+	setPedWalkingStyle(player, 126)
+	toggleAllControls(player, false)
+	for i,ctrl in ipairs({"forwards", "backwards", "left", "right"}) do
+		toggleControl(player, ctrl, true)
+	end
+	setControlState(player, "walk", true)
+	
+	setElementData(player, "tased", true)
+	
+	setTimer(function(player)
+		if (not isElement(player)) then return end
+		setPedAnimation(player, "CRACK", "crckdeth1", 3000, false, false, false, true)
+		
+		setTimer(function(plr) 
+			tased[plr] = nil
+			if (not isElement(plr)) then return end
+			setPedAnimation(plr)
+			setPedWalkingStyle(plr, 0)
+			
+			if (not isPlayerInPoliceCustody(plr, true, true, true, true, false)) then
+				toggleAllControls(plr, true)
+			else
+				toggleAllControls(plr, true, false, true)
+			end
+			setControlState(plr, "walk", false)
+			removeElementData(plr, "tased")
+			triggerEvent("onPlayerEndTase", plr)
+		end, 3000, 1, player)
+	
+	end, 2000, 1, player)
+	
+	triggerEvent("onPlayerStartTase", player)
+	
+	if (client) then
+		addArrestParticipant(player, client)
+		setPedWeaponSlot(client, 1)
+		local level = exports.GTIemployment:getPlayerJobLevel(client, "Police Officer")
+		triggerClientEvent(client, "GTIpoliceArrest.rechargeTaser", resourceRoot, taser_charge[level])
+	end
+	return true
+end
+addEvent("GTIpoliceArrest.tasePlayer", true)
+addEventHandler("GTIpoliceArrest.tasePlayer", root, tasePlayer)
+
+function switchToTaser(player)
+	if (not exports.GTIutil:isPlayerInTeam(player, "Law Enforcement")) then return end
+	if (getPedWeapon(player, 2) ~= 23) then return end
+	setPedWeaponSlot(player, 2)
+end
+addCommandHandler("taser", switchToTaser)
+
+function isPlayerTased(player)
+	return tased[player] or false
+end
+
+function canPlayerBeTased(player)
+	if (tasedTime[player]) then return false end
+	return true
+end
+
+function cycleThroughTasedPlayers()
+	for player,tick in pairs(tasedTime) do
+		if (tasedTime[player] <= getTickCount()) then
+			tasedTime[player] = nil
+		end
+	end
+end
+setTimer(cycleThroughTasedPlayers, 1000, 0)
+
+setWeaponProperty(23, "poor", "maximum_clip_ammo", 1)
+setWeaponProperty(23, "std", "maximum_clip_ammo", 1)
+setWeaponProperty(23, "pro", "maximum_clip_ammo", 1)

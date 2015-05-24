@@ -1,0 +1,79 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Apr 2014
+-- Resource: GTIgroups/group-panel/invites_gui.lua
+-- Type: Client Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Group Invites
+----------------->>
+
+groupInvite = {gridlist = {}, window = {}, button = {}, label = {}}
+-- Window
+local sX, sY = guiGetScreenSize()
+local wX, wY = 278, 284
+local sX, sY, wX, wY = (sX/2)-(wX/2),(sY/2)-(wY/2),wX,wY
+-- sX, sY, wX, wY = 660, 299, 278, 284
+groupInvite.window[1] = guiCreateWindow(sX, sY, wX, wY, "GTI Group Invites", false)
+guiWindowSetSizable(groupInvite.window[1], false)
+guiSetAlpha(groupInvite.window[1], 0.90)
+-- Labels
+groupInvite.label[1] = guiCreateLabel(29, 27, 209, 15, "Pending Group Invites", false, groupInvite.window[1])
+guiSetFont(groupInvite.label[1], "clear-normal")
+guiLabelSetColor(groupInvite.label[1], 255, 100, 100)
+guiLabelSetHorizontalAlign(groupInvite.label[1], "center", false)
+-- Gridlist
+groupInvite.gridlist[1] = guiCreateGridList(18, 50, 237, 132, false, groupInvite.window[1])
+guiGridListAddColumn(groupInvite.gridlist[1], "Pending Group Invites", 0.9)
+-- Buttons
+groupInvite.button[1] = guiCreateButton(19, 191, 74, 30, "Accept", false, groupInvite.window[1])
+guiSetFont(groupInvite.button[1], "default-bold-small")
+guiSetProperty(groupInvite.button[1], "NormalTextColour", "FFAAAAAA")
+groupInvite.button[2] = guiCreateButton(100, 191, 74, 30, "Deny", false, groupInvite.window[1])
+guiSetProperty(groupInvite.button[2], "NormalTextColour", "FFAAAAAA")
+groupInvite.button[3] = guiCreateButton(181, 191, 74, 30, "Deny All", false, groupInvite.window[1])
+guiSetProperty(groupInvite.button[3], "NormalTextColour", "FFAAAAAA")
+groupInvite.button[4] = guiCreateButton(20, 231, 236, 33, "Create My Own Group", false, groupInvite.window[1])
+guiSetFont(groupInvite.button[4], "default-bold-small")
+guiSetProperty(groupInvite.button[4], "NormalTextColour", "FFFF6464")
+-- Visible
+guiSetVisible(groupInvite.window[1], false)
+
+-- Invite to Group
+------------------->>
+
+groupInviteTo = {edit = {}, button = {}, window = {}, label = {}, gridlist = {}}
+-- Window
+local sX, sY = guiGetScreenSize()
+local wX, wY = 278, 284
+local sX, sY, wX, wY = (sX/2)-(wX/2),(sY/2)-(wY/2),wX,wY
+-- sX, sY, wX, wY = 660, 299, 278, 284
+groupInviteTo.window[1] = guiCreateWindow(580, 259, 443, 335, "Invite Player to Group", false)
+guiWindowSetSizable(groupInviteTo.window[1], false)
+guiSetAlpha(groupInviteTo.window[1], 0.85)
+--- Labels (Static)
+groupInviteTo.label[1] = guiCreateLabel(17, 30, 77, 15, "Search:", false, groupInviteTo.window[1])
+guiSetFont(groupInviteTo.label[1], "default-bold-small")
+guiLabelSetColor(groupInviteTo.label[1], 255, 100, 100)
+groupInviteTo.label[2] = guiCreateLabel(266, 90, 102, 15, "Selected Player:", false, groupInviteTo.window[1])
+guiSetFont(groupInviteTo.label[2], "default-bold-small")
+guiLabelSetColor(groupInviteTo.label[2], 255, 100, 100)
+guiLabelSetHorizontalAlign(groupInviteTo.label[2], "center", false)
+-- Labels (Dynamic)
+groupInviteTo.label[3] = guiCreateLabel(229, 113, 177, 15, "[ABC]Player>123", false, groupInviteTo.window[1])
+guiSetFont(groupInviteTo.label[3], "clear-normal")
+guiLabelSetHorizontalAlign(groupInviteTo.label[3], "center", false)
+-- Edit
+groupInviteTo.edit[1] = guiCreateEdit(15, 48, 193, 23, "", false, groupInviteTo.window[1])
+-- Gridlist
+groupInviteTo.gridlist[1] = guiCreateGridList(14, 79, 194, 239, false, groupInviteTo.window[1])
+guiGridListAddColumn(groupInviteTo.gridlist[1], "Player List", 0.9)
+-- Buttons
+groupInviteTo.button[1] = guiCreateButton(230, 159, 178, 57, "Invite Player to Group", false, groupInviteTo.window[1])
+guiSetFont(groupInviteTo.button[1], "default-bold-small")
+guiSetProperty(groupInviteTo.button[1], "NormalTextColour", "FFAAAAAA")
+groupInviteTo.button[2] = guiCreateButton(288, 221, 66, 20, "Cancel", false, groupInviteTo.window[1])
+guiSetProperty(groupInviteTo.button[2], "NormalTextColour", "FFAAAAAA")
+-- Visible
+guiSetVisible(groupInviteTo.window[1], false)

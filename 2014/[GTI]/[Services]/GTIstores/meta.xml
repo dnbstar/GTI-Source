@@ -1,0 +1,24 @@
+<meta>
+    <info author="LilDolla" description="Food Stores" type="script" version="1.0" />
+	<script src="stores_c.luac" type="client" />
+	<script src="stores_s.lua" type="server" />
+	<script src="shopsTable.lua" type="server" />
+
+	<file src="font.ttf" />
+
+	<file src="replacements/summing.dff" />
+	<file src="replacements/melrose12_lawn.txd" />
+
+	<file src="puke.dff" />
+
+	<file src="images/panel.png" />
+	<file src="images/button.png" />
+
+	<file src="images/backdrop.png" />
+	<file src="images/logo.png" />
+	<file src="images/logo_bshot.png" />
+	<file src="images/logo_cbell.png" />
+	<file src="images/logo_donut.png" />
+	<file src="images/logo_pizza.png" />
+	<file src="images/logo_liquor.png" />
+</meta>

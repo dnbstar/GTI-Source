@@ -1,0 +1,219 @@
+arrester = {}
+arrestcount = {}
+prisoner = {}
+canPlayerBeKilled = {}
+bribe = {}
+
+function isPlayerArrested(player)
+	return arrester[player] or false
+end
+
+function getArrestCount(player)
+	return arrestcount[player] or 0
+end
+
+function getPlayerPrisoner(player)
+	return prisoner[player] or false
+end
+
+function arrestPlayer(attacker, wep, part, loss)
+	if (wep ~= 3) then return end
+	if (attacker and isElement(attacker) and getElementType(attacker) == "player") then
+		if (arrester[source]) then 
+			outputChatBox("This player is already arrested", attacker, 255, 0, 0)
+			return 
+		end
+		-- later: police, swat, mf, staff
+		if (exports.metall:isPlayerInTeams(attacker, "Police") and canPlayerBeKilled[source]) then
+			prisoner[attacker] = source
+			arrester[source] = attacker
+			setElementHealth(source, getElementHealth(source) + loss)
+			--TO AVOID PLAYER BEING ABLE TO ESCAPE
+			followPolice(attacker, source)
+			triggerClientEvent(attacker, "arrestedPlayer", attacker)
+			outputChatBox("Bring "..getPlayerName(source).." to a prison to get paid", attacker, 0, 255, 0)
+			outputChatBox("You have beena arrested by "..getPlayerName(attacker)..". Quitting will get you autojailed", source, 255, 0, 0)
+		end
+	end
+end
+addEventHandler("onPlayerDamage", root, arrestPlayer)
+
+function followPolice(cop, prisoner)
+	if (isPedInVehicle(prisoner)) then return end
+	if (not isPlayerArrested(prisoner)) then return end
+	if (prisoner[cop] == prisoner) then
+		local copx, copy, copz = getElementPosition (cop)
+		local prisonerx, prisonery, prisonerz = getElementPosition (prisoner)
+		copangle = (360 - math.deg (math.atan2 ((copx - prisonerx), (copy - prisonery)))) % 360
+		setPedRotation(prisoner, copangle)
+		setCameraTarget(prisoner, prisoner)
+		local dist = getDistanceBetweenPoints2D (copx, copy, prisonerx, prisonery)
+		if (dist > 16) then
+			local x, y, z = getElementPosition(cop)
+			setElementPosition(prisoner, x, y, z)
+			local zombify = setTimer(followPolice, 500, 1, cop, prisoner)
+		elseif (dist > 12) then
+			setControlState(prisoner, "sprint", true)
+			setControlState(prisoner, "walk", false)
+			setControlState(prisoner, "forwards", true)
+			local zombify = setTimer(followPolice, 500, 1, cop, prisoner)
+		elseif (dist > 6) then
+			setControlState(prisoner, "sprint", false)
+			setControlState(prisoner, "walk", false)
+			setControlState(prisoner, "forwards", true)
+			local zombify = setTimer(followPolice, 500, 1, cop, prisoner)
+		elseif (dist > 1.5) then
+			setControlState(prisoner, "sprint", false)
+			setControlState(prisoner, "walk", true)
+			setControlState(prisoner, "forwards", true)
+			local zombify = setTimer(followPolice, 500, 1, cop, prisoner)
+		elseif (dist < 1.5) then
+			setControlState(prisoner, "sprint", false)
+			setControlState(prisoner, "walk", false)
+			setControlState(prisoner, "forwards", false)
+			local zombify = setTimer(followPolice, 500, 1, cop, prisoner)
+		end
+	end
+end
+
+function enterVehicle(player)
+	if (prisoner[player]) then
+		local criminal = prisoner[player]
+		local maxSeats = getVehicleMaxPassengers(source)
+		warpPedIntoVehicle(criminal, source, maxSeats)
+		followPolice(player, criminal)
+	end
+end
+addEventHandler("onVehicleenter", root, enterVehicle)
+
+function leaveVehicle(player)
+	if (prisoner[player]) then
+		local criminal = prisoner[player]
+		removePedFromVehicle(criminal)
+		followPolice(player, criminal)
+	end
+end
+addEventHandler("onVehicleExit", root, leaveVehicle)
+
+function finishArrest()
+	local crim = prisoner[client]
+	if (isElement(crim)) then
+		upperhendPlayer(crim, client)
+	end
+end
+
+function releasePlayer(player)
+	if (isElement(player)) then
+		arrester[player] = nil
+		canPlayerBeKilled[player] = nil
+	end
+end
+
+function bribePlayer(cplayer, cmd, target, money)
+	if (getPlayerWantedLevel(cplayer) > 0 and getPlayerWantedLevel(cplayer) < 4) then
+		if (target) then
+			if (not tonumber(money)) then
+				outputChatBox("Invalid money amount!", cplayer, 255, 0, 0)
+				return
+			end
+			if (getPlayerMoney(cplayer) <= tonumber(money)) then
+				outputChatBox("You don't have "..money.." to bribe someone with!", cplayer, 255, 0, 0)
+				return
+			end
+			local nTarget = exports.metall:findPlayer(target)
+			if (isElement(nTarget)) then
+				-- later: police, swat, mf/af, staff
+				if (not exports.metall:isPlayerInTeams(nTarget, "Police")) then
+					outputChatBox("You can only bribe players that are employed as a law enforcement!", cplayer, 255, 0, 0)
+					return
+				end
+				if (nTarget == cplayer) then
+					outputChatBox("You can not bribe yourself..", cplayer, 255, 0, 0)
+					return
+				end
+				if (isPlayerArrested(cplayer)) then
+					outputChatBox("You can't bribe someone when you are arrested!", cplayer, 255, 0, 0)
+					return
+				end
+				if (bribe[nTarget]) then
+					outputChatBox(target.." has already an active bribe!", cplayer, 255, 0, 0)
+					return
+				end
+				bribe[nTarget] = {cplayer, money}
+				outputChatBox("Attempted to bribe "..target.." with $"..money)
+				outputChatBox(getPlayerName(cplayer).." has attempted to bribe you with $"..money.." '/acceptbribe partialName' to accept!", nTarget, 255, 255, 0)
+			end
+		end
+	end
+end
+addCommandHandler("bribe", bribePlayer)
+
+function acceptBribe(plr, cmd, target)
+	if (not bribe[plr]) then return end
+	local crim, money = bribe[plr][1], bribe[plr][2]
+	if (crim and money) then
+		local part = exports.metall:findPlayer(target)
+		if (part == crim) then
+			if (not isElement(crim)) then
+				outputChatBox("This player does no longer exist!", plr, 255, 0, 0)
+				bribe[plr] = nil
+				return
+			end
+			if (getPlayerMoney(crim) <= money) then return end
+			givePlayerMoney(plr, money)
+			takePlayerMoney(crim, money)
+			setWantedLevel(crim, 0)
+			setPlayerWantedLevel(crim, 0)
+			outputChatBox(getPlayerName(plr).." accepted your bribe of $"..money, crim, 0, 255, 0)
+			outputChatBox("Accepted "..getPlayerName(crim).."'s bribe and made $"..money, plr, 0, 255, 0)
+			bribe[plr] = nil
+		end
+	end
+end
+addCommandHandler("acceptbribe", acceptBribe)
+
+function releaseMyPlayer(plr)
+	if (prisoner[plr]) then
+		local crim = prisoner[plr]
+		if (isElement(crim)) then
+			releasePlayer(crim)
+			triggerClientEvent(plr, "removeMarkers", plr)
+			outputChatBox("You have released "..getPlayerName(crim), plr, 0, 255, 0)
+			outputChatBox("You have been released by "..getPlayerName(plr), crim, 0, 255, 0)
+		end
+	end
+end
+addCommandHandler("release", releaseMyPlayer)
+
+function finishArrest()
+	local theCrim = prisoner[client]
+	if (isElement(theCrim)) then
+		local currentArrests = tonumber(getAccountData(getPlayerAccount(client), "arrestCounts")) or 0
+		setAccountData(getPlayerAccount(client), "currentArrests", currentArrests + 1)
+		local points = tonumber(getElementData(theCrim, "wantedPoints")) or 0
+		givePlayerMoney(client, points * 3)
+		outputChatBox("You have jailed "..getPlayerName(theCrim).." and earned $"..points * 3, client, 0, 100, 255)
+		exports.GTIprison:sendPlayerToPrison(theCrim, points * 1000)
+		prisoner[client] = nil
+		arrester[theCrim] = nil
+		canPlayerBeKilled[theCrim] = nil
+	end
+end
+addEvent("finishArrest", true)
+addEventHandler("finishArrest", root, finishArrest)
+
+function upperhendPlayer(player, police)
+	if (not isElement(player)) then return end
+	if (not isElement(police)) then return end
+	if (not arrester[player] ~= police) then return end
+	local time = getWantedLevel(player) * 2
+	local money = getWantedLevel(player) * 3
+	local currentArrests = tonumber(getAccountData(getPlayerAccount(police), "arrestCounts")) or 0
+	setAccountData(getPlayerAccount(police), "currentArrests", currentArrests + 1)
+	givePlayerMoney(police, money)
+	outputChatBox("You have jailed "..getPlayerName(player).." and earned $"..money, police, 0, 255, 0)
+	exports.GTIprison:sendPlayerToPrison(player, time / 1000)
+	prisoner[police] = nil
+	arrester[player] = nil
+	canPlayerBeKilled[player] = nil
+end

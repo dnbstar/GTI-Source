@@ -1,0 +1,9 @@
+<meta>
+	<script src="misc.lua" type="client" />
+	<script src="misc.slua" type="server" />
+	
+	<export function="isPlayerInTeams" type="client"/>
+	<export function="isPlayerInTeams" type="server"/>
+	<export function="getPlayerCity" type="server"/>
+	<export function="getPlayerCity2" type="server"/>
+</meta>

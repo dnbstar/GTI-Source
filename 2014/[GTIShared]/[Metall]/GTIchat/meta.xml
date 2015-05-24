@@ -1,0 +1,4 @@
+<meta>
+	<script src="chat.lua" type="client" />
+	<script src="chat.slua" type="server" />
+</meta>

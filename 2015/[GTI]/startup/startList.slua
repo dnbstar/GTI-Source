@@ -1,0 +1,17 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Dec 2013
+-- Resource: startup/startList.lua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+function startServer()
+	for i,resource in ipairs(getResources()) do
+		local autostart = getResourceInfo(resource, "autostart")
+		if (autostart == "true") then
+			startResource(resource, true)
+		end
+	end
+end
+addEventHandler("onResourceStart", resourceRoot, startServer)

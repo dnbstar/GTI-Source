@@ -1,0 +1,36 @@
+<meta>
+    <info author="LilDolla" version="1.0" name="CJ Clothing Stores" autostart="false" />
+    <script src="clothing_tbl_c.luac" type="client" />
+    <script src="clothing-gui_c.luac" type="client" />
+    <script src="clothing_functions_c.luac" type="client" />
+    
+    <script src="database.lua" type="server" />
+    <script src="saving_s.lua" type="server" />
+    
+    <script src="shader.luac" type="client" />
+    <script src="download.lua" type="server" />
+    
+    <aclrequest>
+        <right name="function.fileCreate" access="true" />
+        <right name="function.fileOpen" access="true" />
+        <right name="function.fileRead" access="true" />
+        <right name="function.fileClose" access="true" />
+        <right name="function.fileISEOF" access="true" />
+    </aclrequest>
+    
+    <file src="images/panel.png" />
+    <file src="images/button.png" />
+    <file src="images/backdrop.png" />
+    
+    <file src="images/logo.png" />
+    <file src="images/logo_binco.png" />
+    <file src="images/logo_ds.png" />
+    <file src="images/logo_plaps.png" />
+    <file src="images/logo_surban.png" />
+    <file src="images/logo_victim.png" />
+    <file src="images/logo_zip.png" />
+    <file src="shader.fx" />
+    <file src="font.ttf" />
+    
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

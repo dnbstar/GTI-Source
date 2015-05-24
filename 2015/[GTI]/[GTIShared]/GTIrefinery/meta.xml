@@ -1,0 +1,30 @@
+<meta>
+    <info author="Jack, NickeLz" version="1.1.2" type="script" name="Petroleum Engineer Job" />
+	
+	<!-- Clientside -->
+	<!--<script src="client/client_player.lua" type="client" cache="false"/> <!-- Handle all the client side stuff of player values -->
+	<!--<script src="client/client_hud.lua" type="client" cache="false"/> <!-- HUD system. Draws pump status, etc... -->
+	<!--<script src="client/client_refine.lua" type="client" cache="false"/> <!-- Refine system. Pretty much takes and sends crap from and to the server regarding refinery -->
+	<!--<script src="client/client_pump.lua" type="client" cache="false"/> <!-- Pump System. Self-explanatory... -->
+	<!--<script src="client/client_vehicles.lua" type="client" cache="false"/> <!-- Vehicle System. same as server but stores the var -->
+	
+	<!-- Serverside -->
+    <!--<script src="server/server_barrels.lua" type="server"/> <!-- Barrels! self-explanatory -->
+    <!--<script src="server/server_player.lua" type="server"/> <!-- Handle player values that are more important! -->
+    <!--<script src="server/server_pumps.lua" type="server"/> <!-- Pump system. Self-explanatory... -->
+    <!--<script src="server/server_refine.lua" type="server"/> <!-- Refine system. Handler for the client -->
+    <!--<script src="server/server_vehicle.lua" type="server"/> <!-- Vehicle system. Detects the player's current vehicle and makes math decisions to decide if it's nearby. -->
+    <!--<script src="server/server_core.lua" type="server"/> <!-- Core system. Handles player payments and so on. -->
+	
+	<!-- Classes -->
+		<!-- Barrel class. Very efficient from the old system we had. -->
+		<script src="classes/class_barrel.lua" type="server"/>
+		<script src="classes/class_barrel.lua" type="client" cache="false"/>
+	
+		<!-- Barrel class. Very efficient from the old system we had. -->
+		<script src="classes/class_pump.lua" type="server"/>
+		<script src="classes/class_pump.lua" type="client" cache="false"/>
+	
+    <!-- Enable super epic OOP ;) -->
+    <oop>true</oop>
+</meta>

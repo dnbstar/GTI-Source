@@ -1,0 +1,83 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Dec 2013
+-- Resource: GTIaccounts/spawn.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local spawnPoints = { 
+{2485, -1667, 13.3, 0},
+}
+
+-- On Player Login
+------------------->>
+
+function spawn(player)
+	local account = getPlayerAccount(player)
+	if (not account or isGuestAccount(account)) then return end
+		-- Position
+	local i = math.random(#spawnPoints)
+	local x,y,z,rot,int,dim = spawnPoints[i][1], spawnPoints[i][2], spawnPoints[i][3], spawnPoints[i][4], 0, 0
+	local pos = GAD(account, "position")
+	if (pos) then
+		pos = split(pos, ",")
+		x,y,z,rot,int,dim = tonumber(pos[1]), tonumber(pos[2]), tonumber(pos[3]), tonumber(pos[4]), tonumber(pos[5]), tonumber(pos[6])
+	end
+		-- Skin ID
+	local skin = GAD(account, "skin")
+		-- Spawn Player
+	spawnPlayer(player, x, y, z, rot, skin, int, dim)
+	showPlayerHudComponent(source, "all", true)
+	showChat(source, true)
+	if (not skin) then
+		repeat until setElementModel(player, math.random(312))
+	else
+		setElementModel(player, skin)
+	end
+		-- Team
+	local team = GAD(account, "team") or "Unemployed"
+	exports.GTIteams:assignTeam(player, team)
+		-- Account Creation Fix
+	local accCreate = GAD(account, "accountCreation")
+	if (not accCreate) then
+		local timestamp = getRealTime().timestamp
+		SAD(account, "accountCreation", timestamp)
+	end
+		-- Last Login
+	local timestamp = getRealTime().timestamp
+	SAD(account, "lastLogin", timestamp)
+end
+
+-- On Player Quit
+------------------>>
+
+function saveData()
+	local account = getPlayerAccount(source)
+	if (not account or isGuestAccount(account)) then return end
+		-- Position
+	local x,y,z = getElementPosition(source)
+	local _,_,rot = getElementRotation(source)
+	local int = getElementInterior(source)
+	local dim = getElementDimension(source)
+	SAD(account, "position", string.format("%.3f",x)..","..string.format("%.3f",y)..","..string.format("%.3f",z)..","..string.format("%.3f",rot)..","..int..","..dim)
+		-- Skin ID
+	local skin = getElementModel(source)
+	SAD(account, "skin", skin)	
+		-- Team
+	local team = getPlayerTeam(source)
+	if (team) then
+		team = getTeamName(team)
+		SAD(account, "team", team)
+	end
+		-- Last IP
+	local lastip = getPlayerIP(source)
+	SAD(account, "lastip", lastip)
+		-- Last Serial
+	local lastserial = getPlayerSerial(source)
+	SAD(account, "lastserial", lastserial)
+		-- Last Name
+	local lastname = getPlayerName(source)
+	SAD(account, "lastname", lastname)
+end
+addEventHandler("onPlayerQuit", root, saveData)

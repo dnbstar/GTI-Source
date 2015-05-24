@@ -1,0 +1,10 @@
+<meta>
+    <script src="farmer_c.luac" type="client" />
+    <script src="farmer_s.lua" type="server" />
+    <file src="font.ttf" />
+    
+    <map src="map/GTI-Farms-LilDolla.map" dimension="0"></map>
+    <script src="map/mapEditorScriptingExtension_s.lua" type="server"></script>
+    <script src="map/mapEditorScriptingExtension_c.lua" type="client" validate="false"></script>
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

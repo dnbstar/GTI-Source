@@ -1,0 +1,82 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 18 Mar 2014
+-- Resource: GTIrentVehicle/database.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "LpyYEF%pah4Z&N")
+dbExec(db, "CREATE TABLE IF NOT EXISTS `rented_vehicles`(`id` INT NOT NULL AUTO_INCREMENT, `name` TEXT, PRIMARY KEY(id))")
+rentedVehicles = {}
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	dbQuery(cacheDatabase, {}, db, "SELECT * FROM `rented_vehicles`")
+end)
+
+function cacheDatabase(qh)
+	local result = dbPoll(qh, 0)
+	rentedVehicles["Console"] = {}
+	for i,row in ipairs(result) do
+		rentedVehicles[row.name] = {}
+		for column,value in pairs(row) do
+			if (column ~= "name") then
+				if (not rentedVehicles["Console"][column]) then
+					rentedVehicles["Console"][column] = true
+				end
+				if (value == "true") then value = true end
+				if (value == "false") then value = false end
+				rentedVehicles[row.name][column] = value
+			end
+		end
+	end
+end
+
+-- Account Exports
+------------------->>
+
+function setVehicleData(account, key, value)
+	if (not account or not key) then return false end
+	if (isGuestAccount(account) or type(key) ~= "string") then return false end
+	if (type(key) == "string" or type(key) == "number") then
+		local account = getAccountName(account)
+		
+		if (type(rentedVehicles[account]) ~= "table") then
+			rentedVehicles[account] = {}
+			dbExec(db, "INSERT INTO `rented_vehicles`(name) VALUES(?)", account)
+		end
+		
+		if (rentedVehicles["Console"][key] == nil) then
+			dbExec(db, "ALTER TABLE `rented_vehicles` ADD `??` text", key)
+			rentedVehicles["Console"][key] = true
+		end
+		
+		rentedVehicles[account][key] = value
+		if (value ~= nil) then
+			dbExec(db, "UPDATE `rented_vehicles` SET `??`=? WHERE `name`=?", key, tostring(value), account)
+		else
+			dbExec(db, "UPDATE `rented_vehicles` SET `??`=NULL WHERE `name`=?", key, account)
+		end
+		return true
+	else return false end
+end
+
+function getVehicleData(account, key)
+	if (not account or not key) then return nil end
+	if (isGuestAccount(account) or type(key) ~= "string") then return nil end
+	
+	local account = getAccountName(account)
+	if (rentedVehicles[account] == nil) then return nil end
+	if (rentedVehicles[account][key] == nil) then return nil end
+	
+	return tonumber(rentedVehicles[account][key]) or rentedVehicles[account][key]
+end
+
+function dropVehicleData(account)
+	if (not account or isGuestAccount(account)) then return false end
+	
+	local account = getAccountName(account)
+	if (not rentedVehicles[account]) then return false end
+	rentedVehicles[account] = nil
+	dbExec(db, "DELETE FROM `rented_vehicles` WHERE `name`=?", account)
+end

@@ -1,0 +1,6 @@
+<meta>
+	<info author="NicKeLz" name="Weapon Skills" autostart="true" />
+	<!--<script src="c.luac" type="client" />-->
+		<!--Depreciated, replaced in GTIhud-->
+	<script src="s.lua" type="server" />
+</meta>

@@ -1,0 +1,9 @@
+<meta>
+    <info author="Emile" name="Market" autostart="true" />
+    <script src="Client.luac" type="client"/>
+    <script src="GUI.luac" type="client" />
+    <script src="Server.lua" type="server" />
+    
+    <file src="font/myfont.ttf" />
+    <file src="font/market.png" />
+</meta>

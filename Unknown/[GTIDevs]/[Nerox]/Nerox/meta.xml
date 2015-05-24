@@ -1,0 +1,4 @@
+<meta>
+    <info author="Nerox" name="Nerox Miscellaneous" autostart="true"></info>
+    <script src="nightVisionFix_c.luac" type="client" />
+</meta>

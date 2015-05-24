@@ -1,0 +1,39 @@
+----------------------------------------->>
+-- GTI: Grand Theft International Server
+-- Date: 12 August 2013
+-- Resource: GTIlogs/logging.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+function outputLog(text, category, player)
+	if (type(text) ~= "string" or type(category) ~= "string") then return false end
+	
+	local timestamp = getRealTime().timestamp
+	
+	local ip, serial, account
+	if (isElement(player) and getElementType(player) == "player") then
+		ip = getPlayerIP(player)
+		serial = getPlayerSerial(player)
+		account = getPlayerAccount(player)
+		player = getPlayerName(player)
+		if (isGuestAccount(account)) then account = nil end
+		account = getAccountName(account)
+	elseif (getAccount(tostring(player))) then
+		account = player
+		local player = getAccountPlayer(player)
+		if (player) then
+			ip = getPlayerIP(player)
+			serial = getPlayerSerial(player)
+			player = getPlayerName(player)
+		else
+			acc = getAccount(account)
+			ip = exports.GTIaccounts:GAD(acc, "lastip")
+			serial = exports.GTIaccounts:GAD(acc, "lastserial")
+			player = exports.GTIaccounts:GAD(acc, "lastname")
+		end
+	end
+	
+	local success = addLogToDatabase(category, timestamp, text, player, account, ip, serial)
+	return success
+end

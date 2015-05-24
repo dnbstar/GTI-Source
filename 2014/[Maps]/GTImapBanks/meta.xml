@@ -1,0 +1,9 @@
+<meta>
+    <script src="ATMs.luac" type="client" />
+    <script src="LSBankOutside.luac" type="client" />
+    <script src="LVBankOutside.luac" type="client" />
+    <script src="SFBankCarLot.luac" type="client" />
+    <script src="SFBankOutside.luac" type="client" />
+	<script src="FedReserve.luac" type="client" />
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

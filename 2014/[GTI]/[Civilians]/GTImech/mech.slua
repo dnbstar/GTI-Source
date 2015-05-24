@@ -1,0 +1,56 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 16 Jan 2014
+-- Resource: GTImech/mech.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Notify Player of Vehicle Repair
+----------------------------------->>
+
+local maxCostByType = { ["Automobile"] = 500, ["Plane"] = 1500 ["Bike"] = 350, ["Helicopter"] = 800, 
+	["Boat"] = 650, ["Train"] = 425, ["BMX"] = 50, ["Monster Truck"] = 500, ["Quad"] = 350 }
+
+local pendingRepairs = {}
+function notifyPlayerOfRepair(vehicle)
+	local health = getElementHealth(vehicle)
+	if (health >= 990) then
+		exports.GTIhud:dm("This vehicle is already fully repaired.", client, 255, 200, 0)
+		return
+	end
+	
+	local model = getElementModel(vehicle)
+	local vehCost = exports.GTIvehicles:getVehicleCost(model)
+	local maxCost = maxCostByType[getVehicleType(model)]
+	health = health - 300
+	local cost = math.ceil( ((700-health)/700)*maxCost )
+	
+	local ownerCash = getPlayerMoney(source)
+	if (cost > ownerCash) then
+		exports.GTIhud:dm("This vehicle's owner cannot afford the repair cost.", client, 255, 200, 0)
+		return
+	end
+	
+	pendingRepairs[client] = vehicle
+	exports.GTIhud:dm("Repair Request Sent to "..getPlayerName(source)..". Waiting for response...", client, 255, 200, 0)
+	triggerClientEvent(source, "GTImech.notifyPlayerOfRepair", client, vehicle, cost)
+end
+addEvent("GTImech.notifyPlayerOfRepair", true)
+addEventHandler("GTImech.notifyPlayerOfRepair", root, notifyPlayerOfRepair)
+
+function cancelRepair(mech)
+	exports.GTIhud:dm(getPlayerName(client).." has declined your repair request.", mech, 255, 200, 0)
+	pendingRepairs[mech] = nil
+end
+addEvent("GTImech.cancelRepair", true)
+addEventHandler("GTImech.cancelRepair", root, cancelRepair)
+
+-- Repair Vehicle
+------------------>>
+
+function acceptRepair()
+	
+end
+addEvent("GTImech.acceptRepair", true)
+addEventHandler("GTImech.acceptRepair", root, acceptRepair)

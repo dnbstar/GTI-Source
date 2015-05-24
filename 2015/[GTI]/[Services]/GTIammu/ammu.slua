@@ -1,0 +1,170 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Author: JT Pennington (JTPenn)
+-- Date: 21 Nov 2014
+-- Resource: GTIammu/ammu.slua
+-- Version: 1.0
+----------------------------------------->>
+
+local DEF_PROJECILES = "16,17,18,39"
+
+-- Open Ammu-Nation
+-------------------->>
+
+function openAmmuNation(player, dim)
+	if (not isElement(player) or getElementType(player) ~= "player" or isPedInVehicle(player) or not dim) then return end
+	local plr_inventory = getWeaponsInventory(player)
+	local limits = exports.GTIweapons:getWeaponMaxAmmo()
+	local isUrban = weapon_stores[getElementData(source, "table")][6]
+	triggerClientEvent(player, "GTIammu.loadPanel", resourceRoot, weapon_cat, weapon_list, plr_inventory, limits, isUrban)
+end
+addEventHandler("onColShapeHit", resourceRoot, openAmmuNation)
+
+-- Buy Weapon
+-------------->>
+
+addEvent("GTIammu.buyWeapon", true)
+addEventHandler("GTIammu.buyWeapon", root, function(index1, index2)
+	local weap_table = weapon_list[index1][index2]
+	local weapon = weap_table.id
+	local weap_name = weap_table.name
+	local cost = weap_table.weapon_cost
+	
+	local cash = getPlayerMoney(client)
+	if (cash < cost) then
+		outputChatBox("You don't have enough money to buy "..(weapon ~= 0 and "this weapon" or "armor")..".", client, 255, 125, 0)
+		return
+	end
+	exports.GTIbank:TPM(client, cost, "Ammu-Nation: Bought "..weap_name)
+	if (weapon ~= 0) then
+		outputChatBox("You have purchased a "..weap_name.." for $"..exports.GTIutil:tocomma(cost), client, 25, 255, 25)
+		addWeaponToInventory(client, weapon)
+	else
+		setPedArmor(client, weap_table.ammo_cost)
+		outputChatBox("You have purchased "..weap_name.." for $"..exports.GTIutil:tocomma(cost), client, 25, 255, 25)
+	end
+	
+	local plr_inventory = getWeaponsInventory(client)
+	triggerClientEvent(client, "GTIammu.updateCache", resourceRoot, plr_inventory)
+end)
+
+-- Buy Ammunition
+------------------>>
+
+addEvent("GTIammu.buyAmmo", true)
+addEventHandler("GTIammu.buyAmmo", root, function(amount, index1, index2)
+	local weap_table = weapon_list[index1][index2]
+	local weapon = weap_table.id
+	local weap_name = weap_table.name
+	local cost = math.floor(weap_table.ammo_cost * amount)
+	
+	-- Check Cash
+	local cash = getPlayerMoney(client)
+	if (cash < cost) then
+		outputChatBox("You don't have enough money to buy this weapon.", client, 255, 125, 0)
+		return
+	end
+	
+	-- Check Weapon Limit
+	local aboveLimit,overage,limit = isAboveAmmoLimit(client, weap_table.id, amount)
+	if (aboveLimit) then
+		local bullets = string.lower(weap_table.ammo_name)
+		outputChatBox("Purchase cannot be processed. You are "..overage.." "..bullets.." over the "..limit.." "..string.sub(bullets, 1, -2).." limit.", client, 255, 125, 0)
+		return
+	end
+	
+	-- Take Previous Weapon
+	local slot = getSlotFromWeapon(weapon)
+	local cur_weapon = getPedWeapon(client, slot)
+	if (cur_weapon ~= weapon) then
+		local cur_ammo = getPedTotalAmmo(client, slot)
+		exports.GTIweapons:updateWeaponInInventory(client, cur_weapon, cur_ammo)
+		takeWeapon(client, cur_weapon)
+	end
+	
+	-- Give New Weapon
+	local ammo = 0
+	if (cur_weapon ~= weapon) then
+		ammo = exports.GTIweapons:getWeaponAmmoFromInventory(client, weapon)
+	end
+	giveWeapon(client, weapon, amount+ammo, true)
+	
+	exports.GTIbank:TPM(client, cost, "Ammu-Nation: Bought "..amount.." "..weap_name.." "..string.lower(weap_table.ammo_name))
+	outputChatBox("You have purchased "..amount.." "..weap_name.." "..string.lower(weap_table.ammo_name).." for $"..exports.GTIutil:tocomma(cost), client, 25, 255, 25)
+	triggerClientEvent(client, "GTIammu.close", resourceRoot)
+end)
+
+-- Switch to Weapon
+-------------------->>
+
+addEvent("GTIammu.switchToWeapon", true)
+addEventHandler("GTIammu.switchToWeapon", root, function(weapon)
+	-- Take Previous Weapon
+	local slot = getSlotFromWeapon(weapon)
+	local cur_weapon = getPedWeapon(client, slot)
+	if (cur_weapon == weapon) then 
+		setPedWeaponSlot(client, slot)
+	return end
+	
+	local cur_ammo = getPedTotalAmmo(client, slot)
+	exports.GTIweapons:updateWeaponInInventory(client, cur_weapon, cur_ammo)
+	takeWeapon(client, cur_weapon)
+	
+	-- Give New Weapon
+	local ammo = exports.GTIweapons:getWeaponAmmoFromInventory(client, weapon)
+	if (not ammo or ammo == 0) then return end
+	giveWeapon(client, weapon, ammo, true)
+	
+	triggerClientEvent(client, "GTIammu.close", resourceRoot)
+end)
+
+-- Utilities
+------------->>
+
+function addWeaponToInventory(player, weapon)
+	if (not isElement(player)) then return false end
+	local account = getPlayerAccount(player)
+	local plr_inv = exports.GTIaccounts:invGet(account, "ammu.inventory") or DEF_PROJECILES
+	plr_inv = split(plr_inv, ",")
+	
+	for i,v in ipairs(plr_inv) do
+		plr_inv[i] = tonumber(v)
+		if (weapon == plr_inv[i]) then return true end
+	end
+	table.insert(plr_inv, weapon)
+	table.sort(plr_inv)
+	
+	plr_inv = table.concat(plr_inv, ",")
+	exports.GTIaccounts:invSet(account, "ammu.inventory", plr_inv)
+	return true
+end
+
+function getWeaponsInventory(player)
+	if (not isElement(player)) then return false end
+	local account = getPlayerAccount(player)
+	local plr_inv = exports.GTIaccounts:invGet(account, "ammu.inventory") or DEF_PROJECILES
+	plr_inv = split(plr_inv, ",")
+	
+	local inventory = {}
+	for i,v in ipairs(plr_inv) do
+		inventory[tonumber(v)] = true
+	end
+	return inventory
+end
+
+function isAboveAmmoLimit(player, weap, amount)
+	local slot = getSlotFromWeapon(weap)
+	local weapon, ammo = getPedWeapon(player, slot), 0
+	if (weapon == weap) then
+		ammo = getPedTotalAmmo(player, slot)
+	else
+		ammo = exports.GTIweapons:getWeaponAmmoFromInventory(player, weap)
+	end
+	
+	local limit = exports.GTIweapons:getWeaponMaxAmmo(weap)
+	if ((ammo + amount) > limit) then
+		return true, ammo + amount - limit, limit
+	else
+		return false
+	end
+end

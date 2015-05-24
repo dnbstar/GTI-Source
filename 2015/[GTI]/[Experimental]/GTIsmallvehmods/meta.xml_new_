@@ -1,0 +1,7 @@
+<meta>
+    <script src="applying_c.luac" type="client" />
+    
+    <file src="land/polmav.dff" />
+    <file src="land/polmav.txd" />
+    <info name="Vehicle Mods"></info>
+</meta>

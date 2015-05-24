@@ -1,0 +1,4 @@
+<meta>
+	<script src="gateTable.lua" />
+	<export function="getGatesTable" type="server" />
+</meta>

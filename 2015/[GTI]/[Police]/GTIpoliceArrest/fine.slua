@@ -1,0 +1,240 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn)
+-- Date: 30 Nov 2014
+-- Resource: GTIpoliceArrest/fine.slua
+-- Version: 1.0
+----------------------------------------->>
+
+local fines = {}		-- Fine Amount by Player
+local finers = {}		-- Officer who issued the fine by player
+local fineTime = {}		-- Fine Timer by Player
+local recentFine = {}	-- Players who were recently fined
+local lastFiner = {}	-- Table of Last Finers by Cop
+
+local fine_locs = {
+	{1563.614, -1678.652, 15.191, 0, 0},	-- LSPD
+	{250.685, 118.537, 1002.219, 10, 142},	-- SFPD
+	{290.608, 185.861, 1006.179, 3, 143},	-- LVPD
+}
+
+local COST_PER_WP = 75		-- Fine price per WP
+local FINE_DIST = 5			-- Max Distance to be fined (meters)
+local FINE_ACCEPT = 30		-- Time to Accept the fine (seconds)
+local FINE_TIMEOUT = 300000	-- Time between issuing fines and getting paid
+
+-- Issue Fine
+-------------->>
+
+function issueFine(player, cmd, plr_name)
+	if (exports.GTIemployment:getPlayerJob(player, true) ~= "Police Officer") then return end
+	
+	if (not plr_name) then
+		outputChatBox("Syntax: /fine <player_name>", player, 255, 125, 0)
+		return
+	end
+	
+	local offender = exports.GTIutil:findPlayer(plr_name)
+	if (not offender) then
+		exports.GTIhud:dm("FINE: "..plr_name.." was not found. Try entering more characters or check for spelling.", player, 30, 125, 255)
+		return
+	end
+	
+	if (offender == player) then
+		exports.GTIhud:dm("FINE: You can't fine yourself!", player, 30, 125, 255)
+		return
+	end
+	
+	local x1,y1,z1 = getElementPosition(player)
+	local x2,y2,z2 = getElementPosition(offender)
+	if (getDistanceBetweenPoints3D(x1,y1,z1, x2,y2,z2) > FINE_DIST) then
+		exports.GTIhud:dm("FINE: "..getPlayerName(offender).." is too far away. The player can only be up to "..FINE_DIST.." meters away.", player, 20, 125, 255)
+		return
+	end
+	
+	local wp = exports.GTIpoliceWanted:getPlayerWantedLevel(offender, true)
+	if (wp == 0) then
+		exports.GTIhud:dm("FINE: "..getPlayerName(offender).." is unwanted. You cannot issue a fine to them.", player, 30, 125, 255)
+		return
+	elseif (wp >= 45) then
+		exports.GTIhud:dm("FINE: "..getPlayerName(offender).."'s wanted level is too high to issue a fine to them. Arrest them!", player, 30, 125, 255)
+		return
+	end
+	
+	if (fines[offender]) then
+		exports.GTIhud:dm("FINE: "..getPlayerName(offender).." already has an outstanding fine.", player, 30, 125, 255)
+		return
+	end
+	
+	if (recentFine[offender]) then
+		exports.GTIhud:dm("FINE: "..getPlayerName(offender).." recently denied their fine. Arrest them.", player, 30, 125, 255)
+		return
+	end
+	
+	fines[offender] = wp * COST_PER_WP
+	finers[offender] = player
+	fineTime[offender] = setTimer(expireFine, 1000*FINE_ACCEPT, 1, offender)
+	recentFine[offender] = true
+	
+	exports.GTIhud:dm("FINE: You have issued "..getPlayerName(offender).." a $"..exports.GTIutil:tocomma(fines[offender]).." fine. Waiting for response...", player, 30, 125, 255)
+	exports.GTIhud:dm("FINE: The player has "..FINE_ACCEPT.." seconds to accept the fine.", player, 30, 125, 255)
+	
+	outputChatBox("FINE: You have been issued a $"..exports.GTIutil:tocomma(fines[offender]).." fine from "..getPlayerName(player)..". /acceptfine to pay it, /denyfine to deny it.", offender, 30, 125, 255)
+	outputChatBox("FINE: You have "..FINE_ACCEPT.." seconds to accept the fine before you are charged .", offender, 30, 125, 255)
+	playSoundFrontEnd(offender, 11)
+end
+addCommandHandler("fine", issueFine)
+
+-- Accept/Deny Fine
+-------------------->>
+
+function acceptFine(player, cmd)
+	if (not fines[player] or not finers[player]) then return end
+	local fine = fines[player]
+	local cop = finers[player]
+	
+	local wp = exports.GTIpoliceWanted:getPlayerWantedLevel(player, true)
+	if (wp == 0) then
+		exports.GTIhud:dm("FINE: "..getPlayerName(player).." is no longer wanted, making the fine invalid.", cop, 30, 125, 255)
+		exports.GTIhud:dm("FINE: You are no longer wanted. The fine is no longer valid.", player, 30, 125, 255)
+		fines[player], finers[player] = nil, nil
+		killTimer(fineTime[player]) fineTime[player] = nil
+		return
+	elseif (wp >= 45) then
+		exports.GTIhud:dm("FINE: "..getPlayerName(player).."'s wanted level is now too high for them to accept the fine. Arrest them!", cop, 30, 125, 255)
+		exports.GTIhud:dm("FINE: Your wanted level is now too high to accept this fine.", player, 30, 125, 255)
+		fines[player], finers[player] = nil, nil
+		killTimer(fineTime[player]) fineTime[player] = nil
+		return
+	end
+	
+		-- Pay the Fine
+	exports.GTIbank:TPM(player, fine, "Fines: Paid fine from "..getPlayerName(cop))
+	exports.GTIpoliceWanted:clearPlayerWantedLevel(player)
+	if (exports.GTIcriminals:isCriminal(player)) then
+		exports.GTIemployment:resign(player, true, true)
+	end
+	exports.GTIhud:dm("FINE: You have paid the $"..exports.GTIutil:tocomma(fine).." fine. You wanted level has been cleared.", player, 30, 125, 255)
+	
+		-- Prevent Exploiting Progress/XP
+	local skip_money
+	if (lastFiner[cop]) then
+		for i,v in ipairs(lastFiner[cop]) do
+			if (v[1] == player and v[2] > getTickCount()) then skip_money = true break end
+		end
+	end
+	
+	if (not lastFiner[cop]) then lastFiner[cop] = {} end
+	table.insert(lastFiner[cop], {player, getTickCount()+FINE_TIMEOUT})
+	
+		-- Pay the Cop
+	if (not skip_money) then
+		payPlayerForArrest(cop, 1, wp, 1, true)
+		exports.GTIemployment:givePlayerJobMoney(cop, "Police Officer", fine)
+	end
+	exports.GTIhud:dm("FINE: "..getPlayerName(player).." has paid the $"..exports.GTIutil:tocomma(fine).." fine.", cop, 30, 125, 255)
+	
+	fines[player], finers[player], recentFine[player] = nil, nil, nil
+	killTimer(fineTime[player]) fineTime[player] = nil
+end
+addCommandHandler("acceptfine", acceptFine)
+
+function denyFine(player, cmd)
+	if (not fines[player] or not finers[player]) then return end
+	
+	exports.GTIhud:dm("FINE: You have declined the fine and have been charged.", player, 30, 125, 255)
+	exports.GTIhud:dm("FINE: "..getPlayerName(player).." denied the fine and has been charged. Arrest them!", finers[player], 30, 125, 255)
+	
+	exports.GTIpoliceWanted:chargePlayer(player, 30)
+	
+	fines[player], finers[player] = nil, nil
+	killTimer(fineTime[player]) fineTime[player] = nil
+end
+addCommandHandler("denyfine", denyFine)
+
+function expireFine(player)
+	if (not isElement(player)) then return end
+	exports.GTIhud:dm("FINE: The fine has expired. You have been charged.", player, 30, 125, 255)
+	exports.GTIhud:dm("FINE: "..getPlayerName(player).."'s fine has expired. Arrest them!", finers[player], 30, 125, 255)
+	exports.GTIpoliceWanted:chargePlayer(player, 30)
+	fines[player], finers[player] = nil, nil
+	fineTime[player] = nil
+end
+
+-- Pay Fine at PD
+------------------>>
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	for i,v in ipairs(fine_locs) do
+		local marker = createMarker(v[1], v[2], v[3], "cylinder", 1.1, 25, 255, 25, 150)
+		setElementInterior(marker, v[4])
+		setElementDimension(marker, v[5])
+		addEventHandler("onMarkerHit", marker, showFineGUI)
+	end
+end)
+
+function showFineGUI(player, dim)
+	if (not isElement(player) or getElementType(player) ~= "player" or not dim) then return end
+	
+	local wp = exports.GTIpoliceWanted:getPlayerWantedLevel(player, true)
+	if (wp == 0) then
+		exports.GTIhud:dm("FINE: Only wanted players can pay fines.", player, 30, 125, 255)
+		return
+	elseif (wp >= 45) then
+		exports.GTIhud:dm("FINE: Your wanted level is too high. You must have less than 45 WP to pay a fine.", player, 30, 125, 255)
+		return
+	end
+	
+	local fine_cost = wp * COST_PER_WP * 2
+	triggerClientEvent(player, "GTIpoliceArrest.issueFine", resourceRoot, fine_cost)
+end
+
+addEvent("GTIpoliceArrest.payFineAtPD", true)
+addEventHandler("GTIpoliceArrest.payFineAtPD", root, function()
+	local wp = exports.GTIpoliceWanted:getPlayerWantedLevel(client, true)
+	if (wp == 0) then
+		exports.GTIhud:dm("FINE: You are no longer wanted and cannot pay the fine.", client, 30, 125, 255)
+		return
+	elseif (wp >= 45) then
+		exports.GTIhud:dm("FINE: Your wanted level is now too high. You must have less than 45 WP to pay a fine.", client, 30, 125, 255)
+		return
+	end
+		-- Pay the Fine
+	local fine_cost = wp * COST_PER_WP * 2
+	if (getPlayerMoney(client) < fine_cost) then
+		exports.GTIhud:dm("FINE: You cannot afford to pay this fine.", client, 30, 125, 255)
+		return
+	end
+	exports.GTIbank:TPM(client, fine_cost, "Fines: Paid fine at PD")
+	exports.GTIpoliceWanted:clearPlayerWantedLevel(client)
+	if (exports.GTIcriminals:isCriminal(client)) then
+		exports.GTIemployment:resign(client, true, true)
+	end
+	exports.GTIhud:dm("FINE: You have paid the $"..exports.GTIutil:tocomma(fine_cost).." fine. You wanted level has been cleared.", client, 30, 125, 255)
+end)
+
+-- Clear Cache
+--------------->>
+
+setTimer(function()	
+	for cop in pairs(lastFiner) do
+		for i,tbl in ipairs(lastFiner[cop]) do
+			if (tbl[2] < getTickCount()) then
+				table.remove(lastFiner[cop], i)
+			end
+		end
+	end
+end, 15000, 0)
+
+addEvent("onPlayerJailed", true)
+addEventHandler("onPlayerJailed", root, function()
+	recentFine[source] = nil
+end)
+
+addEventHandler("onPlayerQuit", root, function()
+	fines[source], finers[source], recentFine[source], lastFiner[source] = nil, nil, nil, nil
+	if (fineTime[source]) then
+		killTimer(fineTime[source])
+		fineTime[source] = nil
+	end
+end)

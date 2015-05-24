@@ -1,0 +1,15 @@
+<meta>
+	<min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+    
+	<script src="wantedDatabase.slua" />
+    <script src="crimeList.slua" />
+	<script src="wantedLevels.slua" />
+    	
+    <script src="crimes.luac" type="client" />
+    <script src="crimes.slua" />
+	
+	<export function="isPlayerWanted" type="server" />
+	<export function="getWantedLevel" type="server" />
+	<export function="clearWantedLevel" type="server" />
+    <export function="chargePlayer" type="server" />
+</meta>

@@ -1,0 +1,7 @@
+<meta>
+	<script src="Ranks.slua" />
+	<export function="getRanks" 		type="server" />
+	<export function="getRankBase" 		type="server" />
+	<export function="getExperience" 	type="server" />
+	<export function="getLevelPay" 		type="server" />
+</meta>

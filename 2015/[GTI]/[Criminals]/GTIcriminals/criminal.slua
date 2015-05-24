@@ -1,0 +1,42 @@
+----------------------------------------->>
+-- Grand Theft International (GTi)
+-- Author: JT Pennington (JTPenn)
+-- Date: 24 Jul 2014
+-- Resource: GTIcriminals/criminal.slua
+-- Version: 1.0
+----------------------------------------->>
+
+function goCriminal(player)
+	if (exports.GTIutil:isPlayerInTeam(player, "Law Enforcement", "National Guard")) then
+		exports.GTIhud:dm("You must resign from your job first in order to become a criminal.", player, 175, 25, 25)
+		return
+	end
+	if (exports.GTIprison:isPlayerInJail(player)) then
+		exports.GTIhud:dm("You cannot use this command while in jail.", player, 175, 25, 25)
+		return
+	end
+	if (exports.GTIutil:isPlayerInTeam(player, "Criminals") and not exports.GTIgangTerritories:isGangster(player)) then return end
+	if (exports.GTIpoliceWanted:getPlayerWantedLevel(player, true) < 10) then
+		exports.GTIpoliceWanted:chargePlayer(player, 27, true)
+	end
+	exports.GTIemployment:setPlayerJob(player, "Criminal", "Criminals", nil, exports.GTIaccounts:GAD(getPlayerAccount(player), "skin") or 0)
+end
+addCommandHandler("criminal", goCriminal)
+
+function isCriminal(player)
+	if (not exports.GTIutil:isPlayerInTeam(player, "Criminals")) then return false end
+	if (exports.GTIemployment:getPlayerJob(player, true) ~= "Criminal") then return false end
+	return true
+end
+
+-- Cop Killing Exp
+------------------->>
+
+addEventHandler("onPlayerWasted", root, function(_, attacker)
+	if (not isElement(attacker) or getElementType(attacker) ~= "player") then return end
+	if (not isCriminal(attacker)) then return end
+	if (exports.GTIemployment:getPlayerJob(source) == "Police Officer") then
+		modifyPlayerCriminalRep(attacker, 50, "Police Killing")
+		modifyPlayerTaskProgress(attacker, "Police Killing", 1)
+	end
+end)

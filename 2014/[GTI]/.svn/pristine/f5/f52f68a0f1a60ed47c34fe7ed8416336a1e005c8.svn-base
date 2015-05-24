@@ -1,0 +1,347 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 18 Mar 2014
+-- Resource: GTIrentVehicle/rentVehicle.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local vehicles = {}			-- Storage of Job Vehicles
+local vehicleBlips = {} 	-- Vehicle Blips
+
+local VEHICLE_BLIP_ID = 48	-- Radar Blips
+
+addEvent("onVehicleRent", true)
+
+
+-- Rent Vehicle
+---------------->>
+
+function rentVehicle(player, vehicleID, x, y, z, rot, int, dim, color, cost)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	local accName = getAccountName(account)
+		-- Check if the Player can Afford it
+	local textCost = ""
+	if (cost) then
+		local money = getPlayerMoney(player)
+		if (money < cost) then
+			exports.GTIhud:dm("You cannot afford this vehicle. You need $"..exports.GTIutil:tocomma(cost-money).." more in order to rent it.", player, 255, 125, 0)
+			rentalInProgress[player] = nil
+			return
+		end
+		exports.GTIbank:TPM(player, cost, "GTIrentVehicle: "..getVehicleNameFromModel(vehicleID).." rented")
+		textCost = " for $"..exports.GTIutil:tocomma(cost)
+	end
+		-- Check if the player already has a vehicle
+	if (doesPlayerHaveRentalVehicle(player)) then
+		dropVehicleData(account)
+	end
+	if (vehicles[player] and isElement(vehicles[player])) then
+		destroyElement(vehicles[player])
+		vehicles[player] = nil
+	end	
+		-- Register Vehicle
+	setVehicleData(account, "vehicleID", vehicleID)
+		-- Save Various other Info
+	setVehicleData(account, "position", x..","..y..","..z..","..rot..","..int..","..dim)
+	setVehicleData(account, "health", 1000)
+	setVehicleData(account, "fuel", 50)
+	setVehicleData(account, "mileage", 0)
+		-- Create the Vehicle
+	local vehicle = createVehicle(vehicleID, x, y, z, 0, 0, rot)
+	setElementInterior(vehicle, (int or 0))
+	setElementDimension(vehicle, (dim or 0))
+	warpPedIntoVehicle(player, vehicle)
+		-- Save the Color
+	if (color) then
+		local colorString = ""
+		for i,col in ipairs(color) do
+			colorString = colorString..","..col
+		end
+		colorString = string.gsub(colorString, ",", "", 1)
+		setVehicleData(account, "color", colorString)
+		local v = color
+		setVehicleColor(vehicle, v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12])
+	else
+		local r1,g1,b1, r2,g2,b2, r3,g3,b3, r4,g4,b4 = getVehicleColor(vehicle, true)
+		local colorString = r1..","..g1..","..b1..","..r2..","..g2..","..b2..","..r3..","..g3..","..b3..","..r4..","..g4..","..b4
+		setVehicleData(account, "color", colorString)
+	end
+		-- Register the Vehicle to the Owner
+	setElementData(vehicle, "owner", accName, false)
+	setElementData(vehicle, "mileage", 0)
+	vehicles[player] = vehicle
+		-- Save the Variant
+	local variant1,variant2  = getVehicleVariant(vehicle)
+	setVehicleData(account, "variant", variant1..","..variant2)
+		-- Save Purchase Price and Date
+	setVehicleData(account, "originalPrice", (cost or 0))
+	local timestamp = getRealTime().timestamp
+	setVehicleData(account, "purchaseDate", timestamp)
+	
+	exports.GTIhud:dm("You have successfully rented a "..getVehicleNameFromModel(vehicleID)..textCost, player, 200, 0, 255)
+	
+	triggerEvent("onVehicleRent", vehicle, player, x, y, z, rot, int, dim, color, cost)
+	triggerClientEvent(player, "onClientVehicleRent", vehicle, x, y, z, rot, int, dim, color, cost)
+	return true
+end
+
+-- Spawn Rented Vehicle
+------------------------>>
+
+function spawnRental(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+		-- Ensure the player doesn't spawn the same vehicle twice
+	if (vehicles[player]) then
+		destroyElement(vehicles[player])
+		vehicles[player] = nil
+	end
+	
+	local vehicleID = getVehicleData(account, "vehicleID")
+	local pos = getVehicleData(account, "position")
+	pos = split(pos, ",")
+	pos[1], pos[2], pos[3], pos[4], pos[5], pos[6] = tonumber(pos[1]), tonumber(pos[2]), tonumber(pos[3]), tonumber(pos[4]), tonumber(pos[5]), tonumber(pos[6])
+		-- Spawn the Vehicle
+	local vehicle = createVehicle(vehicleID, pos[1], pos[2], pos[3], 0, 0, pos[4])
+	setElementInterior(vehicle, pos[5])
+	setElementDimension(vehicle, pos[6])
+		-- Set the color
+	local colors = getVehicleData(account, "color")
+	colors = split(colors, ",")
+	local v = {}
+	for i,v2 in ipairs(colors) do
+		v[i] = tonumber(v2)
+	end
+	setVehicleColor(vehicle, v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12])
+		-- Set the Health
+	local health = getVehicleData(account, "health")
+	setElementHealth(vehicle, health)
+		-- Set the Variant
+	local variant = getVehicleData(account, "variant")
+	if (variant) then
+		variant = split(variant, ",")
+		setVehicleVariant(vehicle, variant[1], variant[2])
+	end
+	
+	setElementData(vehicle, "owner", owner, false)
+	local mileage = getVehicleData(account, "mileage") or 0
+	setElementData(vehicle, "mileage", mileage)
+	
+	vehicles[player] = vehicle
+	return true
+end
+
+-- Hide Vehicle
+---------------->>
+
+function hideVehicle(player)
+	if (vehicles[player]) then
+		destroyElement(vehicles[player])
+		vehicles[player] = nil
+	end
+	return true
+end
+
+function saveVehicleInfoOnDestroy()
+	if (getElementType(source) ~= "vehicle") then return end
+	
+	local owner = getElementData(source, "owner")
+	if (not owner) then return end
+	local account = getAccount(owner)
+	if (not account) then return end
+	
+		-- Save Position
+	local x,y,z = getElementPosition(source)
+	local _,_,rot = getElementRotation(source)
+	local int = getElementInterior(source)
+	local dim = getElementDimension(source)
+	local x,y,z,rot = string.format("%.3f", x), string.format("%.3f", y), string.format("%.3f", z), string.format("%.3f", rot)
+	setVehicleData(account, "position", x..","..y..","..z..","..rot..","..int..","..dim)
+	
+		-- Save Health
+	local health = math.floor(getElementHealth(source))
+	if (health < 300) then health = 300 end
+	setVehicleData(account, "health", health)
+		-- Save Mileage
+	local mileage = getElementData(source, "mileage") or 0
+	setVehicleData(account, "mileage", mileage)
+	
+		-- Destroy Vehicle Blip
+	if (isElement(vehicleBlips[source])) then 
+		destroyElement(vehicleBlips[source]) 
+		vehicleBlips[source] = nil
+	end
+end
+addEventHandler("onElementDestroy", resourceRoot, saveVehicleInfoOnDestroy)
+
+-- Blip Vehicle
+---------------->>
+
+function blipVehicle(player)
+	if (not vehicles[player]) then return nil end
+	local vehicle = vehicles[player]
+	
+	if (isElement(vehicleBlips[vehicle])) then
+		destroyElement(vehicleBlips[vehicle])
+		vehicleBlips[vehicle] = nil
+		return false
+	else
+		vehicleBlips[vehicle] = createBlipAttachedTo(vehicle, VEHICLE_BLIP_ID, 2, 255, 255, 255, 255, 0, 99999, player)
+		return true
+	end
+end
+
+function destroyBlipOnEnter(player, seat)
+	if (seat ~= 0) then return end
+	if (isElement(vehicleBlips[source])) then
+		destroyElement(vehicleBlips[source])
+		vehicleBlips[source] = nil
+	end
+end
+addEventHandler("onVehicleEnter", resourceRoot, destroyBlipOnEnter)
+
+-- Recover Vehicle
+------------------->>
+
+function recoverVehicle(player)
+	if (not vehicles[client]) then return end
+	local vehicle = vehicles[client]
+	
+	local x,y,z,rot,name,distance = exports.GTIvehicles:getNearestRecoveryPoint(vehicle)
+	local money = getPlayerMoney(client)
+	local recoveryCost = exports.GTIeconomy:getRecoveryCostPerMeter()
+	local cost = math.ceil(distance*recoveryCost)
+	if (cost > money) then
+		exports.GTIhud:dm("* You cannot afford to recover your vehicle. You need $"..exports.GTIutil:tocomma(cost-money).." more.", client, 255, 125, 0)
+		return
+	end
+	exports.GTIbank:TPM(client, cost, "VEHICLES: Vehicle Recovered")
+	setElementPosition(vehicle, x, y, z+2)
+	setElementRotation(vehicle, 0, 0, rot)
+	exports.GTIhud:dm("Your vehicle has been recovered to the "..name..". You have been charged $"..exports.GTIutil:tocomma(cost).." for the recovery.", client, 200, 0, 255)
+end
+
+-- Vehicle Stats Panel
+----------------------->>
+
+function callAdvancedVehicleStats(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	local vehicle = vehicles[client]
+	local vehInfo = {}
+	if (not vehicle) then
+			-- Name
+		vehInfo["name"] = getVehicleData(account, "vehicleID")
+		vehInfo["name"] = getVehicleNameFromModel(tonumber(vehInfo["name"]))
+			-- Location
+		local pos = getVehicleData(account, "position")
+		pos = split(pos, ",")
+		pos[1], pos[2], pos[3] = tonumber(pos[1]), tonumber(pos[2]), tonumber(pos[3])
+		local district, city = getZoneName(pos[1], pos[2], pos[3]), getZoneName(pos[1], pos[2], pos[3], true)
+		if (district == "Unknown") then district = "San Andreas" end
+		if (city == "Unknown") then city = "San Andreas" end
+		vehInfo["zone"] = district..", "..city
+			-- Health
+		vehInfo["health"] = getVehicleData(account, "health")
+			-- Mileage
+		vehInfo["mileage"] = getVehicleData(account, "mileage")
+	else
+			-- Name
+		vehInfo["name"] = getVehicleName(vehicle)
+			-- Location
+		local x,y,z = getElementPosition(vehicle)
+		local district, city = getZoneName(x, y, z), getZoneName(x, y, z, true)
+		if (district == "Unknown") then district = "San Andreas" end
+		if (city == "Unknown") then city = "San Andreas" end
+		vehInfo["zone"] = district..", "..city
+			-- Health
+		vehInfo["health"] = getElementHealth(vehicle)
+			-- Mileage
+		vehInfo["mileage"] = getElementData(vehicle, "mileage") or getVehicleData(account, "mileage")
+	end
+		-- Fuel
+	vehInfo["fuel"] = getVehicleData(account, "fuel")
+		-- Value
+	vehInfo["value"] = 0
+		-- Date
+	vehInfo["purchase"] = getVehicleData(account, "purchaseDate") or getRealTime().timestamp
+	return vehInfo
+end
+
+-- Drop Rental Vehicle
+----------------------->>
+
+function dropRentalVehicle(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+		-- Check if the player already has a vehicle
+	if (vehicles[player] and isElement(vehicles[player])) then
+		destroyElement(vehicles[player])
+		vehicles[player] = nil
+	end
+	dropVehicleData(account)
+	exports.GTIhud:dm("Your rental vehicle has been returned.", player, 200, 0, 255)
+end
+
+-- Destroy Vehicles on Quit
+---------------------------->>
+
+function destroyVehiclesOnQuit()
+	if (not vehicles[source] or isElement(vehicles[source])) then return end
+		-- Destroy Vehicle Blip
+	local vehicle = vehicles[source]
+	if (vehicleBlips[vehicle]) then
+		destoryElement(vehicleBlips[vehicle])
+		vehicleBlips[vehicle] = nil
+	end
+		-- Destroy Vehicle
+	destroyElement(vehicles[source])
+	vehicles[source] = nil
+end
+addEventHandler("onPlayerQuit", root, destroyVehiclesOnQuit)
+
+function hideOnCommand(player, command)
+	hideVehicle(player)
+end
+addCommandHandler("hide", hideOnCommand)
+
+
+-- Utilities
+------------->>
+
+function isVehicleRented(vehicle)
+	if (not vehicle or not isElement(vehicle)) then return end
+	for i,veh in ipairs(getElementsByType("vehicle", resourceRoot)) do
+		if (veh == vehicle) then
+			return true
+		end
+	end
+	return false
+end
+
+function isPlayerRentedVehicleActive(player)
+	if (vehicles[player]) then return true end
+	return false
+end
+
+function doesPlayerHaveRentalVehicle(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	local vehData = getVehicleData(account, "vehicleID")
+	if (vehData) then return true end
+	return false
+end
+
+function getPlayerRentedVehicle(player)
+	return vehicles[player]
+end
+
+function isRentalBlipped(vehicle)
+	if (vehicleBlips[vehicle]) then return true end
+	return false
+end

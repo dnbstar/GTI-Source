@@ -1,0 +1,23 @@
+<meta>
+    <script src="creator/bcreator_c.luac" type="client" />
+    <script src="creator/bcreatorgui_c.luac" type="client" />
+    
+    <script src="builder/bbgui.luac" type="client" />
+    <script src="builder/buildercatalog_c.luac" type="client" />
+    
+    <script src="editor/editorgui_c.luac" type="client" />
+    
+    <script src="businesses_c.luac" type="client" />
+    <script src="businessgui_c.luac" type="client" />
+    
+    <script src="database_s.lua" type="server" />
+    
+    <script src="maps/convertedMap.luac" type="client" />
+    
+    <file src="files/house.png" />
+    <file src="files/owned.png" />
+    
+    <file src="files/business.png" />
+    <file src="files/bowned.png" />
+    <min_mta_version server="1.3.4-0.00000" client="1.3.4-0.00000"></min_mta_version>
+</meta>

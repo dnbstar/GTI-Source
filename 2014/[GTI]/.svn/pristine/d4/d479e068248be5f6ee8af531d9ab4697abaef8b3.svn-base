@@ -1,0 +1,73 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 01 Dec 2013
+-- Resource: GTIaccounts/accountData.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+db = dbConnect("mysql", "dbname=gti;host=127.0.0.1", "GTI", "LpyYEF%pah4Z&N")
+dbExec(db, "CREATE TABLE IF NOT EXISTS `accountdata`(`id` INT NOT NULL AUTO_INCREMENT, `name` TEXT, PRIMARY KEY(id))")
+accountData = {}
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	dbQuery(cacheDatabase, {}, db, "SELECT * FROM `accountdata`")
+end)
+
+function cacheDatabase(qh)
+	local result = dbPoll(qh, 0)
+	accountData["Console"] = {}
+	for i,row in ipairs(result) do
+		accountData[row.name] = {}
+		for column,value in pairs(row) do
+			if (column ~= "name") then
+				if (not accountData["Console"][column]) then
+					accountData["Console"][column] = true
+				end
+				if (value == "true") then value = true end
+				if (value == "false") then value = false end
+				accountData[row.name][column] = value
+			end
+		end
+	end
+end
+
+-- Account Exports
+------------------->>
+
+function SAD(account, key, value)
+	if (not account or not key) then return false end
+	if (isGuestAccount(account) or type(key) ~= "string") then return false end
+	if (type(key) == "string" or type(key) == "number") then
+		local account = getAccountName( account )
+		
+		if (type(accountData[account]) ~= "table") then
+			accountData[account] = {}
+			dbExec(db, "INSERT INTO `accountdata`(name) VALUES(?)", account)
+		end
+		
+		if (accountData["Console"][key] == nil) then
+			dbExec(db, "ALTER TABLE `accountdata` ADD `??` text", key)
+			accountData["Console"][key] = true
+		end
+		
+		accountData[account][key] = value
+		if (value ~= nil) then
+			dbExec(db, "UPDATE `accountdata` SET `??`=? WHERE name=?", key, tostring(value), account)
+		else
+			dbExec(db, "UPDATE `accountdata` SET `??`=NULL WHERE name=?", key, account)
+		end
+		return true
+	else return false end
+end
+
+function GAD(account, key)
+	if (not account or not key) then return nil end
+	if (isGuestAccount(account) or type(key) ~= "string") then return nil end
+	
+	local account = getAccountName(account)
+	if (accountData[account] == nil) then return nil end
+	if (accountData[account][key] == nil) then return nil end
+	
+	return tonumber(accountData[account][key]) or accountData[account][key]
+end

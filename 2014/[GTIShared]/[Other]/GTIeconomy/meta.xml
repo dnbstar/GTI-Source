@@ -1,0 +1,5 @@
+<meta>
+	<script src="vehicles.slua" />
+	<export function="getVehiclePriceTable" type="server" />
+	<export function="getRecoveryCostPerMeter" type="server" />
+</meta>

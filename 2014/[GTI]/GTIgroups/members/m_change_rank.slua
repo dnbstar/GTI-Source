@@ -1,0 +1,30 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 11 Apr 2014
+-- Resource: GTIgroups/members/m_change_rank.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+function callChangeRankInfo(account)
+	local account = getAccount(account)
+	local rankID = getGroupMemberData(account, "id_rank")
+	local rank = getRankName(rankID)
+	local ranks = getGroupRanks(getPlayerGroup(client))
+	local rankNames = {}
+	for i,v in ipairs(ranks) do
+		rankNames[i] = getRankName(ranks[i])
+	end
+	
+	triggerClientEvent(client, "GTIgroups.returnChangeRankInfo", resourceRoot, rank, ranks, rankNames)
+end
+addEvent("GTIgroups.callChangeRankInfo", true)
+addEventHandler("GTIgroups.callChangeRankInfo", root, callChangeRankInfo)
+
+function selectRankForPlayer(rankID, player, account)
+	local account = getAccount(account)
+	setAccountGroupRank(account, rankID)
+	outputGroupChat("GROUP INFO: "..getPlayerName(client).." set "..player.."'s group rank to "..getRankName(rankID), getPlayerGroup(client))
+end
+addEvent("GTIgroups.selectRankForPlayer", true)
+addEventHandler("GTIgroups.selectRankForPlayer", root, selectRankForPlayer)

@@ -1,0 +1,208 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 23 Dec 2013
+-- Resource: GTIpoliceWanted/wanted_levels.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+addEvent("onPlayerCommitCrime", true)
+
+local MAX_WP_DECREASE = 75 	-- Decrease WL only if WL <= X
+local NEAR_OFFICER_M = 75	-- Distance to be Near an Officer (meters)
+local WL_TO_CRIMINAL = 25	-- Wanted Points Required to be a Criminal
+local MIN_CRIM_WP = 10		-- Minimum Criminal WP
+local CASH_PER_WP = 30		-- Cash earned per WP
+
+local wanted_points = {}		--- Record of Wanted Levels
+
+policeTeams = {["National Guard"] = true, ["Law Enforcement"] = true}
+
+-- Fill in Table On Resource Start
+for k,player in ipairs(getElementsByType("player")) do
+	local wanted = getElementData(player, "wanted")
+	if (wanted) then
+		wanted_points[player] = math.floor(wanted*10)
+	end
+end
+
+local team_exceptions = {
+	["Government"] = true,
+	["National Guard"] = true,
+	["Law Enforcement"] = true,
+}
+
+-- Crime Exports
+----------------->>
+
+function chargePlayer(player, crimeID, no_exceptions)
+	if (client) then player = client end
+	
+	if (not isElement(player) or not crimeList[crimeID]) then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	triggerEvent("onPlayerCommitCrime", player, crimeID)
+	if (not no_exceptions and team_exceptions[getTeamName(getPlayerTeam(player))]) then 
+		return false
+	end
+	if (not no_exceptions and exports.GTIprison:isPlayerInJail(player)) then
+		return false
+	end
+	if (not no_exceptions and exports.GTIgangTerritories:isGangster(player)) then
+		return false
+	end
+	if (not no_exceptions and exports.GTIgangTerritories:isSWAT(player)) then
+		return false
+	end
+	
+	local wP = crimeList[crimeID][2]
+	local totalCrimes = getWantedData(account, "crimeID"..crimeID) or 0
+	setWantedData(account, "crimeID"..crimeID, totalCrimes+1)
+	local totalWanted = getWantedData(account, "totalWP") or 0
+	setWantedData(account, "totalWP", totalWanted+wP)
+	
+	if (not wanted_points[player]) then wanted_points[player] = 0 end
+	wanted_points[player] = wanted_points[player] + wP
+	
+	setElementData(player, "wanted", math.floor(wanted_points[player])/10)
+	setWantedLevel(player, wanted_points[player])
+	
+	exports.killmessages:outputMessage(""..crimeList[crimeID][1].." ("..wP.." WP) <", player, 255, 25, 25)
+	if (wanted_points[player] >= WL_TO_CRIMINAL and not exports.GTIutil:isPlayerInTeam(player, "Criminals")) then
+		exports.GTIemployment:setPlayerJob(player, "Criminal", "Criminals", nil, exports.GTIaccounts:GAD(getPlayerAccount(player), "skin") or 0)
+	end
+	return true
+end
+addEvent("GTIpoliceWanted.chargePlayer", true)
+addEventHandler("GTIpoliceWanted.chargePlayer", root, chargePlayer)
+
+-- Wanted Level Exports
+------------------------>>
+
+function isPlayerWanted(player)
+	if (not wanted_points[player] or wanted_points[player] == 0) then return false end
+	return true
+end
+
+function getCrimeName(crimeID)
+	if (not crimeList[crimeID]) then return false end
+	return crimeList[crimeID][1]
+end
+
+function getPlayerWantedLevel(player, points)
+	if (not wanted_points[player]) then return 0 end
+	if (points) then
+		return wanted_points[player] or 0
+	else
+		return math.ceil(wanted_points[player]/10 or 0)
+	end
+end
+
+function clearPlayerWantedLevel(player)
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	wanted_points[player] = 0
+	setElementData(player, "wanted", 0)
+	exports.GTIaccounts:SAD(account, "wanted", 0)
+	setWantedLevel(player, 0)
+	return true
+end
+	
+-- Utilities
+------------->>
+
+setTimer(function()
+	for player,wanted in pairs(wanted_points) do
+		if (isElement(player)) then
+			local wp = wanted_points[player]
+			if (not isPlayerNearOfficer(player) and wp <= MAX_WP_DECREASE) then
+				if (not exports.GTIpoliceArrest:isPlayerInPoliceCustody(player, true, true, true, true, true)) then
+					if (wp > 50) then
+						wanted_points[player] = math.floor(wanted_points[player] - 3)
+					elseif (wp > 20) then
+						wanted_points[player] = math.floor(wanted_points[player] - 5)
+					else
+						wanted_points[player] = math.floor(wanted_points[player] - 7)
+					end
+						-- Criminal Exception
+					if (exports.GTIcriminals:isCriminal(player) and wanted_points[player] < MIN_CRIM_WP) then
+						wanted_points[player] = MIN_CRIM_WP
+					end
+					
+					if (wanted_points[player] < 0) then
+						wanted_points[player] = nil 
+						if (exports.GTIcriminals:isCriminal(player)) then
+							exports.GTIemployment:resign(player, true, true)
+						end
+					end
+					setElementData(player, "wanted", (wanted_points[player] or 0)/10)
+					setWantedLevel(player, wanted_points[player] or 0)
+				end
+			end
+		else
+			wanted_points[player] = nil
+		end
+	end
+end, 120000, 0)
+
+local WLTable = {1, 10, 25, 45, 75, 150}
+function setWantedLevel(player, wp)
+	if (wp == 0) then 
+		setPlayerWantedLevel(player, 0)
+		return true 
+	end
+	for i=1,6 do
+		if (wp >= WLTable[i]) then
+			setPlayerWantedLevel(player, i)
+		end
+	end
+	return true
+end
+
+function isPlayerNearOfficer(player)
+	local x1,y1,z1 = getElementPosition(player)
+	for k,police in ipairs(getElementsByType("player")) do
+		local x2,y2,z2 = getElementPosition(police)
+		if (getDistanceBetweenPoints3D(x1,y1,z1, x2,y2,z2) <= NEAR_OFFICER_M) then
+			local team = getPlayerTeam(police)
+			if (team) then
+				team = getTeamName(team)
+				if (policeTeams[team]) then return true end
+			end
+		end
+	end
+	return false
+end
+
+-- WL Command
+-------------->>
+
+function getExactWantedLevel(player, command)
+	local wL = getPlayerWantedLevel(player)
+	outputChatBox("Your current wanted level is "..wL.." stars (Worth $"..exports.GTIutil:tocomma(CASH_PER_WP*wL*10)..")", player, 255, 50, 50)
+end
+addCommandHandler("wl", getExactWantedLevel)
+
+-- Load/Save Data
+------------------>>
+
+function loadWantedLevel(_, account)
+	if (isGuestAccount(account)) then return end
+	
+	local wL = exports.GTIaccounts:GAD(account, "wanted") or 0
+	wL = math.floor(wL)
+	wanted_points[source] = wL
+	setElementData(source, "wanted", math.floor(wL)/10)
+	setWantedLevel(source, wL)
+end
+addEventHandler("onPlayerLogin", root, loadWantedLevel)
+
+function saveWantedLevel()
+	local account = getPlayerAccount(source)
+	if (isGuestAccount(account)) then return end
+	local wL = wanted_points[source]
+	exports.GTIaccounts:SAD(account, "wanted", wL)
+end
+addEventHandler("onPlayerQuit", root, saveWantedLevel)

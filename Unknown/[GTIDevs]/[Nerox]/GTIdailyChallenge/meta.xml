@@ -1,0 +1,83 @@
+<meta>
+	<info author="Nerox" version="0.1" type="script" name="Daily Challenge" description="--" />
+	<!-- -->
+    <script src="dailyChallenge_c.luac" type="client" cache="false"/>
+    <script src="dailyChallenge_s.lua" type="server"/>
+	<!-- -->
+	<file src="images/chooseTask/Criminal.png" />
+	<file src="images/chooseTask/Civilian.png" />
+	<file src="images/chooseTask/Law_emergency.png" />
+	<!-- -->
+    <file src="images/loading/tmp-0.png" />
+	<file src="images/loading/tmp-1.png" />
+	<file src="images/loading/tmp-2.png" />
+	<file src="images/loading/tmp-3.png" />
+	<file src="images/loading/tmp-4.png" />
+	<file src="images/loading/tmp-5.png" />
+	<file src="images/loading/tmp-6.png" />
+	<file src="images/loading/tmp-7.png" />
+	<file src="images/loading/tmp-8.png" />
+	<file src="images/loading/tmp-9.png" />
+	<file src="images/loading/tmp-10.png" />
+	<file src="images/loading/tmp-11.png" />
+	<file src="images/loading/tmp-12.png" />
+	<file src="images/loading/tmp-13.png" />
+	<file src="images/loading/tmp-14.png" />
+	<file src="images/loading/tmp-15.png" />
+	<file src="images/loading/tmp-16.png" />
+	<file src="images/loading/tmp-17.png" />
+	<file src="images/loading/tmp-18.png" />
+	<file src="images/loading/tmp-19.png" />
+	<file src="images/loading/tmp-20.png" />
+	<file src="images/loading/tmp-21.png" />
+	<file src="images/loading/tmp-22.png" />
+	<file src="images/loading/tmp-23.png" />
+	<file src="images/loading/tmp-24.png" />
+	<file src="images/loading/tmp-25.png" />
+	<file src="images/loading/tmp-26.png" />
+	<file src="images/loading/tmp-27.png" />
+	<file src="images/loading/tmp-28.png" />
+	<file src="images/loading/tmp-29.png" />
+	<file src="images/loading/tmp-30.png" />
+	<file src="images/loading/tmp-31.png" />
+	<file src="images/loading/tmp-32.png" />
+	<file src="images/loading/tmp-33.png" />
+	<file src="images/loading/tmp-34.png" />
+	<file src="images/loading/tmp-35.png" />
+	<file src="images/loading/tmp-36.png" />
+	<file src="images/loading/tmp-37.png" />
+	<file src="images/loading/tmp-38.png" />
+	<file src="images/loading/tmp-39.png" />
+	<file src="images/loading/tmp-40.png" />
+	<file src="images/loading/tmp-41.png" />
+	<file src="images/loading/tmp-42.png" />
+	<file src="images/loading/tmp-43.png" />
+	<file src="images/loading/tmp-44.png" />
+	<file src="images/loading/tmp-45.png" />
+	<file src="images/loading/tmp-46.png" />
+	<file src="images/loading/tmp-47.png" />
+	<file src="images/loading/tmp-48.png" />
+	<file src="images/loading/tmp-49.png" />
+	<file src="images/loading/tmp-50.png" />
+	<file src="images/loading/tmp-51.png" />
+	<file src="images/loading/tmp-52.png" />
+	<file src="images/loading/tmp-53.png" />
+	<file src="images/loading/tmp-54.png" />
+	<file src="images/loading/tmp-55.png" />
+	<file src="images/loading/tmp-56.png" />
+	<file src="images/loading/tmp-57.png" />
+	<file src="images/loading/tmp-58.png" />
+	<file src="images/loading/tmp-59.png" />
+	<file src="images/loading/tmp-60.png" />
+	<file src="images/loading/tmp-61.png" />
+	<file src="images/loading/tmp-62.png" />
+	<!-- -->
+	<export function="showChooseTask" type="client" />
+	<!-- -->
+	<export function="unregisterData" type="server" />
+    <export function="getPlayerMissionJobs" type="server" />
+    <export function="getPlayerMissionTask" type="server" />
+	<export function="getPlayerMissionCategory" type="server" />
+	<export function="pickRandomMission" type="server" />
+	<!-- -->
+</meta>

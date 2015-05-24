@@ -1,0 +1,109 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 05 Feb 2013
+-- Resource: GTIpoliceDatabase/policeData.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Police Data Exports
+----------------------->>
+
+function getRanks()
+	return policeRanks
+end
+
+function getRankFromLevel(level)
+	local lvlDistance = 50
+	local rank
+	for lvl,v in pairs(policeRanks) do
+		local dist = lvl-level
+		if ((dist > 0) and (dist < lvlDistance)) then
+			lvlDistance = dist
+			rank = v.rank
+		end
+	end
+	return rank
+end
+
+-- Player Data Exports
+----------------------->>
+
+function getLevelFromPolicePoints(exper)
+	if (type(exper) ~= "number") then return false end
+	local level = 0
+	for lvl,hours in ipairs(experience) do
+		local expMulti = experience[lvl]/experience[50]
+		local civPolicePoints = math.floor(expMulti*MAX_EXPERIENCE)
+		if (exper >= civPolicePoints) then
+			level = level + 1
+		end
+	end
+	return level or false
+end
+
+function getLevelRequirement(level)
+	if (type(level) ~= "number") then return false end
+	if (level > 50) then level = 50 end
+	if (level == 0) then return 0 end
+	local expMulti = experience[level]/experience[50]
+	return math.floor(expMulti*MAX_EXPERIENCE)
+end
+
+function getHourlyPolicePoints()
+	return HOURLY_EXP
+end
+
+function getPlayerHourlyPay(player)
+	if (not isElement(player)) then return false end
+	local level = getPlayerLevel(player)
+	level = level/10
+	if (level - math.floor(level) >= 0.5) then
+		level = (math.floor(level)+0.5)*10
+	else
+		level = math.floor(level)*10
+	end
+	
+	return levelPay[level]
+end
+
+function getPlayerLevel(player)
+	if (not isElement(player)) then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	
+	local experience = getPoliceData(account, "police_points") or 0
+	return getLevelFromPolicePoints(experience)
+end
+
+function getPlayerPolicePoints(player)
+	if (not isElement(player)) then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+
+	local civPolicePoints = getPoliceData(account, "police_points") or 0
+	return civPolicePoints
+end
+
+--local expTimer
+function modifyPlayerPolicePoints(player, experience, job)
+	if (not isElement(player) or type(experience) ~= "number") then return false end
+	local account = getPlayerAccount(player)
+	if (isGuestAccount(account)) then return false end
+	--[[	-- Anti-Cheat
+	local serial = getPlayerSerial(player)
+	if (not expPoints[serial]) then expPoints[serial] = 0 end
+	expPoints[serial] = expPoints[serial] + experience
+	if (isPolicePointserienceAntiCheatEnabled(player)) then 
+		outputChatBox("Anti-Cheat Triggered: You've gained a lot of experience points in this hour.", player, 255, 0, 0)
+		local timeLeft = getTimerDetails(expTimer)
+		local M = math.floor(timeLeft/60000)
+		outputChatBox("You will not gain any more experience points or job progress for the next "..M.." minutes.", player, 255, 0, 0)
+		return false 
+	end
+	--]]
+	
+	local PolicePoints = getPoliceData(account, "police_points") or 0
+	setPoliceData(account, "police_points", PolicePoints+experience)
+	return true
+end

@@ -1,0 +1,58 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 03 Dec 2013
+-- Resource: GTIjobs/JobsTable.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+-- Job Information
+------------------->>
+
+JobInfo = {
+--Civilian Job(s)
+["Farmer"] = {team="Civilians", skins={{158,"Old Farmer"},{159,"Hillbilly"},{160,"Bearded Farmer"},{161,"Male Farmer"},{157,"Female Farmer"},{162,"Shirtless Farmer"}},
+	desc="Farmers farm buy seeds. once they buy seeds, they wait for a period of time before those seeds turn into plants. They then farm them and in return, earn a decent amount amount of money."},
+["Fisherman"] = {team="Civilians", skins={{35,"Fisherman"}},
+	desc="NOTE: This job requires a Reefer\n\n\n Fisherman must go out to sea and catch fish. The better fish caught, the better the pay once selling your net of fish. Certain fish will be heavier and will cause you to have your net fill up quicker."},
+["Mail Carrier"] = {team="Civilians", skins={{36,"Mailman"}},
+	desc="Mail Carriers deliver mail and packages to homes and businesses within the city."},
+["Mechanic"] = {team="Civilians", skins={{50,"Mechanic"},{268,"Dwaine"},{305,"Jethro"}},
+	desc="The role of a mechanic is to repair people's vehicles. Mechanics can also tow broken down or abandoned cars and return them to the shop."},
+["Pilot"] = {team="Civilians", skins={{61,"Pilot"}},
+	desc="Pilots fly passengers and cargo via airplanes and helicopters between airports and other locations around San Andreas."},
+--Emergency Job(s)
+["Paramedic"] = {team="Emergency Services", skins={{274,"Medic 1"},{275,"Medic 2"},{276,"Medic 3"}},
+	desc="Medics travel around San Andreas or within each city, and have the role of healing players who are low on health."},
+}
+
+function getJobsTable()
+	return JobInfo
+end
+
+-- Job Locations
+----------------->>
+
+JobLoc = {
+-- Civilian Job(s)
+{job="Farmer", mLoc={-1060.479, -1203.0179, 128.218}, mCol={255, 200, 0}, blipLoc={-1060.479, -1203.0179}, blipID=56},
+-- SF
+--{job="Fisherman", mLoc={-1448.148, 702.958, 0.549}, mCol={255, 200, 0}, blipLoc={-1448.148, 702.958}, blipID=56},
+{job="Mail Carrier", mLoc={-1839.994, 88.729, 14.117}, mCol={255, 200, 0}, blipLoc={-1839.994, 88.729}, blipID=56},
+{job="Mechanic", mLoc={-1916.530, 253.879, 40.047}, mCol={255, 200, 0}, blipLoc={-1916.530, 253.879}, blipID=56},
+{job="Pilot", mLoc={-1868.649, 46.169, 1054.184, 14, 145}, mCol={255, 200, 0}, blipLoc={-1243.052, 20.612}, blipID=56},
+-- LS
+{job="Mechanic", mLoc={1036.295, -1025.5, 31.101}, mCol={255, 200, 0}, blipLoc={1036.295, -1025.5}, blipID=56},
+-- Emergency Job(s)
+-- LS
+{job="Paramedic", mLoc={1165.444, -1326.340, 14.385}, mCol={0, 255, 255}, blipLoc={1165.444, -1326.340}, blipID=56}, --All Saints General Hospital
+{job="Paramedic", mLoc={2040.703, -1411.129, 16.164}, mCol={0, 255, 255}, blipLoc={2040.703, -1411.129}, blipID=56}, --County General Medical Center
+--SF
+{job="Paramedic", mLoc={-2659.377, 614.185, 13.453}, mCol={0, 255, 255}, blipLoc={-2659.377, 614.185}, blipID=56},
+-- LV
+{job="Paramedic", mLoc={1616.495, 1821.177, 9.828}, mCol={0, 255, 255}, blipLoc={1607.375, 1818.071}, blipID=56},
+}
+
+function getJobsLocationTable()
+	return JobLoc
+end

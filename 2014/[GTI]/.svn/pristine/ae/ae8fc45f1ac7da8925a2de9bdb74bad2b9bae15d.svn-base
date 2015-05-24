@@ -1,0 +1,46 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 19 Dec 2013
+-- Resource: GTIpromotions/panel.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+function callPanelInfo()
+	local ranks = {}
+	ranks["job"] = exports.GTIjobs:getPlayerJob(client)
+	local Ranks = exports.GTIpromoTable:getRanks()
+	if (not Ranks[ranks["job"]]) then return end
+	-- Current Job
+	ranks["level"] = getPlayerJobLevel(client, ranks["job"])
+	ranks["rank"] = getJobRankFromLevel(ranks["job"], ranks["level"])
+	ranks["prog"] = getPlayerJobProgress(client, ranks["job"])
+	ranks["req"] = getJobLevelRequirement(ranks["job"], ranks["level"]+1)
+	ranks["unit"] = getJobUnitName(ranks["job"])
+	ranks["jobexp"] = getPlayerCivilianExp(client, ranks["job"])
+	ranks["money"] = getPlayerJobMoney(client, ranks["job"]) 
+	ranks["desc"] = exports.GTIjobs:getJobDataTable(ranks["job"]).desc
+	ranks["ranks"] = getJobRanks(ranks["job"])
+	ranks["payMeth"] = getPaymentMethod(client, ranks["job"])
+	-- All Jobs
+	ranks["civlvl"] = getPlayerCivilianLevel(client)
+	ranks["civexp"] = getPlayerCivilianExp(client)
+	ranks["lvlxpcur"] = getCivilianLevelRequirement(ranks["civlvl"])
+	ranks["lvlxpnxt"] = getCivilianLevelRequirement(ranks["civlvl"]+1)
+	ranks["jobList"] = {}
+	for job,_ in pairs(Ranks) do
+		table.insert(ranks["jobList"],job)
+	end
+	
+	triggerClientEvent(client, "GTIpromotions.showPanel", client, ranks)
+end
+addEvent("GTIpromotions.callPanelInfo", true)
+addEventHandler("GTIpromotions.callPanelInfo", root, callPanelInfo)
+
+function updatePaymentMethod(method)
+	local job = exports.GTIjobs:getPlayerJob(client)
+	local account = getPlayerAccount(client)
+	SJD(account, "paymethod_"..string.lower(string.gsub(job," ","")), method)
+end
+addEvent("GTIpromotions.updatePaymentMethod", true)
+addEventHandler("GTIpromotions.updatePaymentMethod", root, updatePaymentMethod)

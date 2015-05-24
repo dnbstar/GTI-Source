@@ -1,0 +1,219 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 15 May 2014
+-- Resource: GTIprison/prison.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local prison_spawns = {
+	{202.1, 1400.7, 239.3, 0},
+	{191.7, 1400.1, 239.3, 0},
+	{180.9, 1399.3, 239.3, 0},
+}
+
+local prison_release = {
+	{262.017, 1419.163, 9.492, 270},
+	{264.511, 1405.734, 9.490, 270},
+	{267.243, 1416.685, 9.472, 270},
+}
+
+local pd_release = {
+	{{1550.471, -1675.513, 14.422, 90},	{1472.078, -1637.932, 70.170, 1475.546, -1639.388, 68.303},	{"Los Santos"}},
+	{{631.721, -571.702, 15.336, 270}, 	{651.165, -586.146, 27.557, 648.161, -584.348, 26.717},		{"Red County"}},
+	{{-1604.202, 716.506, 10.741, 0}, 	{-1527.722, 749.673, 45.191, -1531.930, 746.944, 43.819},	{"San Fierro", "Flint County", "Whetstone"}},
+	{{-1399.782, 2642.511, 54.688, 90},	{-1410.126, 2628.198, 60.603, -1407.004, 2629.802, 59.799},	{"Tierra Robada"}},
+	{{-212.968, 978.736, 18.329, 90},	{-195.096, 990.852, 24.542, -197.491, 989.966, 24.055},		{"Bone County"}},
+	{{2336.010, 2454.660, 13.969, 135},	{2349.649, 2380.522, 41.010, 2340.772, 2394.750, 37.170},	{"Las Venturas"}},
+}
+
+local PRISON_INT = 0	-- Prison Interior
+local PRISON_DIM = 169	-- Prison Dimension
+local RELEASE_INT = 0	-- Release Interior
+local RELEASE_DIM = 0	-- Release Dimension
+local MAX_SENTENCE = 3600	-- Max Jail Time
+
+local sentences = {}	-- Table of Jail Sentences by Player
+
+addEvent("onPlayerJailed", true)
+
+-- Jail Player
+--------------->>
+
+function jailPlayer(player, sentence, jailer, adminJail)
+	if (not isElement(player) or type(sentence) ~= "number") then return false end
+	if (not exports.GTIutil:isPlayerLoggedIn(player)) then return end
+	setTimer(function(player)
+		exports.GTIemployment:resign(player, true)
+	end, 50, 1, player)
+		-- Confiscate Weapons
+	local jail_time = exports.GTIaccounts:GAD(getPlayerAccount(player), "jail_time") or 0
+	if (jail_time == 0) then
+		exports.GTIweapons:saveWeapons(player)
+	end
+	
+		-- Warp Ped Into Jail
+	if (isPedInVehicle(player)) then
+		removePedFromVehicle(player)
+	end
+	
+	local loc = math.random(#prison_spawns)
+	local pos = prison_spawns[loc]
+	if (isPedDead(player)) then
+		local skin = getElementModel(player)
+		local team = getPlayerTeam(player)
+		spawnPlayer(player, pos[1], pos[2], pos[3], pos[4], skin, PRISON_INT, PRISON_DIM, team)
+	else
+		setElementPosition(player, pos[1], pos[2], pos[3])
+		setElementRotation(player, 0, 0, pos[4])
+		setElementInterior(player, PRISON_INT)
+		setElementDimension(player, PRISON_DIM)
+	end
+		-- Clear Wanted Level
+	exports.GTIpoliceWanted:clearPlayerWantedLevel(player)
+		-- Prevent Entering Vehicles
+	toggleControl(player, "enter_exit", false)
+		-- Begin Sentence
+	--if (sentence > getMaxSentence()) then sentence = getMaxSentence() end
+	sentences[player] = sentence
+	if (not adminJail) then
+		if (isElement(jailer)) then
+			exports.GTIhud:dm("You have been sentenced to "..sentence.." seconds in prison. (Jailed by "..getPlayerName(jailer)..")", player, 30, 150, 255)
+		else
+			exports.GTIhud:dm("You have been sentenced to "..sentence.." seconds in prison.", player, 30, 150, 255)
+		end
+	end
+	
+	triggerEvent("onPlayerJailed", player, sentence, jailer)
+	return true
+end
+
+-- Release Player
+------------------>>
+
+function releasePlayer(player, x, y, z, rot, int, dim)
+	if (not isElement(player)) then return false end
+	if (not exports.GTIutil:isPlayerLoggedIn(player)) then return end
+	exports.GTIemployment:resign(player, true)
+		-- Return Weapons
+	exports.GTIweapons:loadWeapons(player)
+		-- Unregister Player
+	sentences[player] = nil
+	
+		-- Release Player
+	if (x and y and z) then
+		setElementPosition(player, x, y, z+.3)
+	end
+	setElementRotation(player, 0, 0, rot or 0)
+	setElementInterior(player, int or 0)
+	setElementDimension(player, dim or 0)
+	toggleControl(player, "enter_exit", true)
+	exports.GTIaccounts:SAD(getPlayerAccount(player), "jail_time", 0)
+	
+	exports.GTIhud:drawStat("sentence", nil, nil, player)
+	exports.GTIhud:dm("You have been released from prison.", player, 255, 255, 255)
+	exports.GTIutil:setPlayerGhost(player,true)
+	setTimer(function(player) exports.GTIutil:setPlayerGhost(player,false) end, 3000, 1, player)
+	return true
+end
+
+function releasePlayer2(player)
+	local loc = math.random(#prison_release)
+	local pos = prison_release[loc]
+	releasePlayer(player,  pos[1], pos[2], pos[3], pos[4], RELEASE_INT, RELEASE_DIM)
+	return true
+end
+
+-- Is Jailed?
+-------------->>
+
+function isPlayerInJail(player)
+	if (sentences[player]) then 
+		return true 
+	else
+		return false
+	end
+end
+
+-- Get Remaining Time
+---------------------->>
+
+function getRemainingJailTime(player)
+	if (not sentences[player]) then return false end
+	return sentences[player]
+end
+
+-- Release on Stop
+------------------->>
+
+addEventHandler("onResourceStop", resourceRoot, function()
+	for i,player in ipairs(getElementsByType("player")) do
+		if (isPlayerInJail(player)) then
+			releasePlayer2(player)
+		end
+	end
+end)
+
+-- Save/Load Sentences
+----------------------->>
+
+function saveJailSentence()
+	if (not exports.GTIutil:isPlayerLoggedIn(source)) then return end
+	
+	local sentence = getRemainingJailTime(source)
+	local account = getPlayerAccount(source)
+	if (sentence) then 
+		exports.GTIaccounts:SAD(account, "jail_time", sentence)
+	end
+end
+addEventHandler("onPlayerQuit", root, saveJailSentence)
+
+function rejailOnSpawn()
+	if (isPlayerInJail(source)) then return end
+	local account = getPlayerAccount(source)
+	if (isGuestAccount(account)) then return end
+	local jail_time = exports.GTIaccounts:GAD(account, "jail_time") or 0
+	
+	if (jail_time > 0) then
+		jailPlayer(source, jail_time)
+	end
+end
+addEventHandler("onPlayerSpawn", root, rejailOnSpawn)
+
+-- Check Jail Sentence
+----------------------->>
+
+setTimer(function()
+	for player,sentence in pairs(sentences) do
+		if (isElement(player)) then
+			if (sentence > 0) then
+				sentences[player] = sentences[player] - 1
+				local sec = sentences[player]
+				local min = string.format("%02d", math.floor(sec/60) % 60 )
+				local hr = math.floor(sec/3600)
+				sec = string.format("%02d", sec % 60)
+				exports.GTIhud:drawStat("sentence", "Time Remaining", (hr > 0 and string.format("%02d", hr)..":" or "")..min..":"..sec, player, 255, 255, 255)
+			else
+				releasePlayer2(player)
+			end
+		else
+			sentences[player] = nil
+		end
+	end
+end, 1000, 0)
+
+function getMaxSentence()
+	return MAX_SENTENCE
+end
+
+-- Anti-Escape
+--------------->>
+
+local no_escape = createColCuboid(111.721, 1350.865, 18.347, 210.950-111.721, 1472.340-1350.865, 2)
+
+function blockEscaping(player, dim)
+	if (not isElement(player) or getElementType(player) ~= "player") then return end
+	if (not isPlayerInJail(player)) then return end
+	setElementPosition(player, 200.551, 1410.832, 10.586)
+end
+addEventHandler("onColShapeHit", no_escape, blockEscaping)

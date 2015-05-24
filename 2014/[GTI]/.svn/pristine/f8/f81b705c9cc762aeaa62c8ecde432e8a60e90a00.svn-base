@@ -1,0 +1,135 @@
+----------------------------------------->>
+-- GTI: Grand Theft International
+-- Date: 07 Mar 2014
+-- Resource: GTIgroups/members.slua
+-- Type: Server Side
+-- Author: JT Pennington (JTPenn)
+----------------------------------------->>
+
+local invites = {}
+
+-- Group Membership
+-------------------->>
+
+function addMember(groupID, member, rank)
+		-- Is Group Valid?
+	local isGroup = getGroupData(groupID, "display_name")
+	if (not isGroup) then return false end
+		-- Add Member
+	local account = getPlayerAccount(member)
+	setGroupMemberData(account, "id_group", groupID)
+		-- Set Rank
+	setGroupMemberData(account, "id_rank", rank)
+		-- Associate MembersByGroup[groupID] = {"accountName", ...}
+	if (type(MembersByGroup[groupID]) ~= "table") then MembersByGroup[groupID] = {} end
+	local account = getAccountName(account)
+	table.insert(MembersByGroup[groupID], account)
+		-- Set Element Data
+	setElementData(memeber, "group", getGroupName(groupID))
+	return true
+end
+
+function deleteMember(member)
+	if (not member or not isElement(member) or getElementType(member) ~= "player") then return false end
+	
+	local account = getPlayerAccount(member)
+	dropGroupMemberData(account)
+	return true
+end
+
+-- Get Members
+--------------->>
+
+function getGroupMembers(groupID)
+	return MembersByGroup[groupID] or {}
+end
+
+-- Get Member Data
+------------------->>
+
+function getPlayerGroupWarningLevel(player)
+	if (not player or not isElement(player) or getElementType(player) ~= "player") then return false end
+	local account = getPlayerAccount(player)
+	return getGroupMemberData(account, "warn_level") or 0
+end
+
+-- Group-Member Relations
+-------------------------->>
+
+function getPlayerGroup(player, name)
+	if (not player or not isElement(player) or getElementType(player) ~= "player") then return false end
+	local account = getPlayerAccount(player)
+	local groupID = getGroupMemberData(account, "id_group")
+	if (name) then
+		return getGroupData(groupID, "display_name")
+	end
+	return groupID
+end
+
+function isPlayerInGroup(player)
+	if (not player or not isElement(player) or getElementType(player) ~= "player") then return false end
+	local account = getPlayerAccount(player)
+	local groupID = getGroupMemberData(account, "id_group")
+	if (groupID) then return true end
+	return false
+end
+
+-- Group Chat
+-------------->>
+
+function outputGroupChat(text, groupID)
+	local members = getGroupMembers(groupID)
+	if (members) then return end
+	for i,member in ipairs(members) do
+		local member = getAccountPlayer(getAccount(member))
+		if (member) then
+			outputChatBox(text, member, 255, 100, 100)
+		end
+	end
+	return true
+end
+
+-- Group Invites
+----------------->>
+
+function invitePlayerToGroup(player, groupID)
+	if (not player or not isElement(player) or getElementType(player) ~= "player") then return false end
+	if (not invites[player]) then invites[player] = {} end
+	
+	invites[player][groupID] = true
+	return true
+end
+
+function getGroupInvites(player)
+	return invites[player] or {}
+end
+
+function clearGroupInvite(player, groupID)
+	if (not invites[player]) then return false end
+	invites[player][groupID] = nil
+	return true
+end
+
+function clearAllInvites(player)
+	invites[player] = nil
+	return true
+end
+
+-- Set Group Data on Join
+-------------------------->>
+
+function setGroupOnJoin()
+	local groupName = getPlayerGroup(source, true)
+	if (not groupName) then return end
+	setElementData(source, "group", groupName)
+end
+addEventHandler("onPlayerLogin", root, setGroupOnJoin)
+
+function setGroupOnStart()
+	for i,player in ipairs(getElementsByType("player")) do
+		local groupName = getPlayerGroup(player, true)
+		if (groupName) then
+			setElementData(player, "group", groupName)
+		end
+	end
+end

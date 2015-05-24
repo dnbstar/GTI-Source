@@ -1,0 +1,11 @@
+<meta>
+	<info author="LilDolla" version="1.0" name="GTI Resource and ACL Manager" description="ACL and Resource Management" type="script" />
+	<script src="client/management-gui_c.luac" type="client" />
+	<script src="client/management_c.luac" type="client" />
+	<script src="server/management_s.lua" type="server" />
+
+	<script src="client/resources_c.luac" type="client" />
+	<script src="server/resources_s.lua" type="server" />
+
+	<script src="client/popup-gui_c.luac" type="client" />
+</meta>
